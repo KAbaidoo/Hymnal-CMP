@@ -6,20 +6,20 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import hymnal_cmp.composeapp.generated.resources.Onest_VariableFont_wght
-import hymnal_cmp.composeapp.generated.resources.PlayfairDisplay_VariableFont_wght
 import hymnal_cmp.composeapp.generated.resources.Res
+import hymnal_cmp.composeapp.generated.resources.onest_variable_font_wght
+import hymnal_cmp.composeapp.generated.resources.play_fair_display_variable_font_wght
 import org.jetbrains.compose.resources.Font
 
 
 @Composable
 fun AppTypography(): Typography{
-    val playFairDisplay = FontFamily(Font(Res.font.PlayfairDisplay_VariableFont_wght))
+    val playFairDisplay = FontFamily(Font(Res.font.play_fair_display_variable_font_wght))
 
-    val onest = FontFamily(Font(Res.font.Onest_VariableFont_wght))
+    val onest = FontFamily(Font(Res.font.onest_variable_font_wght))
 
     return Typography(
-        displayLarge =TextStyle(
+        displayMedium =TextStyle(
             fontFamily = playFairDisplay,
             fontWeight = FontWeight.SemiBold,
             fontSize = 48.sp
@@ -32,17 +32,23 @@ fun AppTypography(): Typography{
         headlineMedium =  TextStyle(
             fontFamily = playFairDisplay,
             fontWeight = FontWeight.SemiBold,
-            fontSize = 18.sp
+            fontSize = 20.sp
+        ),
+        headlineSmall =  TextStyle(
+            fontFamily = playFairDisplay,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 16.sp
         ),
         bodyLarge = TextStyle(
             fontFamily = onest,
-            fontWeight = FontWeight.Normal,
+            fontWeight = FontWeight.SemiBold,
             fontSize = 16.sp
         ),
         bodyMedium = TextStyle(
             fontFamily = onest,
             fontWeight = FontWeight.Normal,
-            fontSize = 14.sp
+            lineHeight = 36.sp,
+            fontSize = 16.sp
         ),
         bodySmall = TextStyle(
             fontFamily = onest,

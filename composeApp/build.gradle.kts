@@ -29,7 +29,7 @@ kotlin {
     }
     
     sourceSets {
-        
+
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
@@ -43,6 +43,10 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
+            implementation(libs.voyager.navigator)
+            implementation(libs.voyager.transitions)
+            implementation(libs.multiplatform.settings)
+            implementation(libs.multiplatform.settings.noargs)
         }
     }
 }
@@ -75,6 +79,8 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.ui.tooling.preview.android)
+    implementation(libs.androidx.appcompat)
     debugImplementation(compose.uiTooling)
     implementation(kotlin("script-runtime"))
 }

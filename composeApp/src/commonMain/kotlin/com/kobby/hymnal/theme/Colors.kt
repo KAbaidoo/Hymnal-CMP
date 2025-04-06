@@ -4,11 +4,11 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
 // Light Theme Colors
-val PurplePrimary = Color(0xFF4A4A4A)
-val YellowAccent = Color(0xFFB0B0B0)
+val PurplePrimary = Color(0xFF271E3E)
+val YellowAccent = Color(0xFFF7EA2F)
 val LightBackground = Color(0xFFF8F7F3)
 val LightSurface = Color(0xFFFFFFFF)
-val LightTextColor = Color(0xFF1A1429)
+val LightTextColor = Color(0xFF0E121B)
 
 // Dark Theme Colors
 val DarkBackground = Color(0xFF1A1429)

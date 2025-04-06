@@ -1,37 +1,42 @@
 package com.kobby.hymnal
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import org.jetbrains.compose.resources.painterResource
+import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.transitions.SlideTransition
+import com.kobby.hymnal.main.MainScreen
+import com.kobby.hymnal.start.StartScreen
+import com.kobby.hymnal.theme.HymnalAppTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
-
-import hymnal_cmp.composeapp.generated.resources.Res
-import hymnal_cmp.composeapp.generated.resources.compose_multiplatform
 
 @Composable
 @Preview
-fun App() {
-    MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
-        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
+fun HymnalApp() {
+
+    val useCase = remember { ShowOnboarding.INSTANCE }
+    val showOnboarding by useCase.execute().collectAsState(initial = false)
+
+
+        HymnalAppTheme  {
+//            val statusBarValues = WindowInsets.safeDrawing.asPaddingValues()
+            if (showOnboarding) {
+                Navigator(StartScreen()) { navigator ->
+                    SlideTransition(navigator)
+                }
+            } else {
+                Navigator(MainScreen()) { navigator ->
+                    SlideTransition(navigator)
                 }
             }
+//            Column(modifier = Modifier.fillMaxWidth().padding(top = statusBarValues.calculateTopPadding())) {
+//
+//            }
+
         }
-    }
 }
