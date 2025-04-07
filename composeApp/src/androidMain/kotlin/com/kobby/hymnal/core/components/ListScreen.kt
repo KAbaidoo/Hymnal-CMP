@@ -1,4 +1,4 @@
-package com.kobby.hymnal.components
+package com.kobby.hymnal.core.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,8 +9,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.kobby.hymnal.core.components.ContentScreen
-import com.kobby.hymnal.core.components.SearchTextField
 
 
 @Composable

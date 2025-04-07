@@ -1,4 +1,4 @@
-package com.kobby.hymnal.components
+package com.kobby.hymnal.core.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
