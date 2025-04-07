@@ -1,4 +1,4 @@
-package com.kobby.hymnal.components
+package com.kobby.hymnal.core.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -18,7 +18,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.kobby.hymnal.R
-import com.kobby.hymnal.core.components.ContentScreen
 
 @Composable
 fun DetailScreen(
