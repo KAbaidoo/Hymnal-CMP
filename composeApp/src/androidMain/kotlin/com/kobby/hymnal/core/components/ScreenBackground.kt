@@ -9,13 +9,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.kobby.hymnal.all_hymns.AllHymnsScreenContent
+import com.kobby.hymnal.theme.HymnalAppTheme
 import hymnal_cmp.composeapp.generated.resources.Res
 import hymnal_cmp.composeapp.generated.resources.book_leaf
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
-fun ScreenBackground(modifier: Modifier, content: @Composable () -> Unit){
+fun ScreenBackground(modifier: Modifier = Modifier, content: @Composable () -> Unit){
     Box(
         modifier = modifier
             .background(MaterialTheme.colorScheme.primary)
@@ -30,5 +33,14 @@ fun ScreenBackground(modifier: Modifier, content: @Composable () -> Unit){
         )
 
         content()
+    }
+}
+@Preview
+@Composable
+fun ScreenBackgroundPreview() {
+    HymnalAppTheme {
+        ScreenBackground(content = {
+
+        })
     }
 }
