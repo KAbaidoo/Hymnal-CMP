@@ -12,8 +12,8 @@ val LightTextColor = Color(0xFF0E121B)
 
 // Dark Theme Colors
 val DarkBackground = Color(0xFF1A1429)
-val DarkSurface = Color(0xFF1A1429)
-val DarkTextColor = Color(0xFFFFFFF)
+val DarkSurface = Color(0xFF271E3E)
+val DarkTextColor = Color(0xFFFFFFFF)
 
 internal val LightColorScheme = lightColorScheme(
     primary = PurplePrimary,
