@@ -1,5 +1,6 @@
 package com.kobby.hymnal.core.components
 
+import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -125,7 +126,7 @@ fun ContentScreen(
     }
 
 }
-@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun ContentPreview() {
     HymnalAppTheme {
@@ -140,13 +141,7 @@ fun ContentPreview() {
                     .padding(innerPadding)) {
 
                     items(items) {
-                        Text(
-                            text = "Item",
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier
-                                .height(48.dp)
-                                .fillMaxWidth()
-                        )
+                        ListItem(title = "Item")
                     }
                 }
             },
