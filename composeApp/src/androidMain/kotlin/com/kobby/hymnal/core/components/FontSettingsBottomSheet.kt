@@ -192,5 +192,16 @@ fun FontSettingsBottomSheetPreview() {
                 onFontChange = { }
             )
     }
+}
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Composable
+fun FontSettingsBottomSheetLightPreview() {
+    HymnalAppTheme {
+        FontSettingsBottomSheet(
+            onDismiss = { },
+            onFontSizeChange = { },
+            onFontChange = { }
+        )
+    }
 }

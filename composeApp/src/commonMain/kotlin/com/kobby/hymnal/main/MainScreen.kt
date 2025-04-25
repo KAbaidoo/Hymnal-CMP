@@ -67,11 +67,12 @@ class MainScreen: Screen {
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
 
-//        MainScreenContent(
-//            onBackClicked = {
-////                navigator.push(RecentSearchesScreen())
-//            }
-//        )
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center){
+            Text(
+                text = "Main screen",
+                style = MaterialTheme.typography.titleLarge,
+            )
+        }
     }
 }
 /*
