@@ -26,6 +26,7 @@ kotlin {
             baseName = "ComposeApp"
             isStatic = true
         }
+
     }
     
     sourceSets {
@@ -34,6 +35,9 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.core.splashscreen)
+            implementation(project.dependencies.platform(libs.firebase.bom))
+            implementation(libs.firebase.common)
+            implementation(libs.firebase.analytics)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -50,6 +54,8 @@ kotlin {
             implementation(libs.multiplatform.settings.noargs)
         }
     }
+
+
 }
 
 android {

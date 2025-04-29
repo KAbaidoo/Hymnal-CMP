@@ -18,6 +18,9 @@ junit = "4.13.2"
 kotlin = "2.1.0"
 multiplatform-settings = "1.1.1"
 uiToolingPreviewAndroid = "1.7.8"
+google-services = "4.4.2"
+firebase-bom = "33.13.0"
+kolinx-coroutines = "1.10.2"
 
 [libraries]
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
@@ -38,6 +41,10 @@ voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", vers
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatform-settings" }
 multiplatform-settings-noargs = { module = "com.russhwolf:multiplatform-settings-no-arg", version.ref = "multiplatform-settings" }
 androidx-ui-tooling-preview-android = { group = "androidx.compose.ui", name = "ui-tooling-preview-android", version.ref = "uiToolingPreviewAndroid" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
+firebase-common = { module = "com.google.firebase:firebase-common-ktx" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+kotlinx-coroutines = {group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kolinx-coroutines"}
 
 
 [plugins]
@@ -46,3 +53,4 @@ androidLibrary = { id = "com.android.library", version.ref = "agp" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+googleServices = { id = "com.google.gms.google-services", version.ref = "google-services" }

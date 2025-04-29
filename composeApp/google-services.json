@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "459035147795",
+    "project_id": "hymnal-cmp",
+    "storage_bucket": "hymnal-cmp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:459035147795:android:6316136bebc57d9c2309e6",
+        "android_client_info": {
+          "package_name": "com.kobby.hymnal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAunM6Kh8RXNj0lz7npUZ1Y5nWRWun8by4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

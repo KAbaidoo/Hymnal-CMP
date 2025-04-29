@@ -10,6 +10,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
+import com.google.firebase.Firebase
+import com.google.firebase.initialize
 import com.kobby.hymnal.core.components.ContentScreen
 
 class MainActivity : ComponentActivity() {
@@ -17,6 +19,8 @@ class MainActivity : ComponentActivity() {
         window.statusBarColor = Color.Black.toArgb()
         WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = false
         super.onCreate(savedInstanceState)
+
+        Firebase.initialize(this)
 
         installSplashScreen()
         setContent {
