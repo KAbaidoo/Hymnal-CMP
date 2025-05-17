@@ -17,7 +17,7 @@ import com.kobby.hymnal.core.components.ContentScreen
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         window.statusBarColor = Color.Black.toArgb()
-        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = false
+//        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = false
         super.onCreate(savedInstanceState)
 
         Firebase.initialize(this)

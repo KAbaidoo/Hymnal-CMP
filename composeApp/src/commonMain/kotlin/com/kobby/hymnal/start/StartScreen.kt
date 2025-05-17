@@ -54,7 +54,6 @@ class StartScreen : Screen {
                 style = MaterialTheme.typography.titleLarge,
             )
         }
-//
 //        StartScreenContent(
 //            onStartButtonClicked = {
 //                settings.putBoolean("onboarding", false)

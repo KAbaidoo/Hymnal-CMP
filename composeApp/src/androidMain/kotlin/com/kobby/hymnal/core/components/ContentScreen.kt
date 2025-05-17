@@ -13,9 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,10 +30,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.lerp
 import com.kobby.hymnal.R
 import com.kobby.hymnal.theme.HymnalAppTheme
 
@@ -51,7 +50,7 @@ fun ContentScreen(
 ) {
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-    val topAppBarElementColor = MaterialTheme.colorScheme.secondary
+//    val topAppBarElementColor = MaterialTheme.colorScheme.secondary
     val isCollapsed = remember { derivedStateOf { scrollBehavior.state.collapsedFraction > 0.5 } }
 
     val titleText = if (isCollapsed.value) {
@@ -66,46 +65,69 @@ fun ContentScreen(
     } else {
         MaterialTheme.typography.headlineSmall
     }
-    Box {
 
+//        val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+        val topAppBarElementColor = MaterialTheme.colorScheme.secondary
+// Define the expanded and collapsed height of the TopAppBar
+        val expandedHeight = 152.dp // Default expanded height for LargeTopAppBar
+        val collapsedHeight = 64.dp // Default collapsed height for LargeTopAppBar
+
+        // Calculate the current height based on the collapsedFraction
+        val currentHeight = with(LocalDensity.current) {
+            lerp(
+                expandedHeight.toPx(),
+                collapsedHeight.toPx(),
+                scrollBehavior.state.collapsedFraction
+            ).toDp()
+        }
         Scaffold(
             topBar = {
-
-                LargeTopAppBar(
-                    title = {
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
-                            Text(titleText, style = titleStyle)
-                            if (actionButtons != null && !isCollapsed.value) {
-                               actionButtons()
-                           }
-                        }
-                            },
-                    navigationIcon = {
-                        IconButton(onClick = { /* TODO */ }) {
-                            Icon(
-                                modifier = Modifier.size(30.dp),
-                                imageVector = ImageVector.vectorResource(R.drawable.arrow_left_s_line),
-                                contentDescription = "Search",
-                            )
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = { /* TODO */ }) {
-                            Icon(
-                                modifier = Modifier.size(30.dp),
-                                imageVector = ImageVector.vectorResource(R.drawable.home_3_line),
-                                contentDescription = "Search"
-                            )
-                        }},
-                    colors = TopAppBarDefaults.largeTopAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        scrolledContainerColor = MaterialTheme.colorScheme.primary,
-                        navigationIconContentColor = topAppBarElementColor,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                        actionIconContentColor= topAppBarElementColor,
-                    ),
-                    scrollBehavior = scrollBehavior
+Box {
+    LargeTopAppBar(
+        title = {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
+                Text(titleText, style = titleStyle)
+                if (actionButtons != null && !isCollapsed.value) {
+                    actionButtons()
+                }
+            }
+        },
+        navigationIcon = {
+            IconButton(onClick = { /* TODO */ }) {
+                Icon(
+                    modifier = Modifier.size(30.dp),
+                    imageVector = ImageVector.vectorResource(R.drawable.arrow_left_s_line),
+                    contentDescription = "Search",
                 )
+            }
+        },
+        actions = {
+            IconButton(onClick = { /* TODO */ }) {
+                Icon(
+                    modifier = Modifier.size(30.dp),
+                    imageVector = ImageVector.vectorResource(R.drawable.home_3_line),
+                    contentDescription = "Search"
+                )
+            }},
+        colors = TopAppBarDefaults.largeTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            scrolledContainerColor = MaterialTheme.colorScheme.primary,
+            navigationIconContentColor = topAppBarElementColor,
+            titleContentColor = MaterialTheme.colorScheme.onPrimary,
+            actionIconContentColor= topAppBarElementColor,
+        ),
+        scrollBehavior = scrollBehavior
+    )
+    Image(
+        modifier = Modifier
+            .align(Alignment.TopEnd)
+            .height(currentHeight),
+        painter = painterResource(R.drawable.book_leaf),
+        contentDescription = null,
+        contentScale = ContentScale.Crop
+    )
+}
+
 
             },
             bottomBar = bottomBar
@@ -115,15 +137,8 @@ fun ContentScreen(
         ) { innerPadding ->
             content(innerPadding)
         }
-        Image(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .size(250.dp),
-            painter = painterResource(R.drawable.book_leaf),
-            contentDescription = null,
-            contentScale = ContentScale.Crop
-        )
-    }
+
+
 
 }
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
@@ -141,7 +156,7 @@ fun ContentPreview() {
                     .padding(innerPadding)) {
 
                     items(items) {
-                        ListItem(title = "Item")
+                        ListItem(title = it)
                     }
                 }
             },

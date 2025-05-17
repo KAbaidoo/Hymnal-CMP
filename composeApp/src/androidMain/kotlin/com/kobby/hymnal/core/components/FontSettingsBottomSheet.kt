@@ -134,7 +134,7 @@ fun FontSettingsBottomSheet(
                 colors = TextFieldDefaults.colors(unfocusedContainerColor = containerColor, unfocusedIndicatorColor = Color.Transparent), shape = shape,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .menuAnchor()
+//                    .menuAnchor()
             )
 
             // Dropdown menu content would go here

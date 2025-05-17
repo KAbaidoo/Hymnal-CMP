@@ -1,22 +1,17 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.sqldelight)
 }
 
 kotlin {
-    androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
-        }
-    }
-    
+
+    androidTarget()
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -32,12 +27,21 @@ kotlin {
     sourceSets {
 
         androidMain.dependencies {
-            implementation(compose.preview)
+
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.core.splashscreen)
+            implementation(compose.preview)
             implementation(project.dependencies.platform(libs.firebase.bom))
             implementation(libs.firebase.common)
             implementation(libs.firebase.analytics)
+            implementation(libs.sqldelight.android)
+
+
+            implementation(libs.androidx.lifecycle.viewmodel)
+            implementation(libs.androidx.lifecycle.runtime.compose)
+
+//            implementation(libs.koin.android)
+//            implementation(libs.koin.androidx.compose)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -45,22 +49,37 @@ kotlin {
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodel)
-            implementation(libs.androidx.lifecycle.runtime.compose)
+
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.transitions)
             implementation(libs.multiplatform.settings)
             implementation(libs.multiplatform.settings.noargs)
+            implementation(libs.sqldelight.coroutines)
+
+//            implementation(project.dependencies.platform(libs.koin.bom))
+//            api(libs.koin.core)
+//            implementation(libs.koin.compose)
+//            implementation(libs.koin.compose.viewmodel)
+//            implementation(libs.koin.compose.viewmodel.navigation)
+
+        }
+
+        iosMain.dependencies {
+            implementation(libs.sqldelight.ios)
         }
     }
 
+//    jvmToolchain(17)
 
 }
 
 android {
     namespace = "com.kobby.hymnal"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
+
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+    sourceSets["main"].res.srcDirs("src/androidMain/res")
+    sourceSets["main"].resources.srcDirs("src/commonMain/composeResources")
 
     defaultConfig {
         applicationId = "com.kobby.hymnal"
@@ -74,21 +93,28 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
+
 }
+
 
 dependencies {
-    implementation(libs.androidx.ui.tooling.preview.android)
-    implementation(libs.androidx.appcompat)
     debugImplementation(compose.uiTooling)
-    implementation(kotlin("script-runtime"))
 }
 
+sqldelight {
+    databases {
+        create("HymnDatabase") {
+            packageName = "com.kobby.hymnal.composeApp.database"
+        }
+    }
+}

@@ -1,5 +1,6 @@
 package com.kobby.hymnal.ancient_modern
 
+import android.content.res.Configuration
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.kobby.hymnal.core.components.DetailScreen
@@ -15,13 +16,27 @@ fun AMDetailScreenContent(){
         onFavouriteClicked =  {},
         onFontSettingsClicked = {},
         onShareClicked = {},
-        contentText= "Worem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur.\n" +
-                "Worem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.\n" +
-                "Worem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos."
+        contentText= "HYMN 207\n" +
+                "\n" +
+                "Our Blest Redeemer, ere He breathed His tender last farewell, A Guide, a Comforter, \n" +
+                "bequeathed With us to dwell. \n" +
+                "\n" +
+                "He came sweet influence to impart, A gracious willing Guest, While He can find one \n" +
+                "humble heart Wherein to rest. \n" +
+                "\n" +
+                "And His that gentle voice we hear, Soft as the breath of even, That checks each fault, that \n" +
+                "calms each fear, \n" +
+                "And speaks of Heav’n. \n" +
+                "\n" +
+                "And every virtue we possess, And every conquest won, \n" +
+                "And every thought of holiness, Are His alone. \n" +
+                "\n" +
+                "SPIRIT of purity and grace, Our weakness, pitying, see: O make our hearts Thy dwelling \n" +
+                "place, And worthier Thee."
   )
 }
 
-@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Composable
 fun AMDetailScreenContentPreview() {
     HymnalAppTheme {

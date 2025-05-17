@@ -34,7 +34,7 @@ fun SearchTextField(
     val textStyle = MaterialTheme.typography.titleMedium
 
     TextField(value = searchText, onValueChange = onTextChanged,modifier = modifier
-        .background(MaterialTheme.colorScheme.onBackground)
+        .background(MaterialTheme.colorScheme.background)
         .padding(contentPadding), placeholder = {  Text(
         text = placeholderText,
         style = textStyle,

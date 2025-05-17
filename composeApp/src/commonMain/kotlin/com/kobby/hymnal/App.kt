@@ -13,10 +13,7 @@ import cafe.adriel.voyager.transitions.SlideTransition
 import com.kobby.hymnal.main.MainScreen
 import com.kobby.hymnal.start.StartScreen
 import com.kobby.hymnal.theme.HymnalAppTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
-
 @Composable
-@Preview
 fun HymnalApp() {
 
     val useCase = remember { ShowOnboarding.INSTANCE }
@@ -25,7 +22,9 @@ fun HymnalApp() {
 
         HymnalAppTheme  {
 //            val statusBarValues = WindowInsets.safeDrawing.asPaddingValues()
-            if (showOnboarding) {
+
+//            Column(modifier = Modifier.fillMaxWidth().padding(top = statusBarValues.calculateTopPadding())) {
+       if (showOnboarding) {
                 Navigator(StartScreen()) { navigator ->
                     SlideTransition(navigator)
                 }
@@ -34,8 +33,6 @@ fun HymnalApp() {
                     SlideTransition(navigator)
                 }
             }
-//            Column(modifier = Modifier.fillMaxWidth().padding(top = statusBarValues.calculateTopPadding())) {
-//
 //            }
 
         }
