@@ -47,6 +47,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.theme.HymnalAppTheme
+import com.kobby.hymnal.test.TestHymnScreen
 import com.kobby.hymnal.theme.Shapes
 import com.russhwolf.settings.Settings
 import hymnal_cmp.composeapp.generated.resources.Res
@@ -58,7 +59,6 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 class MainScreen: Screen {
 
@@ -68,10 +68,11 @@ class MainScreen: Screen {
         val navigator = LocalNavigator.currentOrThrow
 
         Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center){
-            Text(
-                text = "Main screen",
-                style = MaterialTheme.typography.titleLarge,
-            )
+            Button(onClick = { 
+                navigator.push(TestHymnScreen())
+            }) {
+                Text("Test Hymn Database")
+            }
         }
     }
 }
