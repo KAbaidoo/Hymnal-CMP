@@ -12,7 +12,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import com.google.firebase.Firebase
 import com.google.firebase.initialize
-import com.kobby.hymnal.core.components.ContentScreen
+import com.kobby.hymnal.core.database.DatabaseInitializer
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,8 +40,8 @@ class MainActivity : ComponentActivity() {
                  else  SystemBarStyle.light(lightColor.hashCode(), lightColor.hashCode())
             )
 
-            HymnalApp()
-//            ContentScreen()
+            val databaseInitializer = DatabaseInitializer(this)
+            HymnalApp(databaseInitializer)
         }
     }
 }

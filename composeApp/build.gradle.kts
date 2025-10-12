@@ -39,10 +39,12 @@ kotlin {
 
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
-
+            implementation(compose.uiTooling)
+            implementation(libs.androidx.ui.tooling.preview.android)
 //            implementation(libs.koin.android)
 //            implementation(libs.koin.androidx.compose)
         }
+
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
@@ -62,6 +64,12 @@ kotlin {
 //            implementation(libs.koin.compose.viewmodel)
 //            implementation(libs.koin.compose.viewmodel.navigation)
 
+        }
+        
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
+            implementation("app.cash.sqldelight:sqlite-driver:2.0.1")
         }
 
         iosMain.dependencies {
@@ -99,16 +107,16 @@ android {
             isMinifyEnabled = false
         }
     }
+
+    buildFeatures {
+        compose = true
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-}
-
-
-dependencies {
-    debugImplementation(compose.uiTooling)
 }
 
 sqldelight {
