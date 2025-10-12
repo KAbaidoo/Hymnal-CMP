@@ -1,0 +1,133 @@
+-- SQLDelight schema for Anglican Hymnal app
+
+CREATE TABLE hymn (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    number INTEGER NOT NULL,
+    title TEXT,
+    category TEXT NOT NULL,
+    content TEXT NOT NULL,
+    created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
+);
+
+CREATE TABLE favorite (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    hymn_id INTEGER NOT NULL,
+    created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+    FOREIGN KEY (hymn_id) REFERENCES hymn(id),
+    UNIQUE(hymn_id)
+);
+
+CREATE TABLE history (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    hymn_id INTEGER NOT NULL,
+    accessed_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+    FOREIGN KEY (hymn_id) REFERENCES hymn(id)
+);
+
+CREATE TABLE highlight (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    hymn_id INTEGER NOT NULL,
+    start_index INTEGER NOT NULL,
+    end_index INTEGER NOT NULL,
+    created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+    FOREIGN KEY (hymn_id) REFERENCES hymn(id)
+);
+
+-- Indices for performance
+CREATE INDEX idx_hymn_category ON hymn(category);
+CREATE INDEX idx_hymn_number ON hymn(number);
+CREATE INDEX idx_favorite_hymn_id ON favorite(hymn_id);
+CREATE INDEX idx_history_hymn_id ON history(hymn_id);
+CREATE INDEX idx_history_accessed_at ON history(accessed_at DESC);
+CREATE INDEX idx_highlight_hymn_id ON highlight(hymn_id);
+
+-- Virtual table for full-text search
+CREATE VIRTUAL TABLE hymn_fts USING fts4(
+    content='hymn',
+    number,
+    title,
+    category,
+    content
+);
+
+-- Triggers to keep FTS table in sync
+CREATE TRIGGER hymn_fts_insert AFTER INSERT ON hymn BEGIN
+    INSERT INTO hymn_fts(docid, number, title, category, content) 
+    VALUES (new.id, new.number, new.title, new.category, new.content);
+END;
+
+CREATE TRIGGER hymn_fts_delete AFTER DELETE ON hymn BEGIN
+    DELETE FROM hymn_fts WHERE docid = old.id;
+END;
+
+CREATE TRIGGER hymn_fts_update AFTER UPDATE ON hymn BEGIN
+    DELETE FROM hymn_fts WHERE docid = old.id;
+    INSERT INTO hymn_fts(docid, number, title, category, content) 
+    VALUES (new.id, new.number, new.title, new.category, new.content);
+END;
+
+-- Queries for hymns
+getAllHymns:
+SELECT * FROM hymn ORDER BY category, number;
+
+getHymnsByCategory:
+SELECT * FROM hymn WHERE category = ? ORDER BY number;
+
+getHymnById:
+SELECT * FROM hymn WHERE id = ?;
+
+getHymnByNumber:
+SELECT * FROM hymn WHERE number = ? AND category = ?;
+
+searchHymns:
+SELECT hymn.* FROM hymn 
+JOIN hymn_fts ON hymn.id = hymn_fts.docid 
+WHERE hymn_fts MATCH ? 
+ORDER BY bm25(hymn_fts);
+
+insertHymn:
+INSERT INTO hymn (number, title, category, content) 
+VALUES (?, ?, ?, ?);
+
+-- Queries for favorites
+getFavoriteHymns:
+SELECT h.* FROM hymn h
+JOIN favorite f ON h.id = f.hymn_id
+ORDER BY f.created_at DESC;
+
+addToFavorites:
+INSERT OR IGNORE INTO favorite (hymn_id) VALUES (?);
+
+removeFromFavorites:
+DELETE FROM favorite WHERE hymn_id = ?;
+
+isFavorite:
+SELECT COUNT(*) > 0 FROM favorite WHERE hymn_id = ?;
+
+-- Queries for history
+getRecentHymns:
+SELECT h.*, MAX(hist.accessed_at) AS last_accessed FROM hymn h
+JOIN history hist ON h.id = hist.hymn_id
+GROUP BY h.id
+ORDER BY MAX(hist.accessed_at) DESC
+LIMIT ?;
+
+addToHistory:
+INSERT INTO history (hymn_id) VALUES (?);
+
+clearHistory:
+DELETE FROM history;
+
+-- Queries for highlights
+getHighlightsForHymn:
+SELECT * FROM highlight WHERE hymn_id = ? ORDER BY start_index;
+
+addHighlight:
+INSERT INTO highlight (hymn_id, start_index, end_index) 
+VALUES (?, ?, ?);
+
+removeHighlight:
+DELETE FROM highlight WHERE id = ?;
+
+clearHighlightsForHymn:
+DELETE FROM highlight WHERE hymn_id = ?;
