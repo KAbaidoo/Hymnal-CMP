@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(afplay:*)",
+      "Bash(python3:*)",
+      "Bash(./gradlew:*)",
+      "Bash(sqlite3:*)",
+      "Bash(mkdir:*)",
+      "Bash(rmdir:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git reset:*)"
+    ],
+    "additionalDirectories": [
+      "/Users/kobby/Desktop/Anglican"
+    ]
+  }
+}
