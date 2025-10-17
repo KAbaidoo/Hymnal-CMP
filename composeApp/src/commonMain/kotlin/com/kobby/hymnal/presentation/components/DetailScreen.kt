@@ -17,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.TextUnit
 import com.kobby.hymnal.composeApp.database.Hymn
 import hymnal_cmp.composeapp.generated.resources.Res
 import hymnal_cmp.composeapp.generated.resources.font_settng
@@ -72,7 +74,7 @@ fun DetailScreen(
                 Text(
                     text = hymn.content ?: "No content available",
                     style = MaterialTheme.typography.bodyLarge,
-                    lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.5f,
+                    lineHeight = if (MaterialTheme.typography.bodyLarge.lineHeight == TextUnit.Unspecified) 1.8.em else MaterialTheme.typography.bodyLarge.lineHeight * 1.5f,
                     color = MaterialTheme.colorScheme.onBackground
                 )
             }
