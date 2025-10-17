@@ -51,4 +51,5 @@ actual class DatabaseHelper(private val context: Context) {
             throw RuntimeException("Failed to copy database from assets: ${e.message}", e)
         }
     }
+    
 }

@@ -118,22 +118,20 @@ def parse_hymn_file(file_path, category):
         else:
             number = 0
         
-        # Extract title and content
-        title = ""
+        # Skip the first line (HYMN X) and any empty lines to get to actual content
         content_start_index = 1
+        while content_start_index < len(lines) and not lines[content_start_index].strip():
+            content_start_index += 1
         
-        # Look for title in the first few lines
-        for i in range(1, min(4, len(lines))):
-            line = lines[i].strip()
-            if line and not line.startswith('HYMN') and not line.startswith('SUPP'):
-                # Check if this line looks like a title (short, capitalized words)
-                if len(line) < 100 and (line.isupper() or line.istitle()):
-                    title = line
-                    content_start_index = i + 1
-                    break
-        
-        # Extract hymn content
+        # Extract hymn content (everything after the header)
         hymn_content = '\n'.join(lines[content_start_index:]).strip()
+        
+        # Extract title from first line of content
+        title = ""
+        if hymn_content:
+            first_line = hymn_content.split('\n')[0].strip()
+            # Remove trailing punctuation and use as title
+            title = first_line.rstrip('.,;:!?').strip()
         
         if not hymn_content:
             return None

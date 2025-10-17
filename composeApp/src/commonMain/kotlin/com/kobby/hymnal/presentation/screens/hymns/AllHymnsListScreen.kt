@@ -13,10 +13,10 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.core.database.DatabaseManager
 import com.kobby.hymnal.core.database.HymnRepository
-import com.kobby.hymnal.presentation.screens.hymns.components.AncientModernListContent
+import com.kobby.hymnal.presentation.screens.hymns.components.AllHymnsListContent
 import kotlinx.coroutines.flow.filter
 
-class AncientModernListScreen : Screen {
+class AllHymnsListScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
@@ -38,7 +38,7 @@ class AncientModernListScreen : Screen {
         }
         
         // Get hymns from repository if available
-        val hymns by (repository?.getHymnsByCategory(HymnRepository.CATEGORY_ANCIENT_MODERN) 
+        val hymns by (repository?.getAllHymns() 
             ?: flowOf(emptyList())).collectAsState(initial = emptyList())
         
         val filteredHymns = remember(hymns, searchText) {
@@ -53,7 +53,7 @@ class AncientModernListScreen : Screen {
             }
         }
         
-        AncientModernListContent(
+        AllHymnsListContent(
             hymns = filteredHymns,
             searchText = searchText,
             isLoading = isLoading,

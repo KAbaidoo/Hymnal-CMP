@@ -1,4 +1,4 @@
-package com.kobby.hymnal.presentation.screens.hymns
+package com.kobby.hymnal.presentation.screens.more
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -13,10 +13,10 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.core.database.DatabaseManager
 import com.kobby.hymnal.core.database.HymnRepository
-import com.kobby.hymnal.presentation.screens.hymns.components.AncientModernListContent
-import kotlinx.coroutines.flow.filter
+import com.kobby.hymnal.presentation.screens.hymns.HymnDetailScreen
+import com.kobby.hymnal.presentation.screens.more.components.FavoritesContent
 
-class AncientModernListScreen : Screen {
+class FavoritesScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
@@ -32,20 +32,20 @@ class AncientModernListScreen : Screen {
                 repository = HymnRepository(database)
                 isLoading = false
             } catch (e: Exception) {
-                error = "Failed to load hymns: ${e.message}"
+                error = "Failed to load favorites: ${e.message}"
                 isLoading = false
             }
         }
         
-        // Get hymns from repository if available
-        val hymns by (repository?.getHymnsByCategory(HymnRepository.CATEGORY_ANCIENT_MODERN) 
+        // Get favorite hymns from repository if available
+        val favoriteHymns by (repository?.getFavoriteHymns()
             ?: flowOf(emptyList())).collectAsState(initial = emptyList())
         
-        val filteredHymns = remember(hymns, searchText) {
+        val filteredHymns = remember(favoriteHymns, searchText) {
             if (searchText.isBlank()) {
-                hymns
+                favoriteHymns
             } else {
-                hymns.filter { hymn ->
+                favoriteHymns.filter { hymn ->
                     hymn.title?.contains(searchText, ignoreCase = true) == true ||
                     hymn.number.toString().contains(searchText) ||
                     hymn.content?.contains(searchText, ignoreCase = true) == true
@@ -53,7 +53,7 @@ class AncientModernListScreen : Screen {
             }
         }
         
-        AncientModernListContent(
+        FavoritesContent(
             hymns = filteredHymns,
             searchText = searchText,
             isLoading = isLoading,

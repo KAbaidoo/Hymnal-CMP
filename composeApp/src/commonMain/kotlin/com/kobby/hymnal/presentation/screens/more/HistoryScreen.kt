@@ -1,4 +1,4 @@
-package com.kobby.hymnal.presentation.screens.hymns
+package com.kobby.hymnal.presentation.screens.more
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -13,10 +13,10 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.core.database.DatabaseManager
 import com.kobby.hymnal.core.database.HymnRepository
-import com.kobby.hymnal.presentation.screens.hymns.components.AncientModernListContent
-import kotlinx.coroutines.flow.filter
+import com.kobby.hymnal.presentation.screens.hymns.HymnDetailScreen
+import com.kobby.hymnal.presentation.screens.more.components.HistoryContent
 
-class AncientModernListScreen : Screen {
+class HistoryScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
@@ -32,20 +32,34 @@ class AncientModernListScreen : Screen {
                 repository = HymnRepository(database)
                 isLoading = false
             } catch (e: Exception) {
-                error = "Failed to load hymns: ${e.message}"
+                error = "Failed to load history: ${e.message}"
                 isLoading = false
             }
         }
         
-        // Get hymns from repository if available
-        val hymns by (repository?.getHymnsByCategory(HymnRepository.CATEGORY_ANCIENT_MODERN) 
+        // Get recent hymns from repository if available
+        val recentHymnsData by (repository?.getRecentHymns(50)
             ?: flowOf(emptyList())).collectAsState(initial = emptyList())
         
-        val filteredHymns = remember(hymns, searchText) {
+        // Convert GetRecentHymns to Hymn objects
+        val recentHymns = remember(recentHymnsData) {
+            recentHymnsData.map { data ->
+                com.kobby.hymnal.composeApp.database.Hymn(
+                    id = data.id,
+                    number = data.number,
+                    title = data.title,
+                    category = data.category,
+                    content = data.content,
+                    created_at = data.created_at
+                )
+            }
+        }
+        
+        val filteredHymns = remember(recentHymns, searchText) {
             if (searchText.isBlank()) {
-                hymns
+                recentHymns
             } else {
-                hymns.filter { hymn ->
+                recentHymns.filter { hymn ->
                     hymn.title?.contains(searchText, ignoreCase = true) == true ||
                     hymn.number.toString().contains(searchText) ||
                     hymn.content?.contains(searchText, ignoreCase = true) == true
@@ -53,7 +67,7 @@ class AncientModernListScreen : Screen {
             }
         }
         
-        AncientModernListContent(
+        HistoryContent(
             hymns = filteredHymns,
             searchText = searchText,
             isLoading = isLoading,
@@ -68,6 +82,9 @@ class AncientModernListScreen : Screen {
                 while (navigator.canPop) {
                     navigator.pop()
                 }
+            },
+            onClearHistory = {
+                // TODO: Implement clear history
             }
         )
     }
