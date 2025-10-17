@@ -5,6 +5,7 @@ import kotlinx.coroutines.withContext
 import platform.Foundation.*
 import platform.darwin.DISPATCH_QUEUE_PRIORITY_DEFAULT
 import platform.darwin.dispatch_get_global_queue
+import kotlinx.cinterop.*
 
 actual class DatabaseHelper() {
     
@@ -46,8 +47,8 @@ actual class DatabaseHelper() {
             val fileManager = NSFileManager.defaultManager
             
             // Copy file from bundle to documents directory
-            kotlinx.cinterop.memScoped {
-                val error = kotlinx.cinterop.alloc<kotlinx.cinterop.ObjCObjectVar<NSError?>>()
+            memScoped {
+                val error = alloc<ObjCObjectVar<NSError?>>()
                 val success = fileManager.copyItemAtPath(bundlePath, databasePath, error.ptr)
                 
                 if (!success) {
