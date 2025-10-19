@@ -49,20 +49,6 @@ fun FavoritesContent(
             }
         }
         
-        hymns.isEmpty() -> {
-            Box(
-                modifier = Modifier.fillMaxSize().padding(16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "No favorite hymns yet.\nTap the heart icon on any hymn to add it to favorites.",
-                    style = MaterialTheme.typography.bodyLarge,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-        }
-        
         else -> {
             ListScreen(
                 titleCollapsed = "Favorites",
