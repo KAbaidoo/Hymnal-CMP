@@ -1,10 +1,6 @@
 package com.kobby.hymnal.presentation.screens.special
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -15,7 +11,6 @@ class TheCreedScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        var isFavorite by remember { mutableStateOf(false) }
         
         val creedContent = Hymn(
             id = 0,
@@ -34,7 +29,7 @@ class TheCreedScreen : Screen {
         
         DetailScreen(
             hymn = creedContent,
-            isFavorite = isFavorite,
+            isFavorite = false,
             onBackClick = { navigator.pop() },
             onHomeClick = { 
                 // Navigate to home by popping all screens
@@ -42,17 +37,7 @@ class TheCreedScreen : Screen {
                     navigator.pop()
                 }
             },
-            onFavoriteClick = {
-                // For The Creed, we might not want to allow favoriting
-                // or implement special logic
-                isFavorite = !isFavorite
-            },
-            onFontSettingsClick = {
-                // TODO: Implement font settings
-            },
-            onShareClick = {
-                // TODO: Implement sharing
-            }
+            showActionButtons = false
         )
     }
 }

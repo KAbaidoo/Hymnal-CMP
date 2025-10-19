@@ -44,7 +44,8 @@ fun DetailScreen(
     onHomeClick: () -> Unit = {},
     onFavoriteClick: () -> Unit = {},
     onFontSettingsClick: () -> Unit = {},
-    onShareClick: () -> Unit = {}
+    onShareClick: () -> Unit = {},
+    showActionButtons: Boolean = true
 ) {
     val hymnNumber = if (hymn.number == 0L) "Creed" else hymn.number.toString()
     ContentScreen(
@@ -54,31 +55,33 @@ fun DetailScreen(
             "${getCategoryAbbreviation(hymn.category)} ${hymn.number}"
         },
         titleExpanded = "${getCategoryAbbreviation(hymn.category)}\n$hymnNumber",
-        actionButtons = {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                IconButton(onClick = onFavoriteClick) {
-                    Icon(
-                        imageVector = vectorResource(if (isFavorite) Res.drawable.heart_2_fill else Res.drawable.heart_2_line),
-                        contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
-                        tint = MaterialTheme.colorScheme.secondary
-                    )
-                }
-                IconButton(onClick = onFontSettingsClick) {
-                    Icon(
-                        imageVector = vectorResource(Res.drawable.font_settng),
-                        contentDescription = "Font settings",
-                        tint = MaterialTheme.colorScheme.secondary
-                    )
-                }
-                IconButton(onClick = onShareClick) {
-                    Icon(
-                        imageVector = vectorResource(Res.drawable.share_line),
-                        contentDescription = "Share",
-                        tint = MaterialTheme.colorScheme.secondary
-                    )
+        actionButtons = if (showActionButtons) {
+            {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    IconButton(onClick = onFavoriteClick) {
+                        Icon(
+                            imageVector = vectorResource(if (isFavorite) Res.drawable.heart_2_fill else Res.drawable.heart_2_line),
+                            contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
+                            tint = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+                    IconButton(onClick = onFontSettingsClick) {
+                        Icon(
+                            imageVector = vectorResource(Res.drawable.font_settng),
+                            contentDescription = "Font settings",
+                            tint = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+                    IconButton(onClick = onShareClick) {
+                        Icon(
+                            imageVector = vectorResource(Res.drawable.share_line),
+                            contentDescription = "Share",
+                            tint = MaterialTheme.colorScheme.secondary
+                        )
+                    }
                 }
             }
-        },
+        } else null,
         content = { innerPadding ->
             Column(
                 modifier = Modifier
