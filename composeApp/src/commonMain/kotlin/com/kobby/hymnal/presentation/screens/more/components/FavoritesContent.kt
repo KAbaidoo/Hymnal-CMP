@@ -1,8 +1,12 @@
 package com.kobby.hymnal.presentation.screens.more.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -12,7 +16,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kobby.hymnal.composeApp.database.Hymn
+import com.kobby.hymnal.presentation.components.ContentScreen
+import com.kobby.hymnal.presentation.components.ListItem
 import com.kobby.hymnal.presentation.components.ListScreen
+import com.kobby.hymnal.presentation.components.SearchTextField
 
 @Composable
 fun FavoritesContent(
@@ -50,9 +57,7 @@ fun FavoritesContent(
         }
         
         else -> {
-            ListScreen(
-                titleCollapsed = "Favorites",
-                titleExpanded = "Favorites",
+            FavoritesListScreen(
                 items = hymns,
                 searchText = searchText,
                 onSearchTextChanged = onSearchTextChanged,
@@ -62,4 +67,63 @@ fun FavoritesContent(
             )
         }
     }
+}
+
+@Composable
+private fun FavoritesListScreen(
+    items: List<Hymn>,
+    searchText: String,
+    onSearchTextChanged: (String) -> Unit = {},
+    onItemClick: (Hymn) -> Unit = {},
+    onBackClick: () -> Unit = {},
+    onHomeClick: () -> Unit = {}
+){
+    ContentScreen(
+        titleCollapsed = "Favorites",
+        titleExpanded = "Favorites",
+        actionButtons = null,
+        content = { innerPadding ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .background(MaterialTheme.colorScheme.background)
+            ) {
+                if (items.isEmpty()) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(64.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No favorite hymns yet.\nTap the heart icon on any hymn to add it to favorites.",
+                                style = MaterialTheme.typography.bodyLarge,
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                } else {
+                    items(items) { hymn ->
+                        ListItem(
+                            title = "${hymn.number}. ${hymn.title ?: "Untitled"}",
+                            onClick = { onItemClick(hymn) }
+                        )
+                    }
+                }
+            }
+        },
+        bottomBar = { 
+            SearchTextField(
+                modifier = Modifier.fillMaxWidth(), 
+                searchText = searchText, 
+                onTextChanged = onSearchTextChanged, 
+                placeholderText = "Search by number, word.."
+            ) 
+        },
+        onBackClick = onBackClick,
+        onHomeClick = onHomeClick
+    )
 }
