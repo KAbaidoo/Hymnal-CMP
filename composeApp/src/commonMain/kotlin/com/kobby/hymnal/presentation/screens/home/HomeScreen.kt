@@ -52,6 +52,7 @@ import com.kobby.hymnal.presentation.components.ScreenBackground
 import com.kobby.hymnal.presentation.components.SemiTransparentCard
 import com.kobby.hymnal.presentation.screens.hymns.AncientModernListScreen
 import com.kobby.hymnal.presentation.screens.hymns.SupplementaryListScreen
+import com.kobby.hymnal.presentation.screens.more.FavoritesScreen
 import com.kobby.hymnal.presentation.screens.search.GlobalSearchScreen
 import com.kobby.hymnal.presentation.screens.special.TheCreedScreen
 import com.kobby.hymnal.test.TestHymnScreen
@@ -73,7 +74,7 @@ class HomeScreen : Screen {
             onSearchClick = { navigator.push(GlobalSearchScreen()) },
             onAncientModernClick = { navigator.push(AncientModernListScreen()) },
             onSupplementaryClick = { navigator.push(SupplementaryListScreen()) },
-            onFavoritesClick = { /* TODO: Navigate to favorites */ },
+            onFavoritesClick = { navigator.push(FavoritesScreen()) },
             onCreedClick = { navigator.push(TheCreedScreen()) },
             onSettingsClick = { /* TODO: Navigate to settings */ },
             onSettingsLongClick = { isDeveloperMode = !isDeveloperMode },
