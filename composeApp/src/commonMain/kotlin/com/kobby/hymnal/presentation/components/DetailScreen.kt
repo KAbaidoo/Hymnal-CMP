@@ -23,6 +23,7 @@ import com.kobby.hymnal.composeApp.database.Hymn
 import hymnal_cmp.composeapp.generated.resources.Res
 import hymnal_cmp.composeapp.generated.resources.font_settng
 import hymnal_cmp.composeapp.generated.resources.heart_2_line
+import hymnal_cmp.composeapp.generated.resources.heart_2_fill
 import hymnal_cmp.composeapp.generated.resources.share_line
 import org.jetbrains.compose.resources.vectorResource
 
@@ -57,21 +58,23 @@ fun DetailScreen(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 IconButton(onClick = onFavoriteClick) {
                     Icon(
-                        imageVector = vectorResource(Res.drawable.heart_2_line),
+                        imageVector = vectorResource(if (isFavorite) Res.drawable.heart_2_fill else Res.drawable.heart_2_line),
                         contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
-                        tint = if (isFavorite) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
+                        tint = MaterialTheme.colorScheme.secondary
                     )
                 }
                 IconButton(onClick = onFontSettingsClick) {
                     Icon(
                         imageVector = vectorResource(Res.drawable.font_settng),
-                        contentDescription = "Font settings"
+                        contentDescription = "Font settings",
+                        tint = MaterialTheme.colorScheme.secondary
                     )
                 }
                 IconButton(onClick = onShareClick) {
                     Icon(
                         imageVector = vectorResource(Res.drawable.share_line),
-                        contentDescription = "Share"
+                        contentDescription = "Share",
+                        tint = MaterialTheme.colorScheme.secondary
                     )
                 }
             }
