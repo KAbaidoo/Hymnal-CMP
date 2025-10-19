@@ -26,6 +26,14 @@ import hymnal_cmp.composeapp.generated.resources.heart_2_line
 import hymnal_cmp.composeapp.generated.resources.share_line
 import org.jetbrains.compose.resources.vectorResource
 
+private fun getCategoryAbbreviation(category: String?): String {
+    return when (category) {
+        "ancient_modern" -> "A&M"
+        "supplementary" -> "Supp"
+        else -> "Hymn"
+    }
+}
+
 @Composable
 fun DetailScreen(
     hymn: Hymn,
@@ -37,8 +45,8 @@ fun DetailScreen(
     onShareClick: () -> Unit = {}
 ) {
     ContentScreen(
-        titleCollapsed = "${hymn.number}. ${hymn.title ?: "Untitled"}",
-        titleExpanded = "${hymn.number}.\n${hymn.title ?: "Untitled"}",
+        titleCollapsed = "${getCategoryAbbreviation(hymn.category)} ${hymn.number}",
+        titleExpanded = "${getCategoryAbbreviation(hymn.category)}\n${hymn.number}",
         actionButtons = {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 IconButton(onClick = onFavoriteClick) {
