@@ -30,6 +30,7 @@ private fun getCategoryAbbreviation(category: String?): String {
     return when (category) {
         "ancient_modern" -> "A&M"
         "supplementary" -> "Supp"
+        "creed" -> "The"
         else -> "Hymn"
     }
 }
@@ -44,9 +45,14 @@ fun DetailScreen(
     onFontSettingsClick: () -> Unit = {},
     onShareClick: () -> Unit = {}
 ) {
+    val hymnNumber = if (hymn.number == 0L) "Creed" else hymn.number.toString()
     ContentScreen(
-        titleCollapsed = "${getCategoryAbbreviation(hymn.category)} ${hymn.number}",
-        titleExpanded = "${getCategoryAbbreviation(hymn.category)}\n${hymn.number}",
+        titleCollapsed = if (hymn.number == 0L) {
+            "The Creed"
+        } else {
+            "${getCategoryAbbreviation(hymn.category)} ${hymn.number}"
+        },
+        titleExpanded = "${getCategoryAbbreviation(hymn.category)}\n$hymnNumber",
         actionButtons = {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 IconButton(onClick = onFavoriteClick) {
