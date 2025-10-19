@@ -43,6 +43,23 @@ fun AllHymnsLoadingPreview() {
     }
 }
 
+@Preview(name = "All Hymns - Error")
+@Composable
+fun AllHymnsErrorPreview() {
+    HymnalAppTheme {
+        AllHymnsListContent(
+            hymns = emptyList(),
+            searchText = "",
+            isLoading = false,
+            error = "Failed to load hymns from database",
+            onSearchTextChanged = {},
+            onItemClick = {},
+            onBackClick = {},
+            onHomeClick = {}
+        )
+    }
+}
+
 @Preview(name = "All Hymns - Search Results")
 @Composable
 fun AllHymnsSearchPreview() {
