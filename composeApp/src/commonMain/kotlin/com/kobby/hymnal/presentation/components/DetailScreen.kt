@@ -19,7 +19,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.TextStyle
 import com.kobby.hymnal.composeApp.database.Hymn
+import com.kobby.hymnal.core.settings.FontSettings
+import com.kobby.hymnal.theme.getAppFontFamily
 import hymnal_cmp.composeapp.generated.resources.Res
 import hymnal_cmp.composeapp.generated.resources.font_settng
 import hymnal_cmp.composeapp.generated.resources.heart_2_line
@@ -45,7 +49,8 @@ fun DetailScreen(
     onFavoriteClick: () -> Unit = {},
     onFontSettingsClick: () -> Unit = {},
     onShareClick: () -> Unit = {},
-    showActionButtons: Boolean = true
+    showActionButtons: Boolean = true,
+    fontSettings: FontSettings = FontSettings()
 ) {
     val hymnNumber = if (hymn.number == 0L) "Creed" else hymn.number.toString()
     ContentScreen(
@@ -93,8 +98,12 @@ fun DetailScreen(
             ) {
                 Text(
                     text = hymn.content ?: "No content available",
-                    style = MaterialTheme.typography.bodyLarge,
-                    lineHeight = if (MaterialTheme.typography.bodyLarge.lineHeight == TextUnit.Unspecified) 1.8.em else MaterialTheme.typography.bodyLarge.lineHeight * 1.5f,
+                    style = TextStyle(
+                        fontFamily = getAppFontFamily(fontSettings.fontFamily),
+                        fontWeight = FontWeight.Normal,
+                        fontSize = fontSettings.fontSize.sp,
+                        lineHeight = (fontSettings.fontSize * 1.8f).sp
+                    ),
                     color = MaterialTheme.colorScheme.onBackground
                 )
             }

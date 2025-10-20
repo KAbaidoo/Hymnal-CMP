@@ -2,6 +2,7 @@ package com.kobby.hymnal.presentation.screens.hymns
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -13,7 +14,9 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.composeApp.database.Hymn
 import com.kobby.hymnal.core.database.DatabaseManager
 import com.kobby.hymnal.core.database.HymnRepository
+import com.kobby.hymnal.core.settings.FontSettingsManager
 import com.kobby.hymnal.presentation.components.DetailScreen
+import com.kobby.hymnal.presentation.components.FontSettingsModal
 import kotlinx.coroutines.launch
 
 data class HymnDetailScreen(private val hymn: Hymn) : Screen {
@@ -23,6 +26,11 @@ data class HymnDetailScreen(private val hymn: Hymn) : Screen {
         val scope = rememberCoroutineScope()
         var repository by remember { mutableStateOf<HymnRepository?>(null) }
         var isFavorite by remember { mutableStateOf(false) }
+        var showFontSettings by remember { mutableStateOf(false) }
+        
+        // Font settings
+        val fontSettingsManager = remember { FontSettingsManager.INSTANCE }
+        val fontSettings by fontSettingsManager.fontSettings.collectAsState()
         
         // Initialize repository
         LaunchedEffect(Unit) {
@@ -69,11 +77,25 @@ data class HymnDetailScreen(private val hymn: Hymn) : Screen {
                 }
             },
             onFontSettingsClick = {
-                // TODO: Implement font settings
+                showFontSettings = true
             },
             onShareClick = {
                 // TODO: Implement sharing
-            }
+            },
+            fontSettings = fontSettings
+        )
+        
+        // Font Settings Modal
+        FontSettingsModal(
+            isVisible = showFontSettings,
+            onDismiss = { showFontSettings = false },
+            onFontSizeChange = { sizeChange ->
+                fontSettingsManager.updateFontSize(sizeChange)
+            },
+            onFontChange = { fontFamily ->
+                fontSettingsManager.updateFontFamily(fontFamily)
+            },
+            currentFont = fontSettings.fontFamily
         )
     }
 }

@@ -19,11 +19,12 @@ import com.kobby.hymnal.theme.Shapes
 fun FontSettingsBottomSheet(
     onDismiss: () -> Unit,
     onFontSizeChange: (Float) -> Unit,
-    onFontChange: (String) -> Unit
+    onFontChange: (String) -> Unit,
+    currentFont: String = "Onest"
 ) {
-    var selectedFont by remember { mutableStateOf("Onest") }
+    var selectedFont by remember { mutableStateOf(currentFont) }
     var isDropdownExpanded by remember { mutableStateOf(false) }
-    val fontOptions = listOf("Onest", "Roboto", "Inter", "Open Sans", "Lato")
+    val fontOptions = listOf("Onest", "PlayFair Display")
     val fontColor = MaterialTheme.colorScheme.onSurface
     val containerColor = MaterialTheme.colorScheme.surface
     val shape = Shapes.medium
@@ -142,7 +143,8 @@ fun FontSettingsBottomSheet(
 
             ExposedDropdownMenu(
                 expanded = isDropdownExpanded,
-                onDismissRequest = { isDropdownExpanded = false }
+                onDismissRequest = { isDropdownExpanded = false },
+                modifier = Modifier.background(MaterialTheme.colorScheme.surface)
             ) {
                 fontOptions.forEach { font ->
                     DropdownMenuItem(
@@ -151,7 +153,10 @@ fun FontSettingsBottomSheet(
                             selectedFont = font
                             onFontChange(font)
                             isDropdownExpanded = false
-                        }
+                        },
+                        colors = MenuDefaults.itemColors(
+                            textColor = fontColor
+                        ),
                     )
                 }
             }
@@ -166,7 +171,8 @@ fun FontSettingsModal(
     isVisible: Boolean,
     onDismiss: () -> Unit,
     onFontSizeChange: (Float) -> Unit,
-    onFontChange: (String) -> Unit
+    onFontChange: (String) -> Unit,
+    currentFont: String = "Onest"
 ) {
     if (isVisible) {
         ModalBottomSheet(
@@ -176,7 +182,8 @@ fun FontSettingsModal(
             FontSettingsBottomSheet(
                 onDismiss = onDismiss,
                 onFontSizeChange = onFontSizeChange,
-                onFontChange = onFontChange
+                onFontChange = onFontChange,
+                currentFont = currentFont
             )
         }
     }
