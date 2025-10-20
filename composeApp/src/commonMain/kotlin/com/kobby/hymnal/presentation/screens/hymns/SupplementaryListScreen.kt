@@ -47,8 +47,7 @@ class SupplementaryListScreen : Screen {
             } else {
                 hymns.filter { hymn ->
                     hymn.title?.contains(searchText, ignoreCase = true) == true ||
-                    hymn.number.toString().contains(searchText) ||
-                    hymn.content?.contains(searchText, ignoreCase = true) == true
+                    hymn.number.toString().contains(searchText)
                 }
             }
         }
