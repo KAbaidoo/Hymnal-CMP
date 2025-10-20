@@ -64,9 +64,13 @@ class FavoritesScreen : Screen {
             },
             onBackClick = { navigator.pop() },
             onHomeClick = { 
-                // Navigate to home by popping all screens
+                // Navigate to home by popping until we reach HomeScreen or we can't pop anymore
                 while (navigator.canPop) {
                     navigator.pop()
+                    // Check if current screen is HomeScreen by trying to find it in the stack
+                    if (navigator.lastItem is com.kobby.hymnal.presentation.screens.home.HomeScreen) {
+                        break
+                    }
                 }
             }
         )
