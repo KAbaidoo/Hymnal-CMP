@@ -22,7 +22,7 @@ tool-chain-resolver = "0.9.0"
 google-services = "4.4.2"
 firebase-bom = "33.13.0"
 kolinx-coroutines = "1.10.2"
-koin-bom = "4.1.0-Beta5"
+koin-bom = "3.5.6"
 sqldelight = "2.0.1"
 
 [libraries]
@@ -52,8 +52,6 @@ koin-core = { module = "io.insert-koin:koin-core" }
 koin-android = { module = "io.insert-koin:koin-android" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose" }
 koin-compose = { module = "io.insert-koin:koin-compose" }
-koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel" }
-koin-compose-viewmodel-navigation = { module = "io.insert-koin:koin-compose-viewmodel-navigation" }
 sqldelight-android = { module = "app.cash.sqldelight:android-driver", version.ref = "sqldelight" }
 sqldelight-ios = { module = "app.cash.sqldelight:native-driver", version.ref = "sqldelight" }
 sqldelight-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }

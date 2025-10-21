@@ -11,8 +11,8 @@ import kotlinx.coroutines.flow.flowOf
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.kobby.hymnal.core.database.DatabaseManager
 import com.kobby.hymnal.core.database.HymnRepository
+import org.koin.compose.koinInject
 import com.kobby.hymnal.presentation.screens.hymns.components.AncientModernListContent
 import kotlinx.coroutines.flow.filter
 
@@ -20,24 +20,12 @@ class AncientModernListScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        var repository by remember { mutableStateOf<HymnRepository?>(null) }
+        val repository: HymnRepository = koinInject()
         var searchText by remember { mutableStateOf("") }
-        var isLoading by remember { mutableStateOf(true) }
+        var isLoading by remember { mutableStateOf(false) }
         var error by remember { mutableStateOf<String?>(null) }
         
-        // Initialize repository
-        LaunchedEffect(Unit) {
-            try {
-                val database = DatabaseManager.getDatabase()
-                repository = HymnRepository(database)
-                isLoading = false
-            } catch (e: Exception) {
-                error = "Failed to load hymns: ${e.message}"
-                isLoading = false
-            }
-        }
-        
-        // Get hymns from repository if available
+        // Get hymns from repository
         val hymns by (repository?.getHymnsByCategory(HymnRepository.CATEGORY_ANCIENT_MODERN) 
             ?: flowOf(emptyList())).collectAsState(initial = emptyList())
         

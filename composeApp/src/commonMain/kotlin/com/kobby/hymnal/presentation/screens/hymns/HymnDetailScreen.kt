@@ -12,9 +12,9 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.composeApp.database.Hymn
-import com.kobby.hymnal.core.database.DatabaseManager
 import com.kobby.hymnal.core.database.HymnRepository
 import com.kobby.hymnal.core.settings.FontSettingsManager
+import org.koin.compose.koinInject
 import com.kobby.hymnal.presentation.components.DetailScreen
 import com.kobby.hymnal.presentation.components.FontSettingsModal
 import kotlinx.coroutines.launch
@@ -24,30 +24,22 @@ data class HymnDetailScreen(private val hymn: Hymn) : Screen {
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val scope = rememberCoroutineScope()
-        var repository by remember { mutableStateOf<HymnRepository?>(null) }
+        val repository: HymnRepository = koinInject()
         var isFavorite by remember { mutableStateOf(false) }
         var showFontSettings by remember { mutableStateOf(false) }
         
         // Font settings
-        val fontSettingsManager = remember { FontSettingsManager.INSTANCE }
+        val fontSettingsManager: FontSettingsManager = koinInject()
         val fontSettings by fontSettingsManager.fontSettings.collectAsState()
         
-        // Initialize repository
-        LaunchedEffect(Unit) {
-            val database = DatabaseManager.getDatabase()
-            repository = HymnRepository(database)
-        }
-        
         // Check if hymn is favorite
-        LaunchedEffect(repository) {
-            repository?.let { repo ->
-                isFavorite = repo.isFavorite(hymn.id)
-            }
+        LaunchedEffect(Unit) {
+            isFavorite = repository.isFavorite(hymn.id)
         }
         
         // Add to history when screen opens
         LaunchedEffect(hymn.id) {
-            repository?.addToHistory(hymn.id)
+            repository.addToHistory(hymn.id)
         }
         
         DetailScreen(
