@@ -9,7 +9,7 @@ import java.io.InputStream
 
 actual class DatabaseHelper(private val context: Context) {
     
-    private val databaseName = "hymns.db"
+    private val databaseName = DATABASE_NAME
     private val prepackagedDatabasePath = "composeResources/hymnal_cmp.composeapp.generated.resources/files/$databaseName"
     
     actual suspend fun initializeDatabase(): String = withContext(Dispatchers.IO) {

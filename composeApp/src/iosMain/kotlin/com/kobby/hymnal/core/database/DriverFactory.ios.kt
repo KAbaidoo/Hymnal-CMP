@@ -7,13 +7,18 @@ import com.kobby.hymnal.composeApp.database.HymnDatabase
 actual class DriverFactory {
     
     actual suspend fun createDriver(): SqlDriver {
-        // Use a different database name to avoid conflicts with any existing database
-        val databaseName = "hymnal_app.db"
+        val databaseHelper = DatabaseHelper()
         
-        // Create driver and let SQLDelight handle schema creation
+        // Initialize the database (copy from Compose resources if needed)
+        databaseHelper.initializeDatabase()
+        
+        // Create driver with schema creation disabled since database is pre-packaged
         return NativeSqliteDriver(
             schema = HymnDatabase.Schema,
-            name = databaseName
+            name = DATABASE_NAME,
+            onConfiguration = { config ->
+                config.copy(create = { /* Do nothing - database is pre-packaged */ })
+            }
         )
     }
 }
