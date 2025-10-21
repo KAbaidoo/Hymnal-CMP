@@ -15,7 +15,10 @@
       "Bash(rm:*)",
       "Bash(sed:*)",
       "WebSearch",
-      "WebFetch(domain:medium.com)"
+      "WebFetch(domain:medium.com)",
+      "WebFetch(domain:archive.is)",
+      "mcp__Ref__ref_read_url",
+      "mcp__exa__get_code_context_exa"
     ],
     "additionalDirectories": [
       "/Users/kobby/Desktop/Anglican"
