@@ -20,6 +20,11 @@ import com.kobby.hymnal.presentation.components.ContentScreen
 import com.kobby.hymnal.presentation.components.ListItem
 import com.kobby.hymnal.presentation.components.ListScreen
 import com.kobby.hymnal.presentation.components.SearchTextField
+import hymnal_cmp.composeapp.generated.resources.Res
+import hymnal_cmp.composeapp.generated.resources.favorites
+import hymnal_cmp.composeapp.generated.resources.no_favorite_hymns
+import hymnal_cmp.composeapp.generated.resources.search_placeholder
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun FavoritesContent(
@@ -79,8 +84,8 @@ private fun FavoritesListScreen(
     onHomeClick: () -> Unit = {}
 ){
     ContentScreen(
-        titleCollapsed = "Favorites",
-        titleExpanded = "Favorites",
+        titleCollapsed = stringResource(Res.string.favorites),
+        titleExpanded = stringResource(Res.string.favorites),
         actionButtons = null,
         content = { innerPadding ->
             LazyColumn(
@@ -98,7 +103,7 @@ private fun FavoritesListScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "No favorite hymns yet.\nTap the heart icon on any hymn to add it to favorites.",
+                                text = stringResource(Res.string.no_favorite_hymns),
                                 style = MaterialTheme.typography.bodyLarge,
                                 textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.onSurface
@@ -120,7 +125,7 @@ private fun FavoritesListScreen(
                 modifier = Modifier.fillMaxWidth(), 
                 searchText = searchText, 
                 onTextChanged = onSearchTextChanged, 
-                placeholderText = "Search by number, word.."
+                placeholderText = stringResource(Res.string.search_placeholder)
             ) 
         },
         onBackClick = onBackClick,

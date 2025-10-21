@@ -15,6 +15,9 @@ import com.kobby.hymnal.presentation.screens.home.HomeScreen
 import com.kobby.hymnal.start.StartScreen
 import com.kobby.hymnal.theme.HymnalAppTheme
 import kotlinx.coroutines.launch
+import hymnal_cmp.composeapp.generated.resources.Res
+import hymnal_cmp.composeapp.generated.resources.database_init_error
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun HymnalApp(databaseInitializer: DatabaseInitializer) {
@@ -44,7 +47,7 @@ fun HymnalApp(databaseInitializer: DatabaseInitializer) {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Failed to initialize database: $initializationError",
+                        text = stringResource(Res.string.database_init_error, initializationError ?: ""),
                         color = MaterialTheme.colorScheme.error
                     )
                 }

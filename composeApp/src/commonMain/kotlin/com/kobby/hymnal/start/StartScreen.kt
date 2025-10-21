@@ -36,7 +36,12 @@ import com.russhwolf.settings.Settings
 import hymnal_cmp.composeapp.generated.resources.Res
 import hymnal_cmp.composeapp.generated.resources.book_open
 import hymnal_cmp.composeapp.generated.resources.piano_hands
+import hymnal_cmp.composeapp.generated.resources.anglican_hymnal_multiline
+import hymnal_cmp.composeapp.generated.resources.cd_get_started
+import hymnal_cmp.composeapp.generated.resources.created_by
+import hymnal_cmp.composeapp.generated.resources.author_name
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 class StartScreen : Screen {
 
@@ -82,7 +87,7 @@ fun StartScreenContent(
                         contentScale = ContentScale.Fit
                     )
                     Text(
-                        text = "Anglican\nHymnal",
+                        text = stringResource(Res.string.anglican_hymnal_multiline),
                         style = MaterialTheme.typography.displayMedium,
                         color = MaterialTheme.colorScheme.onPrimary
                     )
@@ -120,7 +125,7 @@ fun StartScreenContent(
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.ArrowForward,
-                        contentDescription = "Get Started",
+                        contentDescription = stringResource(Res.string.cd_get_started),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(24.dp)
                     )
@@ -128,13 +133,13 @@ fun StartScreenContent(
             }
             Text(
                 modifier = Modifier.padding( vertical = 8.dp),
-                text = "created by",
+                text = stringResource(Res.string.created_by),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 modifier = Modifier.padding(0.dp),
-                text = "Dennis Abban",
+                text = stringResource(Res.string.author_name),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )

@@ -61,8 +61,16 @@ import hymnal_cmp.composeapp.generated.resources.Res
 import hymnal_cmp.composeapp.generated.resources.book_open
 import hymnal_cmp.composeapp.generated.resources.cathedral
 import hymnal_cmp.composeapp.generated.resources.heart_2_line
+import hymnal_cmp.composeapp.generated.resources.find_your_hymns
+import hymnal_cmp.composeapp.generated.resources.explore_collection
+import hymnal_cmp.composeapp.generated.resources.open_hymns
+import hymnal_cmp.composeapp.generated.resources.cd_open
+import hymnal_cmp.composeapp.generated.resources.cd_settings
+import hymnal_cmp.composeapp.generated.resources.cd_search
+import hymnal_cmp.composeapp.generated.resources.anglican_hymnal
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.vectorResource
+import org.jetbrains.compose.resources.stringResource
 
 class HomeScreen : Screen {
     @Composable
@@ -136,13 +144,13 @@ private fun HomeScreenContent(
                     ) {
                         SemiTransparentCard {
                             Text(
-                                text = "Find Your Hymns",
+                                text = stringResource(Res.string.find_your_hymns),
                                 style = MaterialTheme.typography.headlineMedium,
                                 color = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier.padding(bottom = 8.dp)
                             )
                             Text(
-                                text = "Explore our collection of Anglican hymns.",
+                                text = stringResource(Res.string.explore_collection),
                                 color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
                                 style = MaterialTheme.typography.bodySmall,
                                 modifier = Modifier.padding(top = 4.dp, bottom = 24.dp)
@@ -157,14 +165,14 @@ private fun HomeScreenContent(
                                 modifier = Modifier.height(40.dp)
                             ) {
                                 Text(
-                                    text = "Open Hymns",
+                                    text = stringResource(Res.string.open_hymns),
                                     color = MaterialTheme.colorScheme.primary,
                                     style = MaterialTheme.typography.bodyLarge,
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Icon(
                                     imageVector = Icons.Outlined.ArrowForward,
-                                    contentDescription = "Open",
+                                    contentDescription = stringResource(Res.string.cd_open),
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                             }
@@ -229,7 +237,7 @@ private fun AppBar(
                 )
                 Text(
                     modifier = Modifier.padding(16.dp),
-                    text = "Anglican Hymnal",
+                    text = stringResource(Res.string.anglican_hymnal),
                     style = MaterialTheme.typography.headlineLarge,
                     color = MaterialTheme.colorScheme.onPrimary
                 )
@@ -250,7 +258,7 @@ private fun AppBar(
                 Icon(
                     modifier = Modifier.size(24.dp),
                     imageVector = Icons.Outlined.Settings,
-                    contentDescription = "Settings",
+                    contentDescription = stringResource(Res.string.cd_settings),
                     tint = MaterialTheme.colorScheme.secondary
                 )
             }
@@ -258,7 +266,7 @@ private fun AppBar(
                 Icon(
                     modifier = Modifier.size(24.dp),
                     imageVector = Icons.Outlined.Search,
-                    contentDescription = "Search",
+                    contentDescription = stringResource(Res.string.cd_search),
                     tint = MaterialTheme.colorScheme.secondary
                 )
             }

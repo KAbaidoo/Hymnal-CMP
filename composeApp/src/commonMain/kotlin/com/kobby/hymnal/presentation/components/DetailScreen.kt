@@ -17,8 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.TextStyle
 import com.kobby.hymnal.composeApp.database.Hymn
@@ -26,10 +24,15 @@ import com.kobby.hymnal.core.settings.FontSettings
 import com.kobby.hymnal.theme.getAppFontFamily
 import hymnal_cmp.composeapp.generated.resources.Res
 import hymnal_cmp.composeapp.generated.resources.font_settng
-import hymnal_cmp.composeapp.generated.resources.heart_2_line
 import hymnal_cmp.composeapp.generated.resources.heart_2_fill
+import hymnal_cmp.composeapp.generated.resources.heart_2_line
 import hymnal_cmp.composeapp.generated.resources.share_line
+import hymnal_cmp.composeapp.generated.resources.cd_font_settings
+import hymnal_cmp.composeapp.generated.resources.cd_share
+import hymnal_cmp.composeapp.generated.resources.cd_add_favorite
+import hymnal_cmp.composeapp.generated.resources.cd_remove_favorite
 import org.jetbrains.compose.resources.vectorResource
+import org.jetbrains.compose.resources.stringResource
 
 private fun getCategoryAbbreviation(category: String?): String {
     return when (category) {
@@ -66,21 +69,21 @@ fun DetailScreen(
                     IconButton(onClick = onFavoriteClick) {
                         Icon(
                             imageVector = vectorResource(if (isFavorite) Res.drawable.heart_2_fill else Res.drawable.heart_2_line),
-                            contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
+                            contentDescription = if (isFavorite) stringResource(Res.string.cd_remove_favorite) else stringResource(Res.string.cd_add_favorite),
                             tint = MaterialTheme.colorScheme.secondary
                         )
                     }
                     IconButton(onClick = onFontSettingsClick) {
                         Icon(
                             imageVector = vectorResource(Res.drawable.font_settng),
-                            contentDescription = "Font settings",
+                            contentDescription = stringResource(Res.string.cd_font_settings),
                             tint = MaterialTheme.colorScheme.secondary
                         )
                     }
                     IconButton(onClick = onShareClick) {
                         Icon(
                             imageVector = vectorResource(Res.drawable.share_line),
-                            contentDescription = "Share",
+                            contentDescription = stringResource(Res.string.cd_share),
                             tint = MaterialTheme.colorScheme.secondary
                         )
                     }

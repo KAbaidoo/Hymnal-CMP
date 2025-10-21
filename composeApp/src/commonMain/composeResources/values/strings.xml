@@ -1,0 +1,72 @@
+<resources>
+    <string name="app_name">Anglican Hymnal</string>
+    
+    <!-- Screen Titles & Headers -->
+    <string name="database_inspector">Database Inspector</string>
+    <string name="search_performance_test">Search Performance Test</string>
+    <string name="database_statistics">Database Statistics</string>
+    <string name="sample_hymns">Sample Hymns</string>
+    <string name="hymn_database_test">Hymn Database Test</string>
+    <string name="find_your_hymns">Find Your Hymns</string>
+    <string name="anglican_hymnal">Anglican Hymnal</string>
+    <string name="anglican_hymnal_multiline">Anglican\nHymnal</string>
+    <string name="fonts_settings">Fonts &amp; Settings</string>
+    <string name="settings">Settings</string>
+    <string name="search_hymns">Search Hymns</string>
+    <string name="search_hymns_multiline">Search\nHymns</string>
+    
+    <!-- Search & Input -->
+    <string name="search_placeholder">Search by number, word..</string>
+    <string name="search_query">Search query</string>
+    
+    <!-- UI Labels & Buttons -->
+    <string name="open_hymns">Open Hymns</string>
+    <string name="open">Open</string>
+    <string name="highlight">Highlight</string>
+    <string name="font">Font</string>
+    <string name="font_decrease">A-</string>
+    <string name="font_increase">A+</string>
+    <string name="close">✕</string>
+    <string name="dark_mode">Dark mode</string>
+    
+    <!-- Messages & Status Text -->
+    <string name="no_favorite_hymns">No favorite hymns yet.\nTap the heart icon on any hymn to add it to favorites.</string>
+    <string name="no_highlighted_text">No highlighted text yet.\nHighlight text in hymns to see them here.</string>
+    <string name="no_recent_hymns">No recently viewed hymns.\nStart browsing hymns to see your history here.</string>
+    <string name="search_completed_time">Search completed in %1$dms</string>
+    <string name="found_results">Found %1$d results</string>
+    <string name="search_results_count">Search Results (%1$d)</string>
+    <string name="error_message">Error: %1$s</string>
+    <string name="database_init_error">Failed to initialize database: %1$s</string>
+    <string name="found_hymns">Found %1$d hymns</string>
+    <string name="hymn_number">Hymn %1$d</string>
+    <string name="category_label">Category: %1$s</string>
+    
+    <!-- Content Descriptions -->
+    <string name="cd_search">Search</string>
+    <string name="cd_back">Back</string>
+    <string name="cd_home">Home</string>
+    <string name="cd_navigate">Navigate</string>
+    <string name="cd_font_settings">Font settings</string>
+    <string name="cd_share">Share</string>
+    <string name="cd_get_started">Get Started</string>
+    <string name="cd_settings">Settings</string>
+    <string name="cd_menu">Menu</string>
+    <string name="cd_open">Open</string>
+    <string name="cd_add_favorite">Add to favorites</string>
+    <string name="cd_remove_favorite">Remove from favorites</string>
+    
+    <!-- About Info -->
+    <string name="created_by">created by</string>
+    <string name="author_name">Dennis Abban</string>
+    <string name="version">Version 1.0.1</string>
+    <string name="explore_collection">Explore our collection of Anglican hymns.</string>
+    
+    <!-- Statistics Labels -->
+    <string name="total_hymns">Total Hymns</string>
+    <string name="ancient_modern">Ancient &amp; Modern</string>
+    <string name="supplementary">Supplementary</string>
+    <string name="favorites">Favorites</string>
+    <string name="history_entries">History Entries</string>
+    <string name="highlights">Highlights</string>
+</resources>

@@ -21,6 +21,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kobby.hymnal.presentation.components.ContentScreen
 import com.kobby.hymnal.presentation.components.ListItem
+import hymnal_cmp.composeapp.generated.resources.Res
+import hymnal_cmp.composeapp.generated.resources.settings
+import hymnal_cmp.composeapp.generated.resources.dark_mode
+import hymnal_cmp.composeapp.generated.resources.version
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun MoreScreenContent(
@@ -53,7 +58,7 @@ fun MoreScreenContent(
 
                 // Settings section
                 Text(
-                    text = "Settings", 
+                    text = stringResource(Res.string.settings), 
                     style = MaterialTheme.typography.bodyMedium, 
                     modifier = Modifier.padding(16.dp)
                 )
@@ -73,7 +78,7 @@ fun MoreScreenContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Dark mode",
+                            text = stringResource(Res.string.dark_mode),
                             style = MaterialTheme.typography.bodyMedium,
                         )
 
@@ -91,7 +96,7 @@ fun MoreScreenContent(
                 
                 // Version info
                 Text(
-                    text = "Version 1.0.1", 
+                    text = stringResource(Res.string.version), 
                     style = MaterialTheme.typography.bodyMedium, 
                     textAlign = TextAlign.Center,
                     modifier = Modifier

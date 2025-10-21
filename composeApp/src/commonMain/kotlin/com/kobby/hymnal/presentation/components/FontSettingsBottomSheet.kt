@@ -13,6 +13,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kobby.hymnal.theme.Shapes
+import hymnal_cmp.composeapp.generated.resources.Res
+import hymnal_cmp.composeapp.generated.resources.fonts_settings
+import hymnal_cmp.composeapp.generated.resources.close
+import hymnal_cmp.composeapp.generated.resources.font_decrease
+import hymnal_cmp.composeapp.generated.resources.font_increase
+import hymnal_cmp.composeapp.generated.resources.font
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,7 +53,7 @@ fun FontSettingsBottomSheet(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Fonts & Settings",
+                text = stringResource(Res.string.fonts_settings),
                 style = MaterialTheme.typography.titleMedium,
                 color = fontColor
             )
@@ -58,7 +65,7 @@ fun FontSettingsBottomSheet(
                 onClick = onDismiss 
             ) {
                 Text(
-                    text = "✕",
+                    text = stringResource(Res.string.close),
                     fontSize = 16.sp,
                     color = fontColor,
                     fontWeight = FontWeight.Normal
@@ -85,7 +92,7 @@ fun FontSettingsBottomSheet(
                 )
             ) {
                 Text(
-                    text = "A-",
+                    text = stringResource(Res.string.font_decrease),
                     color = fontColor,
                     fontWeight = FontWeight.Medium
                 )
@@ -103,7 +110,7 @@ fun FontSettingsBottomSheet(
                 )
             ) {
                 Text(
-                    text = "A+",
+                    text = stringResource(Res.string.font_increase),
                     color = fontColor,
                     fontWeight = FontWeight.Medium
                 )
@@ -112,7 +119,7 @@ fun FontSettingsBottomSheet(
 
         // Font label
         Text(
-            text = "Font",
+            text = stringResource(Res.string.font),
             modifier = Modifier.padding(bottom = 8.dp),
             style = MaterialTheme.typography.bodyMedium,
             color = fontColor

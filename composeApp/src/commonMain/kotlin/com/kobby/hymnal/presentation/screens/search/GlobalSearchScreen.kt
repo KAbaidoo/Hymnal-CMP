@@ -14,12 +14,16 @@ import com.kobby.hymnal.core.database.DatabaseManager
 import com.kobby.hymnal.core.database.HymnRepository
 import com.kobby.hymnal.presentation.components.ListScreen
 import com.kobby.hymnal.presentation.screens.hymns.HymnDetailScreen
+import hymnal_cmp.composeapp.generated.resources.Res
+import hymnal_cmp.composeapp.generated.resources.search_hymns
+import hymnal_cmp.composeapp.generated.resources.search_hymns_multiline
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import org.jetbrains.compose.resources.stringResource
 
 class GlobalSearchScreen : Screen {
     @OptIn(FlowPreview::class)
@@ -62,8 +66,8 @@ class GlobalSearchScreen : Screen {
             }
             
             ListScreen(
-                titleCollapsed = "Search Hymns",
-                titleExpanded = "Search\nHymns",
+                titleCollapsed = stringResource(Res.string.search_hymns),
+                titleExpanded = stringResource(Res.string.search_hymns_multiline),
                 items = displayedHymns,
                 searchText = searchText,
                 onSearchTextChanged = { searchText = it },

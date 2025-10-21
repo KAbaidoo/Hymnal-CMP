@@ -34,8 +34,11 @@ import hymnal_cmp.composeapp.generated.resources.Res
 import hymnal_cmp.composeapp.generated.resources.arrow_left_s_line
 import hymnal_cmp.composeapp.generated.resources.book_leaf
 import hymnal_cmp.composeapp.generated.resources.home_3_line
+import hymnal_cmp.composeapp.generated.resources.cd_back
+import hymnal_cmp.composeapp.generated.resources.cd_home
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.vectorResource
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,7 +101,7 @@ fun ContentScreen(
                             Icon(
                                 modifier = Modifier.size(30.dp),
                                 imageVector = vectorResource(Res.drawable.arrow_left_s_line),
-                                contentDescription = "Back",
+                                contentDescription = stringResource(Res.string.cd_back),
                             )
                         }
                     },
@@ -107,7 +110,7 @@ fun ContentScreen(
                             Icon(
                                 modifier = Modifier.size(30.dp),
                                 imageVector = vectorResource(Res.drawable.home_3_line),
-                                contentDescription = "Home"
+                                contentDescription = stringResource(Res.string.cd_home)
                             )
                         }
                     },
