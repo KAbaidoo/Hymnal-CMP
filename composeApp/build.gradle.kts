@@ -38,8 +38,8 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation(compose.uiTooling)
-//            implementation(libs.koin.android)
-//            implementation(libs.koin.androidx.compose)
+            implementation(libs.koin.android)
+            implementation(libs.koin.androidx.compose)
         }
 
         commonMain.dependencies {
@@ -55,11 +55,9 @@ kotlin {
             implementation(libs.multiplatform.settings.noargs)
             implementation(libs.sqldelight.coroutines)
 
-//            implementation(project.dependencies.platform(libs.koin.bom))
-//            api(libs.koin.core)
-//            implementation(libs.koin.compose)
-//            implementation(libs.koin.compose.viewmodel)
-//            implementation(libs.koin.compose.viewmodel.navigation)
+            implementation(project.dependencies.platform(libs.koin.bom))
+            api(libs.koin.core)
+            implementation(libs.koin.compose)
 
         }
         

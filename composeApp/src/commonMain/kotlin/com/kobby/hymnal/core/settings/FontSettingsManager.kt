@@ -11,9 +11,7 @@ data class FontSettings(
     val fontSize: Float = 16f
 )
 
-class FontSettingsManager {
-    
-    private val settings = Settings()
+class FontSettingsManager(private val settings: Settings) {
     
     private val _fontSettings = MutableStateFlow(
         FontSettings(
@@ -36,7 +34,4 @@ class FontSettingsManager {
         _fontSettings.value = _fontSettings.value.copy(fontSize = newSize)
     }
     
-    companion object {
-        val INSTANCE = FontSettingsManager()
-    }
 }

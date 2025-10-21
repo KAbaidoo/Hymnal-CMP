@@ -1,45 +1,28 @@
 package com.kobby.hymnal.presentation.screens.hymns
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import kotlinx.coroutines.flow.flowOf
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.kobby.hymnal.core.database.DatabaseManager
 import com.kobby.hymnal.core.database.HymnRepository
 import com.kobby.hymnal.presentation.screens.hymns.components.SupplementaryListContent
 import kotlinx.coroutines.flow.filter
+import org.koin.compose.koinInject
 
 class SupplementaryListScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        var repository by remember { mutableStateOf<HymnRepository?>(null) }
+        val repository: HymnRepository = koinInject()
         var searchText by remember { mutableStateOf("") }
-        var isLoading by remember { mutableStateOf(true) }
-        var error by remember { mutableStateOf<String?>(null) }
         
-        // Initialize repository
-        LaunchedEffect(Unit) {
-            try {
-                val database = DatabaseManager.getDatabase()
-                repository = HymnRepository(database)
-                isLoading = false
-            } catch (e: Exception) {
-                error = "Failed to load hymns: ${e.message}"
-                isLoading = false
-            }
-        }
-        
-        // Get hymns from repository if available
-        val hymns by (repository?.getHymnsByCategory(HymnRepository.CATEGORY_SUPPLEMENTARY)
-            ?: flowOf(emptyList())).collectAsState(initial = emptyList())
+        // Get hymns from repository
+        val hymns by repository.getHymnsByCategory(HymnRepository.CATEGORY_SUPPLEMENTARY).collectAsState(initial = emptyList())
         
         val filteredHymns = remember(hymns, searchText) {
             if (searchText.isBlank()) {
@@ -55,8 +38,8 @@ class SupplementaryListScreen : Screen {
         SupplementaryListContent(
             hymns = filteredHymns,
             searchText = searchText,
-            isLoading = isLoading,
-            error = error,
+            isLoading = false,
+            error = null,
             onSearchTextChanged = { searchText = it },
             onItemClick = { hymn ->
                 navigator.push(HymnDetailScreen(hymn))

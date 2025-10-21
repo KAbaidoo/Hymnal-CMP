@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 import hymnal_cmp.composeapp.generated.resources.Res
 import hymnal_cmp.composeapp.generated.resources.database_init_error
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 
 @Composable
 fun HymnalApp(databaseInitializer: DatabaseInitializer) {
@@ -65,7 +66,7 @@ fun HymnalApp(databaseInitializer: DatabaseInitializer) {
             
             else -> {
                 // Show main app
-                val useCase = remember { ShowOnboarding.INSTANCE }
+                val useCase: ShowOnboarding = koinInject()
                 val showOnboarding by useCase.execute().collectAsState(initial = false)
 
                 if (showOnboarding) {
