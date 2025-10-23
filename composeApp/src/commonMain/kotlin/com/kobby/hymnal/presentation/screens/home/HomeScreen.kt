@@ -84,8 +84,8 @@ class HomeScreen : Screen {
             onSupplementaryClick = { navigator.push(SupplementaryListScreen()) },
             onFavoritesClick = { navigator.push(FavoritesScreen()) },
             onCreedClick = { navigator.push(TheCreedScreen()) },
-            onSettingsClick = { /* TODO: Navigate to settings */ },
-            onSettingsLongClick = { isDeveloperMode = !isDeveloperMode },
+            onMoreClick = { navigator.push(MoreScreen()) },
+            onMoreLongClick = { isDeveloperMode = !isDeveloperMode },
             onTestDatabaseClick = { navigator.push(TestHymnScreen()) },
             isDeveloperMode = isDeveloperMode
         )
