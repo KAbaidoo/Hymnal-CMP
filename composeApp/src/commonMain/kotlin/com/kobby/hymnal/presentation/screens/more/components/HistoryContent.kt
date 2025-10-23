@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kobby.hymnal.composeApp.database.Hymn
+import com.kobby.hymnal.presentation.components.ContentScreen
 import com.kobby.hymnal.presentation.components.ListScreen
 
 @Composable
@@ -51,17 +52,28 @@ fun HistoryContent(
         }
         
         hymns.isEmpty() -> {
-            Box(
-                modifier = Modifier.fillMaxSize().padding(16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "No recently viewed hymns.\nStart browsing hymns to see your history here.",
-                    style = MaterialTheme.typography.bodyLarge,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
+            ContentScreen(
+                titleCollapsed = "History",
+                titleExpanded = "History",
+                content = { innerPadding ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No recently viewed hymns.\nStart browsing hymns to see your history here.",
+                            style = MaterialTheme.typography.bodyLarge,
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                },
+                onBackClick = onBackClick,
+                onHomeClick = onHomeClick
+            )
         }
         
         else -> {
