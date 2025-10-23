@@ -53,6 +53,7 @@ import com.kobby.hymnal.presentation.components.SemiTransparentCard
 import com.kobby.hymnal.presentation.screens.hymns.AncientModernListScreen
 import com.kobby.hymnal.presentation.screens.hymns.SupplementaryListScreen
 import com.kobby.hymnal.presentation.screens.more.FavoritesScreen
+import com.kobby.hymnal.presentation.screens.more.MoreScreen
 import com.kobby.hymnal.presentation.screens.search.GlobalSearchScreen
 import com.kobby.hymnal.presentation.screens.special.TheCreedScreen
 import com.kobby.hymnal.test.TestHymnScreen
@@ -68,6 +69,8 @@ import hymnal_cmp.composeapp.generated.resources.cd_open
 import hymnal_cmp.composeapp.generated.resources.cd_settings
 import hymnal_cmp.composeapp.generated.resources.cd_search
 import hymnal_cmp.composeapp.generated.resources.anglican_hymnal
+import hymnal_cmp.composeapp.generated.resources.search_line
+import hymnal_cmp.composeapp.generated.resources.menu_2_line
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.resources.stringResource
@@ -100,8 +103,8 @@ private fun HomeScreenContent(
     onSupplementaryClick: () -> Unit = {},
     onFavoritesClick: () -> Unit = {},
     onCreedClick: () -> Unit = {},
-    onSettingsClick: () -> Unit = {},
-    onSettingsLongClick: () -> Unit = {},
+    onMoreClick: () -> Unit = {},
+    onMoreLongClick: () -> Unit = {},
     onTestDatabaseClick: () -> Unit = {},
     isDeveloperMode: Boolean = false
 ) {
@@ -118,8 +121,8 @@ private fun HomeScreenContent(
             containerColor = Color.Transparent,
             topBar = {
                 AppBar(
-                    onSettingsClick = onSettingsClick,
-                    onSettingsLongClick = onSettingsLongClick,
+                    onMoreClick = onMoreClick,
+                    onMoreLongClick = onMoreLongClick,
                     onSearchClick = onSearchClick
                 )
             }
@@ -217,8 +220,8 @@ private fun HomeScreenContent(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun AppBar(
-    onSettingsClick: () -> Unit = {},
-    onSettingsLongClick: () -> Unit = {},
+    onMoreClick: () -> Unit = {},
+    onMoreLongClick: () -> Unit = {},
     onSearchClick: () -> Unit = {}
 ) {
     CenterAlignedTopAppBar(
@@ -248,28 +251,30 @@ private fun AppBar(
             titleContentColor = Color.Transparent
         ),
         actions = {
-            IconButton(
-                modifier = Modifier.combinedClickable(
-                    onClick = onSettingsClick,
-                    onLongClick = onSettingsLongClick
-                ),
-                onClick = {}
-            ) {
-                Icon(
-                    modifier = Modifier.size(24.dp),
-                    imageVector = Icons.Outlined.Settings,
-                    contentDescription = stringResource(Res.string.cd_settings),
-                    tint = MaterialTheme.colorScheme.secondary
-                )
-            }
             IconButton(onClick = onSearchClick) {
                 Icon(
                     modifier = Modifier.size(24.dp),
-                    imageVector = Icons.Outlined.Search,
+                    imageVector = vectorResource(Res.drawable.search_line),
                     contentDescription = stringResource(Res.string.cd_search),
                     tint = MaterialTheme.colorScheme.secondary
                 )
             }
+
+            IconButton(
+                modifier = Modifier.combinedClickable(
+                    onClick = onMoreClick,
+                    onLongClick = onMoreLongClick
+                ),
+                onClick = onMoreClick
+            ) {
+                Icon(
+                    modifier = Modifier.size(24.dp),
+                    imageVector = vectorResource(Res.drawable.menu_2_line),
+                    contentDescription = stringResource(Res.string.cd_settings),
+                    tint = MaterialTheme.colorScheme.secondary
+                )
+            }
+
         }
     )
 }
