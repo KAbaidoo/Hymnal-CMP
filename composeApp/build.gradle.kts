@@ -1,9 +1,13 @@
+import java.io.File
+import java.util.regex.Pattern
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.firebase.appdistribution)
 }
 
 kotlin {
@@ -75,6 +79,9 @@ kotlin {
 
 }
 
+val appVersionName = readLatestAppVersion()
+val appVersionCode = versionNameToCode(appVersionName)
+
 android {
     namespace = "com.kobby.hymnal"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
@@ -87,8 +94,8 @@ android {
         applicationId = "com.kobby.hymnal"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = appVersionCode
+        versionName = "$appVersionName"
     }
     packaging {
         resources {
@@ -104,7 +111,13 @@ android {
         getByName("debug") {
             isMinifyEnabled = false
             applicationIdSuffix = ".debug"
-            versionNameSuffix = "-debug"
+            versionNameSuffix = "-alpha"
+
+            firebaseAppDistribution {
+                artifactType = "APK"
+                releaseNotes = readLatestDevReleaseNotes(appVersionName)
+                groups = "internal-testers"  // You can create a separate testing group
+            }
         }
     }
 
@@ -125,4 +138,93 @@ sqldelight {
             packageName = "com.kobby.hymnal.composeApp.database"
         }
     }
+}
+
+/**
+ * Reads the latest app version from the release notes file by finding the last version header.
+ */
+fun readLatestAppVersion(): String {
+    val versionFile = File(project.rootDir, "release_notes")
+    val lines = versionFile.readLines().reversed()
+
+    val pattern = Pattern.compile("^(?:(\\d+)\\.)?(\\d+)\\.(\\d+)\$")
+
+    for (line in lines) {
+        val trimmedLine = line.trim()
+        // Skip comments and blank lines
+        if (trimmedLine.startsWith("#") || trimmedLine.isEmpty()) {
+            continue
+        }
+
+        if (pattern.matcher(trimmedLine).matches()) {
+            return trimmedLine
+        }
+    }
+
+    // If no version found, return fallback
+    return "0.0.0"
+}
+/**
+ * Read the file that contains the release notes and return the latest one
+ * that matches the conditions described in the release_notes.txt file.
+ */
+fun readLatestDevReleaseNotes(currentVersion: String): String {
+    // val versionFile = File(project.rootDir, 'release_notes')
+    // val stream = FileInputStream(versionFile)
+
+    val versionFile = File(project.rootDir, "release_notes")
+    val lines = versionFile.readLines()
+    val sb = StringBuilder()
+
+    val pattern = Pattern.compile("^(?:(\\d+)\\.)?(?:(\\d+)\\.)?(\\*|\\d+)\$")
+    var foundCurrentVersion = false
+
+    for (line in lines) {
+
+        // if we find comment, move on to next line
+        if (line.startsWith("#")) {
+            // found comment
+            continue
+        }
+
+        // find the current app version,
+        // move on to next line afterwards
+        if (line.equals(currentVersion, ignoreCase = true)) {
+            foundCurrentVersion = true
+            continue
+        }
+
+        // if already fond current version, append release lines
+        if (foundCurrentVersion) {
+            sb.append(line)
+            sb.append(System.lineSeparator())
+        }
+
+        // when we find a new line or different app version, after
+        // previous releases have been appended, exit.
+        if (sb.isNotBlank() && (line.isBlank() || pattern.matcher(line).matches())) {
+            break
+        }
+    }
+
+    // if no release were added
+    if (sb.isBlank()) {
+        sb.append("No release notes added for version $currentVersion")
+    }
+
+    return sb.toString()
+}
+
+/**
+ * Converts semantic version string to integer version code.
+ * Format: major * 10000 + minor * 100 + patch
+ * Example: "1.2.3" -> 10203, "2.0.0" -> 20000
+ */
+fun versionNameToCode(versionName: String): Int {
+    val parts = versionName.split(".")
+    val major = parts.getOrNull(0)?.toIntOrNull() ?: 0
+    val minor = parts.getOrNull(1)?.toIntOrNull() ?: 0
+    val patch = parts.getOrNull(2)?.toIntOrNull() ?: 0
+    
+    return major * 10000 + minor * 100 + patch
 }
