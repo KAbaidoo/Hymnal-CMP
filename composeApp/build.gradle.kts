@@ -114,6 +114,7 @@ android {
             versionNameSuffix = "-alpha"
 
             firebaseAppDistribution {
+                appId = System.getenv("FIREBASE_APP_ID") ?: "1:459035147795:android:6316136bebc57d9c2309e6"
                 artifactType = "APK"
                 releaseNotes = readLatestDevReleaseNotes(appVersionName)
                 groups = "internal-testers"  // You can create a separate testing group
