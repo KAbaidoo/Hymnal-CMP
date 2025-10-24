@@ -4,7 +4,7 @@ import android.content.res.Configuration
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.kobby.hymnal.composeApp.database.Hymn
-import com.kobby.hymnal.presentation.screens.hymns.components.AncientModernListContent
+import com.kobby.hymnal.presentation.screens.hymns.components.HymnListContent
 import com.kobby.hymnal.theme.HymnalAppTheme
 import com.kobby.hymnal.utils.DevicePreviews
 
@@ -13,7 +13,9 @@ import com.kobby.hymnal.utils.DevicePreviews
 @Composable
 fun AMListContentPreview() {
     HymnalAppTheme {
-        AncientModernListContent(
+        HymnListContent(
+            titleCollapsed = "Ancient & Modern",
+            titleExpanded = "Ancient\n& Modern",
             hymns = sampleHymns,
             searchText = "",
             isLoading = false,
@@ -30,7 +32,9 @@ fun AMListContentPreview() {
 @Composable
 fun AMListLoadingPreview() {
     HymnalAppTheme {
-        AncientModernListContent(
+        HymnListContent(
+            titleCollapsed = "Ancient & Modern",
+            titleExpanded = "Ancient\n& Modern",
             hymns = emptyList(),
             searchText = "",
             isLoading = true,
@@ -47,7 +51,9 @@ fun AMListLoadingPreview() {
 @Composable
 fun AMListErrorPreview() {
     HymnalAppTheme {
-        AncientModernListContent(
+        HymnListContent(
+            titleCollapsed = "Ancient & Modern",
+            titleExpanded = "Ancient\n& Modern",
             hymns = emptyList(),
             searchText = "",
             isLoading = false,
@@ -64,7 +70,9 @@ fun AMListErrorPreview() {
 @Composable
 fun AMListSearchPreview() {
     HymnalAppTheme {
-        AncientModernListContent(
+        HymnListContent(
+            titleCollapsed = "Ancient & Modern",
+            titleExpanded = "Ancient\n& Modern",
             hymns = sampleHymns.take(3),
             searchText = "Holy",
             isLoading = false,
@@ -81,7 +89,9 @@ fun AMListSearchPreview() {
 @Composable
 fun AMListDevicePreview() {
     HymnalAppTheme {
-        AncientModernListContent(
+        HymnListContent(
+            titleCollapsed = "Ancient & Modern",
+            titleExpanded = "Ancient\n& Modern",
             hymns = sampleHymns,
             searchText = "",
             isLoading = false,

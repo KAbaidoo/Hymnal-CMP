@@ -15,7 +15,9 @@ import com.kobby.hymnal.composeApp.database.Hymn
 import com.kobby.hymnal.presentation.components.ListScreen
 
 @Composable
-fun SupplementaryListContent(
+fun HymnListContent(
+    titleCollapsed: String,
+    titleExpanded: String,
     hymns: List<Hymn>,
     searchText: String,
     isLoading: Boolean,
@@ -51,8 +53,8 @@ fun SupplementaryListContent(
         
         else -> {
             ListScreen(
-                titleCollapsed = "Supplementary",
-                titleExpanded = "Supplementary",
+                titleCollapsed = titleCollapsed,
+                titleExpanded = titleExpanded,
                 items = hymns,
                 searchText = searchText,
                 onSearchTextChanged = onSearchTextChanged,

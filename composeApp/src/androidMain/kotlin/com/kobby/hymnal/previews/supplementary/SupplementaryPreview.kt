@@ -4,7 +4,7 @@ import android.content.res.Configuration
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.kobby.hymnal.composeApp.database.Hymn
-import com.kobby.hymnal.presentation.screens.hymns.components.SupplementaryListContent
+import com.kobby.hymnal.presentation.screens.hymns.components.HymnListContent
 import com.kobby.hymnal.theme.HymnalAppTheme
 import com.kobby.hymnal.utils.DevicePreviews
 
@@ -13,7 +13,9 @@ import com.kobby.hymnal.utils.DevicePreviews
 @Composable
 fun SupplementaryListContentPreview() {
     HymnalAppTheme {
-        SupplementaryListContent(
+        HymnListContent(
+            titleCollapsed = "Supplementary",
+            titleExpanded = "Supplementary",
             hymns = sampleSupplementaryHymns,
             searchText = "",
             isLoading = false,
@@ -30,7 +32,9 @@ fun SupplementaryListContentPreview() {
 @Composable
 fun SupplementaryLoadingPreview() {
     HymnalAppTheme {
-        SupplementaryListContent(
+        HymnListContent(
+            titleCollapsed = "Supplementary",
+            titleExpanded = "Supplementary",
             hymns = emptyList(),
             searchText = "",
             isLoading = true,
@@ -47,7 +51,9 @@ fun SupplementaryLoadingPreview() {
 @Composable
 fun SupplementaryErrorPreview() {
     HymnalAppTheme {
-        SupplementaryListContent(
+        HymnListContent(
+            titleCollapsed = "Supplementary",
+            titleExpanded = "Supplementary",
             hymns = emptyList(),
             searchText = "",
             isLoading = false,
@@ -64,7 +70,9 @@ fun SupplementaryErrorPreview() {
 @Composable
 fun SupplementarySearchPreview() {
     HymnalAppTheme {
-        SupplementaryListContent(
+        HymnListContent(
+            titleCollapsed = "Supplementary",
+            titleExpanded = "Supplementary",
             hymns = sampleSupplementaryHymns.take(2),
             searchText = "Father",
             isLoading = false,
@@ -81,7 +89,9 @@ fun SupplementarySearchPreview() {
 @Composable
 fun SupplementaryDevicePreview() {
     HymnalAppTheme {
-        SupplementaryListContent(
+        HymnListContent(
+            titleCollapsed = "Supplementary",
+            titleExpanded = "Supplementary",
             hymns = sampleSupplementaryHymns,
             searchText = "",
             isLoading = false,
