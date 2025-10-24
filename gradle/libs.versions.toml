@@ -24,6 +24,7 @@ firebase-bom = "33.13.0"
 kolinx-coroutines = "1.10.2"
 koin-bom = "3.5.6"
 sqldelight = "2.0.1"
+appdistribution = "3.0.1"
 
 [libraries]
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
@@ -66,3 +67,4 @@ kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref =
 googleServices = { id = "com.google.gms.google-services", version.ref = "google-services" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
 toolChainResolver = { id = "org.gradle.toolchains.foojay-resolver-convention", version.ref = "tool-chain-resolver" }
+firebase-appdistribution = { id = "com.google.firebase.appdistribution" , version.ref = "appdistribution"}
