@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Kotlin Multiplatform Compose application called "Hymnal-CMP" - an Anglican hymnal app targeting Android and iOS platforms. The app contains 834 Anglican hymns (779 Ancient & Modern + 55 Supplementary) stored in a prepackaged SQLite database with full-text search capabilities.
+This is a Kotlin Multiplatform Compose application called "Hymnal-CMP" - an Anglican hymnal app targeting Android and iOS platforms. The app contains 841 Anglican liturgical texts (779 Ancient & Modern hymns + 55 Supplementary hymns + 7 Canticles) stored in a prepackaged SQLite database with full-text search capabilities.
 
 ## Architecture
 
@@ -19,7 +19,7 @@ This is a Kotlin Multiplatform Compose application called "Hymnal-CMP" - an Angl
 
 The app uses a **prepackaged database strategy**:
 - Hymn data is processed offline using `scripts/hymn_processor.py`
-- Database file (`1.7MB`) is bundled in `composeResources/files/hymns.db`
+- Database file (`1.8MB`) is bundled in `composeResources/files/hymns.db`
 - On first launch, database is copied to app's data directory
 - SQLDelight provides type-safe access with FTS4 full-text search
 
@@ -89,15 +89,16 @@ The app uses a **prepackaged database strategy**:
 ```bash
 cd scripts
 python3 hymn_processor.py
-# Processes /Users/kobby/Desktop/Anglican hymn files
+# Processes /Users/kobby/Desktop/Anglican hymn files and canticles
 # Outputs to composeApp/src/commonMain/composeResources/files/hymns.db
 ```
 
 **Database Inspection:**
 ```bash
 sqlite3 composeApp/src/commonMain/composeResources/files/hymns.db
-# Check hymn count: SELECT COUNT(*) FROM hymn;
+# Check total count: SELECT COUNT(*) FROM hymn;
 # Category breakdown: SELECT category, COUNT(*) FROM hymn GROUP BY category;
+# View canticles: SELECT number, title FROM hymn WHERE category = 'canticles' ORDER BY number;
 ```
 
 ### Database Schema Key Points
@@ -127,10 +128,20 @@ sqlite3 composeApp/src/commonMain/composeResources/files/hymns.db
 - iOS: `GoogleService-Info.plist`
 
 ## App Features
-- Prepackaged database with 834 Anglican hymns
-- Full-text search with performance monitoring
-- Category filtering (Ancient & Modern, Supplementary)
+- Prepackaged database with 841 Anglican liturgical texts
+- Full-text search with performance monitoring  
+- Category filtering (Ancient & Modern, Supplementary, Canticles)
 - Favorites and history tracking with SQLDelight queries
 - Text highlighting capabilities
 - Database inspector for debugging and performance analysis
 - Cross-platform database initialization and error handling
+
+## Canticles Numbering System
+- Canticles are assigned numbers 1001-1007 in liturgical order:
+  - 1001: Venite (call to worship)
+  - 1002: Te Deum Laudamus (great hymn of praise)
+  - 1003: Jubilate Deo (alternative to Te Deum)  
+  - 1004: Benedictus (Zechariah's song)
+  - 1005: Magnificat (Mary's song)
+  - 1006: Nunc dimittis (Simeon's song)
+  - 1007: The Creed (statement of faith)
