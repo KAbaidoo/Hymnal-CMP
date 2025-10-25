@@ -1,16 +1,32 @@
 package com.kobby.hymnal.presentation.screens.special
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.composeApp.database.Hymn
+import com.kobby.hymnal.core.settings.FontSettingsManager
 import com.kobby.hymnal.presentation.components.DetailScreen
+import com.kobby.hymnal.presentation.components.FontSettingsModal
+import org.koin.compose.koinInject
 
 class TheCreedScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val scope = rememberCoroutineScope()
+        var isFavorite by remember { mutableStateOf(false) }
+        var showFontSettings by remember { mutableStateOf(false) }
+        
+        // Font settings
+        val fontSettingsManager: FontSettingsManager = koinInject()
+        val fontSettings by fontSettingsManager.fontSettings.collectAsState()
         
         val creedContent = Hymn(
             id = 0,
@@ -29,7 +45,7 @@ class TheCreedScreen : Screen {
         
         DetailScreen(
             hymn = creedContent,
-            isFavorite = false,
+            isFavorite = isFavorite,
             onBackClick = { navigator.pop() },
             onHomeClick = { 
                 // Navigate to home by popping until we reach HomeScreen or we can't pop anymore
@@ -41,7 +57,32 @@ class TheCreedScreen : Screen {
                     }
                 }
             },
-            showActionButtons = false
+            onFavoriteClick = {
+                // Creed cannot be favorited, but we keep the button for UI consistency
+                // Could show a toast message or just do nothing
+            },
+            onFontSettingsClick = {
+                showFontSettings = true
+            },
+            onShareClick = {
+                // TODO: Implement sharing for creed content
+                // Could share "The Apostles' Creed" + content
+            },
+            fontSettings = fontSettings,
+            showActionButtons = true
+        )
+        
+        // Font Settings Modal
+        FontSettingsModal(
+            isVisible = showFontSettings,
+            onDismiss = { showFontSettings = false },
+            onFontSizeChange = { sizeChange ->
+                fontSettingsManager.updateFontSize(sizeChange)
+            },
+            onFontChange = { fontFamily ->
+                fontSettingsManager.updateFontFamily(fontFamily)
+            },
+            currentFont = fontSettings.fontFamily
         )
     }
 }
