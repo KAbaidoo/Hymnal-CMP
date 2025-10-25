@@ -141,12 +141,20 @@ def parse_hymn_file(file_path, category):
         # Extract hymn content (everything after the header)
         hymn_content = '\n'.join(lines[content_start_index:]).strip()
         
-        # Extract title from first line of content
-        title = ""
-        if hymn_content:
-            first_line = hymn_content.split('\n')[0].strip()
-            # Remove trailing punctuation and use as title
-            title = first_line.rstrip('.,;:!?').strip()
+        # Extract title based on category
+        if category == "canticles":
+            # For canticles, use filename as title (remove .txt extension)
+            title = os.path.splitext(filename)[0]
+            # Clean up specific formatting
+            if title == "THE CREED":
+                title = "The Creed"
+        else:
+            # For hymns, extract title from first line of content
+            title = ""
+            if hymn_content:
+                first_line = hymn_content.split('\n')[0].strip()
+                # Remove trailing punctuation and use as title
+                title = first_line.rstrip('.,;:!?').strip()
         
         if not hymn_content:
             return None
