@@ -10,19 +10,27 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.core.database.HymnRepository
-import com.kobby.hymnal.presentation.screens.hymns.components.SupplementaryListContent
-import kotlinx.coroutines.flow.filter
+import com.kobby.hymnal.presentation.screens.hymns.components.HymnListContent
+import kotlinx.coroutines.flow.flowOf
 import org.koin.compose.koinInject
 
-class SupplementaryListScreen : Screen {
+class HymnListScreen(
+    private val category: String,
+    private val titleCollapsed: String,
+    private val titleExpanded: String
+) : Screen {
+    
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val repository: HymnRepository = koinInject()
         var searchText by remember { mutableStateOf("") }
+        var isLoading by remember { mutableStateOf(false) }
+        var error by remember { mutableStateOf<String?>(null) }
         
         // Get hymns from repository
-        val hymns by repository.getHymnsByCategory(HymnRepository.CATEGORY_SUPPLEMENTARY).collectAsState(initial = emptyList())
+        val hymns by (repository?.getHymnsByCategory(category) 
+            ?: flowOf(emptyList())).collectAsState(initial = emptyList())
         
         val filteredHymns = remember(hymns, searchText) {
             if (searchText.isBlank()) {
@@ -35,11 +43,13 @@ class SupplementaryListScreen : Screen {
             }
         }
         
-        SupplementaryListContent(
+        HymnListContent(
+            titleCollapsed = titleCollapsed,
+            titleExpanded = titleExpanded,
             hymns = filteredHymns,
             searchText = searchText,
-            isLoading = false,
-            error = null,
+            isLoading = isLoading,
+            error = error,
             onSearchTextChanged = { searchText = it },
             onItemClick = { hymn ->
                 navigator.push(HymnDetailScreen(hymn))

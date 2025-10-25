@@ -50,8 +50,8 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.presentation.components.CategoryButtons
 import com.kobby.hymnal.presentation.components.ScreenBackground
 import com.kobby.hymnal.presentation.components.SemiTransparentCard
-import com.kobby.hymnal.presentation.screens.hymns.AncientModernListScreen
-import com.kobby.hymnal.presentation.screens.hymns.SupplementaryListScreen
+import com.kobby.hymnal.presentation.screens.hymns.HymnListScreen
+import com.kobby.hymnal.core.database.HymnRepository
 import com.kobby.hymnal.presentation.screens.more.FavoritesScreen
 import com.kobby.hymnal.presentation.screens.more.MoreScreen
 import com.kobby.hymnal.presentation.screens.search.GlobalSearchScreen
@@ -83,8 +83,20 @@ class HomeScreen : Screen {
         
         HomeScreenContent(
             onSearchClick = { navigator.push(GlobalSearchScreen()) },
-            onAncientModernClick = { navigator.push(AncientModernListScreen()) },
-            onSupplementaryClick = { navigator.push(SupplementaryListScreen()) },
+            onAncientModernClick = { 
+                navigator.push(HymnListScreen(
+                    category = HymnRepository.CATEGORY_ANCIENT_MODERN,
+                    titleCollapsed = "Ancient & Modern",
+                    titleExpanded = "Ancient\n& Modern"
+                ))
+            },
+            onSupplementaryClick = { 
+                navigator.push(HymnListScreen(
+                    category = HymnRepository.CATEGORY_SUPPLEMENTARY,
+                    titleCollapsed = "Supplementary",
+                    titleExpanded = "Supplementary"
+                ))
+            },
             onFavoritesClick = { navigator.push(FavoritesScreen()) },
             onCreedClick = { navigator.push(TheCreedScreen()) },
             onMoreClick = { navigator.push(MoreScreen()) },
