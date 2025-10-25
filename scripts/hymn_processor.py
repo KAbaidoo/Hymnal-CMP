@@ -124,7 +124,7 @@ def parse_hymn_file(file_path, category):
                 "Benedictus.txt",
                 "Magnificat.txt",
                 "Nunc dimittis.txt",
-                "THE CREED.txt"
+                "The Creed.txt"
             ]
             try:
                 number = 1001 + canticle_order.index(filename)
@@ -146,7 +146,7 @@ def parse_hymn_file(file_path, category):
             # For canticles, use filename as title (remove .txt extension)
             title = os.path.splitext(filename)[0]
             # Clean up specific formatting
-            if title == "THE CREED":
+            if title == "The Creed":
                 title = "The Creed"
         else:
             # For hymns, extract title from first line of content
