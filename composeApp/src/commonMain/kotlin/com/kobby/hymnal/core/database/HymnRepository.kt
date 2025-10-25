@@ -96,5 +96,6 @@ class HymnRepository(private val database: HymnDatabase) {
     companion object {
         const val CATEGORY_ANCIENT_MODERN = "ancient_modern"
         const val CATEGORY_SUPPLEMENTARY = "supplementary"
+        const val CATEGORY_CANTICLES = "canticles"
     }
 }

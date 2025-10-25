@@ -55,7 +55,6 @@ import com.kobby.hymnal.core.database.HymnRepository
 import com.kobby.hymnal.presentation.screens.more.FavoritesScreen
 import com.kobby.hymnal.presentation.screens.more.MoreScreen
 import com.kobby.hymnal.presentation.screens.search.GlobalSearchScreen
-import com.kobby.hymnal.presentation.screens.special.TheCreedScreen
 import com.kobby.hymnal.test.TestHymnScreen
 import com.kobby.hymnal.theme.Shapes
 import hymnal_cmp.composeapp.generated.resources.Res
@@ -98,7 +97,13 @@ class HomeScreen : Screen {
                 ))
             },
             onFavoritesClick = { navigator.push(FavoritesScreen()) },
-            onCreedClick = { navigator.push(TheCreedScreen()) },
+            onCanticleClick = { 
+                navigator.push(HymnListScreen(
+                    category = HymnRepository.CATEGORY_CANTICLES,
+                    titleCollapsed = "Canticles",
+                    titleExpanded = "Canticles"
+                ))
+            },
             onMoreClick = { navigator.push(MoreScreen()) },
             onMoreLongClick = { isDeveloperMode = !isDeveloperMode },
             onTestDatabaseClick = { navigator.push(TestHymnScreen()) },
@@ -114,7 +119,7 @@ private fun HomeScreenContent(
     onAncientModernClick: () -> Unit = {},
     onSupplementaryClick: () -> Unit = {},
     onFavoritesClick: () -> Unit = {},
-    onCreedClick: () -> Unit = {},
+    onCanticleClick: () -> Unit = {},
     onMoreClick: () -> Unit = {},
     onMoreLongClick: () -> Unit = {},
     onTestDatabaseClick: () -> Unit = {},
@@ -205,8 +210,8 @@ private fun HomeScreenContent(
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         CategoryButtons(
-                            title = "The Creed",
-                            onClick = onCreedClick
+                            title = "Canticles",
+                            onClick = onCanticleClick
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         CategoryButtons(

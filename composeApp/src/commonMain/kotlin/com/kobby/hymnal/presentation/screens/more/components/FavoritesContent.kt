@@ -26,6 +26,14 @@ import hymnal_cmp.composeapp.generated.resources.no_favorite_hymns
 import hymnal_cmp.composeapp.generated.resources.search_placeholder
 import org.jetbrains.compose.resources.stringResource
 
+private fun formatHymnTitle(hymn: Hymn): String {
+    return if (hymn.category == "canticles") {
+        hymn.title ?: "Untitled"
+    } else {
+        "${hymn.number}. ${hymn.title ?: "Untitled"}"
+    }
+}
+
 @Composable
 fun FavoritesContent(
     hymns: List<Hymn>,
@@ -113,7 +121,7 @@ private fun FavoritesListScreen(
                 } else {
                     items(items) { hymn ->
                         ListItem(
-                            title = "${hymn.number}. ${hymn.title ?: "Untitled"}",
+                            title = formatHymnTitle(hymn),
                             onClick = { onItemClick(hymn) }
                         )
                     }
