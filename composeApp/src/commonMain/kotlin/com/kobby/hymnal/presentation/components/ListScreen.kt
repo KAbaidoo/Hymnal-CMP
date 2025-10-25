@@ -14,6 +14,14 @@ import hymnal_cmp.composeapp.generated.resources.Res
 import hymnal_cmp.composeapp.generated.resources.search_placeholder
 import org.jetbrains.compose.resources.stringResource
 
+private fun formatHymnTitle(hymn: Hymn): String {
+    return if (hymn.category == "canticles") {
+        hymn.title ?: "Untitled"
+    } else {
+        "${hymn.number}. ${hymn.title ?: "Untitled"}"
+    }
+}
+
 @Composable
 fun ListScreen(
     titleCollapsed: String,
@@ -38,7 +46,7 @@ fun ListScreen(
             ) {
                 items(items) { hymn ->
                     ListItem(
-                        title = "${hymn.number}. ${hymn.title ?: "Untitled"}",
+                        title = formatHymnTitle(hymn),
                         onClick = { onItemClick(hymn) }
                     )
                 }
