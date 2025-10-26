@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.kobby.hymnal.BuildKonfig
 import com.kobby.hymnal.presentation.components.ContentScreen
 import com.kobby.hymnal.presentation.components.ListItem
 import hymnal_cmp.composeapp.generated.resources.Res
@@ -56,47 +57,11 @@ fun MoreScreenContent(
                     )
                 }
 
-                // Settings section
-                Text(
-                    text = stringResource(Res.string.settings), 
-                    style = MaterialTheme.typography.bodyMedium, 
-                    modifier = Modifier.padding(16.dp)
-                )
-                
-                Card(
-                    elevation = CardDefaults.elevatedCardElevation(), 
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    ), 
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(Res.string.dark_mode),
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
-
-                        Switch(
-                            modifier = Modifier
-                                .padding(10.dp)
-                                .height(8.dp),
-                            checked = isDarkMode,
-                            onCheckedChange = onDarkModeToggle
-                        )
-                    }
-                }
-
                 Spacer(modifier = Modifier.weight(1f))
                 
                 // Version info
                 Text(
-                    text = stringResource(Res.string.version), 
+                    text = "${stringResource(Res.string.version)} ${BuildKonfig.VERSION_NAME}", 
                     style = MaterialTheme.typography.bodyMedium, 
                     textAlign = TextAlign.Center,
                     modifier = Modifier
