@@ -20,7 +20,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -43,6 +45,8 @@ import hymnal_cmp.composeapp.generated.resources.author_name
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
+private const val AUTO_NAVIGATION_DELAY_MS = 5000L
+
 class StartScreen : Screen {
 
     private val settings = Settings()
@@ -51,9 +55,13 @@ class StartScreen : Screen {
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
 
+        LaunchedEffect(Unit) {
+            delay(AUTO_NAVIGATION_DELAY_MS)
+            navigator.push(HomeScreen())
+        }
+
         StartScreenContent(
             onStartButtonClicked = {
-                settings.putBoolean("onboarding", false)
                 navigator.push(HomeScreen())
             }
         )
