@@ -2,6 +2,7 @@ package com.kobby.hymnal.presentation.screens.hymns
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -11,45 +12,60 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.composeApp.database.Hymn
-import com.kobby.hymnal.core.database.DatabaseManager
 import com.kobby.hymnal.core.database.HymnRepository
+import com.kobby.hymnal.core.settings.FontSettingsManager
+import org.koin.compose.koinInject
 import com.kobby.hymnal.presentation.components.DetailScreen
+import com.kobby.hymnal.presentation.components.FontSettingsModal
+import com.kobby.hymnal.presentation.screens.home.HomeScreen
 import kotlinx.coroutines.launch
 
-data class HymnDetailScreen(private val hymn: Hymn) : Screen {
+data class HymnDetailScreen(
+    private val hymn: Hymn,
+    private val fromStartScreen: Boolean = false
+) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val scope = rememberCoroutineScope()
-        var repository by remember { mutableStateOf<HymnRepository?>(null) }
+        val repository: HymnRepository = koinInject()
         var isFavorite by remember { mutableStateOf(false) }
+        var showFontSettings by remember { mutableStateOf(false) }
         
-        // Initialize repository
-        LaunchedEffect(Unit) {
-            val database = DatabaseManager.getDatabase()
-            repository = HymnRepository(database)
-        }
+        // Font settings
+        val fontSettingsManager: FontSettingsManager = koinInject()
+        val fontSettings by fontSettingsManager.fontSettings.collectAsState()
         
         // Check if hymn is favorite
-        LaunchedEffect(repository) {
-            repository?.let { repo ->
-                isFavorite = repo.isFavorite(hymn.id)
-            }
+        LaunchedEffect(Unit) {
+            isFavorite = repository.isFavorite(hymn.id)
         }
         
         // Add to history when screen opens
         LaunchedEffect(hymn.id) {
-            repository?.addToHistory(hymn.id)
+            repository.addToHistory(hymn.id)
         }
         
         DetailScreen(
             hymn = hymn,
             isFavorite = isFavorite,
-            onBackClick = { navigator.pop() },
+            onBackClick = { 
+                if (fromStartScreen) {
+                    // Navigate to home when coming from start screen
+                    navigator.push(HomeScreen())
+                } else {
+                    // Normal back navigation for other cases
+                    navigator.pop()
+                }
+            },
             onHomeClick = { 
-                // Navigate to home by popping all screens
+                // Navigate to home by popping until we reach HomeScreen or we can't pop anymore
                 while (navigator.canPop) {
                     navigator.pop()
+                    // Check if current screen is HomeScreen by trying to find it in the stack
+                    if (navigator.lastItem is com.kobby.hymnal.presentation.screens.home.HomeScreen) {
+                        break
+                    }
                 }
             },
             onFavoriteClick = {
@@ -65,11 +81,25 @@ data class HymnDetailScreen(private val hymn: Hymn) : Screen {
                 }
             },
             onFontSettingsClick = {
-                // TODO: Implement font settings
+                showFontSettings = true
             },
             onShareClick = {
                 // TODO: Implement sharing
-            }
+            },
+            fontSettings = fontSettings
+        )
+        
+        // Font Settings Modal
+        FontSettingsModal(
+            isVisible = showFontSettings,
+            onDismiss = { showFontSettings = false },
+            onFontSizeChange = { sizeChange ->
+                fontSettingsManager.updateFontSize(sizeChange)
+            },
+            onFontChange = { fontFamily ->
+                fontSettingsManager.updateFontFamily(fontFamily)
+            },
+            currentFont = fontSettings.fontFamily
         )
     }
 }

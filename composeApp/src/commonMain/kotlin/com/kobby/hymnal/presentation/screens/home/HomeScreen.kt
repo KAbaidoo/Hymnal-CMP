@@ -50,8 +50,10 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.presentation.components.CategoryButtons
 import com.kobby.hymnal.presentation.components.ScreenBackground
 import com.kobby.hymnal.presentation.components.SemiTransparentCard
-import com.kobby.hymnal.presentation.screens.hymns.AncientModernListScreen
-import com.kobby.hymnal.presentation.screens.hymns.SupplementaryListScreen
+import com.kobby.hymnal.presentation.screens.hymns.HymnListScreen
+import com.kobby.hymnal.core.database.HymnRepository
+import com.kobby.hymnal.presentation.screens.more.FavoritesScreen
+import com.kobby.hymnal.presentation.screens.more.MoreScreen
 import com.kobby.hymnal.presentation.screens.search.GlobalSearchScreen
 import com.kobby.hymnal.test.TestHymnScreen
 import com.kobby.hymnal.theme.Shapes
@@ -59,8 +61,18 @@ import hymnal_cmp.composeapp.generated.resources.Res
 import hymnal_cmp.composeapp.generated.resources.book_open
 import hymnal_cmp.composeapp.generated.resources.cathedral
 import hymnal_cmp.composeapp.generated.resources.heart_2_line
+import hymnal_cmp.composeapp.generated.resources.find_your_hymns
+import hymnal_cmp.composeapp.generated.resources.explore_collection
+import hymnal_cmp.composeapp.generated.resources.open_hymns
+import hymnal_cmp.composeapp.generated.resources.cd_open
+import hymnal_cmp.composeapp.generated.resources.cd_settings
+import hymnal_cmp.composeapp.generated.resources.cd_search
+import hymnal_cmp.composeapp.generated.resources.anglican_hymnal
+import hymnal_cmp.composeapp.generated.resources.search_line
+import hymnal_cmp.composeapp.generated.resources.menu_2_line
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.vectorResource
+import org.jetbrains.compose.resources.stringResource
 
 class HomeScreen : Screen {
     @Composable
@@ -70,12 +82,30 @@ class HomeScreen : Screen {
         
         HomeScreenContent(
             onSearchClick = { navigator.push(GlobalSearchScreen()) },
-            onAncientModernClick = { navigator.push(AncientModernListScreen()) },
-            onSupplementaryClick = { navigator.push(SupplementaryListScreen()) },
-            onFavoritesClick = { /* TODO: Navigate to favorites */ },
-            onCreedClick = { /* TODO: Navigate to creed */ },
-            onSettingsClick = { /* TODO: Navigate to settings */ },
-            onSettingsLongClick = { isDeveloperMode = !isDeveloperMode },
+            onAncientModernClick = { 
+                navigator.push(HymnListScreen(
+                    category = HymnRepository.CATEGORY_ANCIENT_MODERN,
+                    titleCollapsed = "Ancient & Modern",
+                    titleExpanded = "Ancient\n& Modern"
+                ))
+            },
+            onSupplementaryClick = { 
+                navigator.push(HymnListScreen(
+                    category = HymnRepository.CATEGORY_SUPPLEMENTARY,
+                    titleCollapsed = "Supplementary",
+                    titleExpanded = "Supplementary"
+                ))
+            },
+            onFavoritesClick = { navigator.push(FavoritesScreen()) },
+            onCanticleClick = { 
+                navigator.push(HymnListScreen(
+                    category = HymnRepository.CATEGORY_CANTICLES,
+                    titleCollapsed = "Canticles",
+                    titleExpanded = "Canticles"
+                ))
+            },
+            onMoreClick = { navigator.push(MoreScreen()) },
+            onMoreLongClick = { isDeveloperMode = !isDeveloperMode },
             onTestDatabaseClick = { navigator.push(TestHymnScreen()) },
             isDeveloperMode = isDeveloperMode
         )
@@ -89,9 +119,9 @@ private fun HomeScreenContent(
     onAncientModernClick: () -> Unit = {},
     onSupplementaryClick: () -> Unit = {},
     onFavoritesClick: () -> Unit = {},
-    onCreedClick: () -> Unit = {},
-    onSettingsClick: () -> Unit = {},
-    onSettingsLongClick: () -> Unit = {},
+    onCanticleClick: () -> Unit = {},
+    onMoreClick: () -> Unit = {},
+    onMoreLongClick: () -> Unit = {},
     onTestDatabaseClick: () -> Unit = {},
     isDeveloperMode: Boolean = false
 ) {
@@ -108,8 +138,8 @@ private fun HomeScreenContent(
             containerColor = Color.Transparent,
             topBar = {
                 AppBar(
-                    onSettingsClick = onSettingsClick,
-                    onSettingsLongClick = onSettingsLongClick,
+                    onMoreClick = onMoreClick,
+                    onMoreLongClick = onMoreLongClick,
                     onSearchClick = onSearchClick
                 )
             }
@@ -134,13 +164,13 @@ private fun HomeScreenContent(
                     ) {
                         SemiTransparentCard {
                             Text(
-                                text = "Find Your Hymns",
+                                text = stringResource(Res.string.find_your_hymns),
                                 style = MaterialTheme.typography.headlineMedium,
                                 color = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier.padding(bottom = 8.dp)
                             )
                             Text(
-                                text = "Explore our collection of Anglican hymns.",
+                                text = stringResource(Res.string.explore_collection),
                                 color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
                                 style = MaterialTheme.typography.bodySmall,
                                 modifier = Modifier.padding(top = 4.dp, bottom = 24.dp)
@@ -155,14 +185,14 @@ private fun HomeScreenContent(
                                 modifier = Modifier.height(40.dp)
                             ) {
                                 Text(
-                                    text = "Open Hymns",
+                                    text = stringResource(Res.string.open_hymns),
                                     color = MaterialTheme.colorScheme.primary,
                                     style = MaterialTheme.typography.bodyLarge,
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Icon(
                                     imageVector = Icons.Outlined.ArrowForward,
-                                    contentDescription = "Open",
+                                    contentDescription = stringResource(Res.string.cd_open),
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                             }
@@ -180,8 +210,8 @@ private fun HomeScreenContent(
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         CategoryButtons(
-                            title = "The Creed",
-                            onClick = onCreedClick
+                            title = "Canticles",
+                            onClick = onCanticleClick
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         CategoryButtons(
@@ -207,8 +237,8 @@ private fun HomeScreenContent(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun AppBar(
-    onSettingsClick: () -> Unit = {},
-    onSettingsLongClick: () -> Unit = {},
+    onMoreClick: () -> Unit = {},
+    onMoreLongClick: () -> Unit = {},
     onSearchClick: () -> Unit = {}
 ) {
     CenterAlignedTopAppBar(
@@ -227,7 +257,7 @@ private fun AppBar(
                 )
                 Text(
                     modifier = Modifier.padding(16.dp),
-                    text = "Anglican Hymnal",
+                    text = stringResource(Res.string.anglican_hymnal),
                     style = MaterialTheme.typography.headlineLarge,
                     color = MaterialTheme.colorScheme.onPrimary
                 )
@@ -238,28 +268,30 @@ private fun AppBar(
             titleContentColor = Color.Transparent
         ),
         actions = {
-            IconButton(
-                modifier = Modifier.combinedClickable(
-                    onClick = onSettingsClick,
-                    onLongClick = onSettingsLongClick
-                ),
-                onClick = {}
-            ) {
-                Icon(
-                    modifier = Modifier.size(24.dp),
-                    imageVector = Icons.Outlined.Settings,
-                    contentDescription = "Settings",
-                    tint = MaterialTheme.colorScheme.secondary
-                )
-            }
             IconButton(onClick = onSearchClick) {
                 Icon(
                     modifier = Modifier.size(24.dp),
-                    imageVector = Icons.Outlined.Search,
-                    contentDescription = "Search",
+                    imageVector = vectorResource(Res.drawable.search_line),
+                    contentDescription = stringResource(Res.string.cd_search),
                     tint = MaterialTheme.colorScheme.secondary
                 )
             }
+
+            IconButton(
+                modifier = Modifier.combinedClickable(
+                    onClick = onMoreClick,
+                    onLongClick = onMoreLongClick
+                ),
+                onClick = onMoreClick
+            ) {
+                Icon(
+                    modifier = Modifier.size(24.dp),
+                    imageVector = vectorResource(Res.drawable.menu_2_line),
+                    contentDescription = stringResource(Res.string.cd_settings),
+                    tint = MaterialTheme.colorScheme.secondary
+                )
+            }
+
         }
     )
 }

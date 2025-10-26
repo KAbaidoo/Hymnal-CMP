@@ -12,13 +12,25 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import com.google.firebase.Firebase
 import com.google.firebase.initialize
-import com.kobby.hymnal.core.database.DatabaseInitializer
+import com.kobby.hymnal.di.androidModule
+import com.kobby.hymnal.di.databaseModule
+import com.kobby.hymnal.di.settingsModule
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.core.context.startKoin
 
 class MainActivity : ComponentActivity() {
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         window.statusBarColor = Color.Black.toArgb()
-//        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = false
         super.onCreate(savedInstanceState)
+
+        // Initialize Koin
+        startKoin {
+            androidLogger()
+            androidContext(this@MainActivity)
+            modules(databaseModule, settingsModule, androidModule)
+        }
 
         Firebase.initialize(this)
 
@@ -40,8 +52,7 @@ class MainActivity : ComponentActivity() {
                  else  SystemBarStyle.light(lightColor.hashCode(), lightColor.hashCode())
             )
 
-            val databaseInitializer = DatabaseInitializer(this)
-            HymnalApp(databaseInitializer)
+            HymnalApp()
         }
     }
 }

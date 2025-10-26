@@ -115,25 +115,46 @@ def parse_hymn_file(file_path, category):
             # Extract from "supp 12.txt"
             match = re.search(r'supp (\d+)\.txt', filename)
             number = int(match.group(1)) if match else 0
+        elif category == "canticles":
+            # Assign sequential numbers starting from 1001 based on liturgical order
+            canticle_order = [
+                "Venite.txt",
+                "Te Deum Laudamus.txt", 
+                "Jubilate Deo.txt",
+                "Benedictus.txt",
+                "Magnificat.txt",
+                "Nunc dimittis.txt",
+                "The Creed.txt"
+            ]
+            try:
+                number = 1001 + canticle_order.index(filename)
+            except ValueError:
+                number = 1000  # fallback for unknown canticles
         else:
             number = 0
         
-        # Extract title and content
-        title = ""
+        # Skip the first line (HYMN X) and any empty lines to get to actual content
         content_start_index = 1
+        while content_start_index < len(lines) and not lines[content_start_index].strip():
+            content_start_index += 1
         
-        # Look for title in the first few lines
-        for i in range(1, min(4, len(lines))):
-            line = lines[i].strip()
-            if line and not line.startswith('HYMN') and not line.startswith('SUPP'):
-                # Check if this line looks like a title (short, capitalized words)
-                if len(line) < 100 and (line.isupper() or line.istitle()):
-                    title = line
-                    content_start_index = i + 1
-                    break
-        
-        # Extract hymn content
+        # Extract hymn content (everything after the header)
         hymn_content = '\n'.join(lines[content_start_index:]).strip()
+        
+        # Extract title based on category
+        if category == "canticles":
+            # For canticles, use filename as title (remove .txt extension)
+            title = os.path.splitext(filename)[0]
+            # Clean up specific formatting
+            if title == "The Creed":
+                title = "The Creed"
+        else:
+            # For hymns, extract title from first line of content
+            title = ""
+            if hymn_content:
+                first_line = hymn_content.split('\n')[0].strip()
+                # Remove trailing punctuation and use as title
+                title = first_line.rstrip('.,;:!?').strip()
         
         if not hymn_content:
             return None
@@ -172,6 +193,16 @@ def process_hymn_directory(anglican_dir):
                 hymn = parse_hymn_file(file_path, "supplementary")
                 if hymn:
                     hymns.append(hymn)
+    
+    # Process Canticles
+    canticles_dir = os.path.join(anglican_dir, "Canticles")
+    if os.path.exists(canticles_dir):
+        for filename in os.listdir(canticles_dir):
+            if filename.endswith('.txt'):
+                file_path = os.path.join(canticles_dir, filename)
+                canticle = parse_hymn_file(file_path, "canticles")
+                if canticle:
+                    hymns.append(canticle)
     
     # Sort hymns by category and number
     hymns.sort(key=lambda x: (x['category'], x['number']))
@@ -240,10 +271,12 @@ def main():
         # Print category breakdown
         ancient_modern_count = sum(1 for h in hymns if h['category'] == 'ancient_modern')
         supplementary_count = sum(1 for h in hymns if h['category'] == 'supplementary')
+        canticles_count = sum(1 for h in hymns if h['category'] == 'canticles')
         
         print(f"\nCategory breakdown:")
         print(f"- Ancient & Modern: {ancient_modern_count} hymns")
         print(f"- Supplementary: {supplementary_count} hymns")
+        print(f"- Canticles: {canticles_count} canticles")
         
     finally:
         conn.close()

@@ -10,6 +10,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.kobby.hymnal.composeApp.database.Hymn
+import hymnal_cmp.composeapp.generated.resources.Res
+import hymnal_cmp.composeapp.generated.resources.search_placeholder
+import org.jetbrains.compose.resources.stringResource
+
+private fun formatHymnTitle(hymn: Hymn): String {
+    return if (hymn.category == "canticles") {
+        hymn.title ?: "Untitled"
+    } else {
+        "${hymn.number}. ${hymn.title ?: "Untitled"}"
+    }
+}
 
 @Composable
 fun ListScreen(
@@ -35,7 +46,7 @@ fun ListScreen(
             ) {
                 items(items) { hymn ->
                     ListItem(
-                        title = "${hymn.number}. ${hymn.title ?: "Untitled"}",
+                        title = formatHymnTitle(hymn),
                         onClick = { onItemClick(hymn) }
                     )
                 }
@@ -46,7 +57,7 @@ fun ListScreen(
                 modifier = Modifier.fillMaxWidth(), 
                 searchText = searchText, 
                 onTextChanged = onSearchTextChanged, 
-                placeholderText = "Search by number, word.."
+                placeholderText = stringResource(Res.string.search_placeholder)
             ) 
         },
         onBackClick = onBackClick,

@@ -17,12 +17,32 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.TextStyle
 import com.kobby.hymnal.composeApp.database.Hymn
+import com.kobby.hymnal.core.settings.FontSettings
+import com.kobby.hymnal.theme.getAppFontFamily
 import hymnal_cmp.composeapp.generated.resources.Res
 import hymnal_cmp.composeapp.generated.resources.font_settng
+import hymnal_cmp.composeapp.generated.resources.heart_2_fill
 import hymnal_cmp.composeapp.generated.resources.heart_2_line
 import hymnal_cmp.composeapp.generated.resources.share_line
+import hymnal_cmp.composeapp.generated.resources.cd_font_settings
+import hymnal_cmp.composeapp.generated.resources.cd_share
+import hymnal_cmp.composeapp.generated.resources.cd_add_favorite
+import hymnal_cmp.composeapp.generated.resources.cd_remove_favorite
 import org.jetbrains.compose.resources.vectorResource
+import org.jetbrains.compose.resources.stringResource
+
+private fun getCategoryAbbreviation(category: String?): String {
+    return when (category) {
+        "ancient_modern" -> "A&M"
+        "supplementary" -> "Supp"
+        "canticles" -> ""
+        "creed" -> "The"
+        else -> "Hymn"
+    }
+}
 
 @Composable
 fun DetailScreen(
@@ -32,34 +52,48 @@ fun DetailScreen(
     onHomeClick: () -> Unit = {},
     onFavoriteClick: () -> Unit = {},
     onFontSettingsClick: () -> Unit = {},
-    onShareClick: () -> Unit = {}
+    onShareClick: () -> Unit = {},
+    showActionButtons: Boolean = true,
+    fontSettings: FontSettings = FontSettings()
 ) {
+    val hymnNumber = if (hymn.number == 0L) "Creed" else hymn.number.toString()
     ContentScreen(
-        titleCollapsed = "${hymn.number}. ${hymn.title ?: "Untitled"}",
-        titleExpanded = "${hymn.number}.\n${hymn.title ?: "Untitled"}",
-        actionButtons = {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                IconButton(onClick = onFavoriteClick) {
-                    Icon(
-                        imageVector = vectorResource(Res.drawable.heart_2_line),
-                        contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
-                        tint = if (isFavorite) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
-                    )
-                }
-                IconButton(onClick = onFontSettingsClick) {
-                    Icon(
-                        imageVector = vectorResource(Res.drawable.font_settng),
-                        contentDescription = "Font settings"
-                    )
-                }
-                IconButton(onClick = onShareClick) {
-                    Icon(
-                        imageVector = vectorResource(Res.drawable.share_line),
-                        contentDescription = "Share"
-                    )
+        titleCollapsed = when {
+            hymn.number == 0L -> "The Creed"
+            hymn.category == "canticles" -> hymn.title ?: "Untitled"
+            else -> "${getCategoryAbbreviation(hymn.category)} ${hymn.number}"
+        },
+        titleExpanded = when {
+            hymn.category == "canticles" -> hymn.title ?: "Untitled"
+            else -> "${getCategoryAbbreviation(hymn.category)}\n$hymnNumber"
+        },
+        actionButtons = if (showActionButtons) {
+            {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    IconButton(onClick = onFavoriteClick) {
+                        Icon(
+                            imageVector = vectorResource(if (isFavorite) Res.drawable.heart_2_fill else Res.drawable.heart_2_line),
+                            contentDescription = if (isFavorite) stringResource(Res.string.cd_remove_favorite) else stringResource(Res.string.cd_add_favorite),
+                            tint = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+                    IconButton(onClick = onFontSettingsClick) {
+                        Icon(
+                            imageVector = vectorResource(Res.drawable.font_settng),
+                            contentDescription = stringResource(Res.string.cd_font_settings),
+                            tint = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+                    IconButton(onClick = onShareClick) {
+                        Icon(
+                            imageVector = vectorResource(Res.drawable.share_line),
+                            contentDescription = stringResource(Res.string.cd_share),
+                            tint = MaterialTheme.colorScheme.secondary
+                        )
+                    }
                 }
             }
-        },
+        } else null,
         content = { innerPadding ->
             Column(
                 modifier = Modifier
@@ -71,8 +105,12 @@ fun DetailScreen(
             ) {
                 Text(
                     text = hymn.content ?: "No content available",
-                    style = MaterialTheme.typography.bodyLarge,
-                    lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.5f,
+                    style = TextStyle(
+                        fontFamily = getAppFontFamily(fontSettings.fontFamily),
+                        fontWeight = FontWeight.Normal,
+                        fontSize = fontSettings.fontSize.sp,
+                        lineHeight = (fontSettings.fontSize * 1.8f).sp
+                    ),
                     color = MaterialTheme.colorScheme.onBackground
                 )
             }

@@ -48,6 +48,7 @@ fun SearchTextField(
         shape = Shapes.large,
         colors = TextFieldDefaults.colors(
             unfocusedContainerColor = MaterialTheme.colorScheme.primary, 
+            focusedContainerColor = MaterialTheme.colorScheme.primary,
             unfocusedIndicatorColor = Color.Transparent
         )
     )

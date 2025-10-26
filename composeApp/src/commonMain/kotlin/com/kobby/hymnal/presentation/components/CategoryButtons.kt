@@ -39,8 +39,8 @@ fun CategoryButtons(
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
-                        MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                        MaterialTheme.colorScheme.background.copy(alpha = 0.6f),
+                        MaterialTheme.colorScheme.background.copy(alpha = 0.6f)
                     )
                 )
             )

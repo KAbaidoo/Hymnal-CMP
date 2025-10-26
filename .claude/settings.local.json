@@ -10,7 +10,16 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git reset:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(find:*)",
+      "Bash(rm:*)",
+      "Bash(sed:*)",
+      "WebSearch",
+      "WebFetch(domain:medium.com)",
+      "WebFetch(domain:archive.is)",
+      "mcp__Ref__ref_read_url",
+      "mcp__exa__get_code_context_exa",
+      "mcp__ide__getDiagnostics"
     ],
     "additionalDirectories": [
       "/Users/kobby/Desktop/Anglican"

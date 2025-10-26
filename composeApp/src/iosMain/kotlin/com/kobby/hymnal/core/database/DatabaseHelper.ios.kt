@@ -1,33 +1,34 @@
 package com.kobby.hymnal.core.database
 
+import hymnal_cmp.composeapp.generated.resources.Res
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 import platform.Foundation.*
-import platform.darwin.DISPATCH_QUEUE_PRIORITY_DEFAULT
-import platform.darwin.dispatch_get_global_queue
+import kotlinx.cinterop.*
 
 actual class DatabaseHelper() {
     
-    private val databaseName = "hymns.db"
-    
+    @OptIn(ExperimentalResourceApi::class)
     actual suspend fun initializeDatabase(): String = withContext(Dispatchers.Default) {
         val databasePath = getDatabasePath()
         
         if (!isDatabaseInitialized()) {
-            copyDatabaseFromBundle(databasePath)
+            copyDatabaseFromComposeResources(databasePath)
         }
         
         databasePath
     }
     
     actual fun getDatabasePath(): String {
-        val documentsPath = NSSearchPathForDirectoriesInDomains(
-            NSDocumentDirectory,
+        // Use NSApplicationSupportDirectory as per SQLDelight convention
+        val appSupportPath = NSSearchPathForDirectoriesInDomains(
+            NSApplicationSupportDirectory,
             NSUserDomainMask,
             true
-        ).firstOrNull() as? String ?: throw RuntimeException("Could not access documents directory")
+        ).firstOrNull() as? String ?: throw RuntimeException("Could not access application support directory")
         
-        return "$documentsPath/$databaseName"
+        return "$appSupportPath/databases/$DATABASE_NAME"
     }
     
     actual suspend fun isDatabaseInitialized(): Boolean = withContext(Dispatchers.Default) {
@@ -35,29 +36,57 @@ actual class DatabaseHelper() {
         NSFileManager.defaultManager.fileExistsAtPath(databasePath)
     }
     
-    @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
-    private suspend fun copyDatabaseFromBundle(databasePath: String) = withContext(Dispatchers.Default) {
+    @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class, ExperimentalResourceApi::class)
+    private suspend fun copyDatabaseFromComposeResources(databasePath: String) = withContext(Dispatchers.Default) {
         try {
-            val bundle = NSBundle.mainBundle
-            val bundlePath = bundle.pathForResource(databaseName, "db") 
-                ?: bundle.pathForResource("composeResources/hymnal_cmp.composeapp.generated.resources/files/$databaseName", null)
-                ?: throw RuntimeException("Could not find prepackaged database in bundle")
+            println("Copying database from Compose resources to $databasePath")
             
+            // Read database from Compose resources
+            val sourceBytes = Res.readBytes("files/$DATABASE_NAME")
+            
+            // Ensure the parent directory exists
+            val parentDir = (databasePath as NSString).stringByDeletingLastPathComponent
             val fileManager = NSFileManager.defaultManager
             
-            // Copy file from bundle to documents directory
-            kotlinx.cinterop.memScoped {
-                val error = kotlinx.cinterop.alloc<kotlinx.cinterop.ObjCObjectVar<NSError?>>()
-                val success = fileManager.copyItemAtPath(bundlePath, databasePath, error.ptr)
-                
-                if (!success) {
-                    throw RuntimeException("Failed to copy database from bundle")
+            if (!fileManager.fileExistsAtPath(parentDir)) {
+                memScoped {
+                    val error = alloc<ObjCObjectVar<NSError?>>()
+                    val success = fileManager.createDirectoryAtPath(
+                        path = parentDir,
+                        withIntermediateDirectories = true,
+                        attributes = null,
+                        error = error.ptr
+                    )
+                    if (!success) {
+                        throw RuntimeException("Failed to create database directory: ${error.value?.localizedDescription}")
+                    }
+                    println("Database directory created at $parentDir")
                 }
             }
             
-            println("Database copied successfully from bundle to $databasePath")
+            // Remove existing file if it exists
+            if (fileManager.fileExistsAtPath(databasePath)) {
+                memScoped {
+                    val error = alloc<ObjCObjectVar<NSError?>>()
+                    fileManager.removeItemAtPath(databasePath, error.ptr)
+                }
+            }
+            
+            // Write the database file
+            memScoped {
+                val success = NSData.create(
+                    bytes = allocArrayOf(sourceBytes),
+                    length = sourceBytes.size.toULong()
+                ).writeToFile(databasePath, true)
+                
+                if (!success) {
+                    throw RuntimeException("Failed to write database file to $databasePath")
+                }
+            }
+            
+            println("Database copied successfully from Compose resources to $databasePath")
         } catch (e: Exception) {
-            throw RuntimeException("Failed to copy database from bundle: ${e.message}", e)
+            throw RuntimeException("Failed to copy database from Compose resources: ${e.message}", e)
         }
     }
 }

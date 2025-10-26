@@ -1,13 +1,12 @@
 package com.kobby.hymnal.core.database
 
-actual class DatabaseInitializer {
-    private val driverFactory = DriverFactory()
-    
-    actual suspend fun initialize() {
-        DatabaseManager.initialize(driverFactory)
-    }
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+
+actual class DatabaseInitializer : KoinComponent {
+    private val hymnRepository: HymnRepository by inject()
     
     actual fun getRepository(): HymnRepository {
-        return DatabaseManager.getRepository()
+        return hymnRepository
     }
 }

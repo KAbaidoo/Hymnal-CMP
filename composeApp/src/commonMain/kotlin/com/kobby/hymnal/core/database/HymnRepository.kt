@@ -35,6 +35,11 @@ class HymnRepository(private val database: HymnDatabase) {
             .executeAsOneOrNull()
     }
     
+    suspend fun getRandomHymn(): Hymn? = withContext(Dispatchers.Default) {
+        database.hymnsQueries.getRandomHymn()
+            .executeAsOneOrNull()
+    }
+    
     fun searchHymns(query: String): Flow<List<Hymn>> {
         return database.hymnsQueries.searchHymns(query)
             .asFlow()
@@ -96,5 +101,6 @@ class HymnRepository(private val database: HymnDatabase) {
     companion object {
         const val CATEGORY_ANCIENT_MODERN = "ancient_modern"
         const val CATEGORY_SUPPLEMENTARY = "supplementary"
+        const val CATEGORY_CANTICLES = "canticles"
     }
 }

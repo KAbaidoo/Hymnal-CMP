@@ -13,16 +13,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import com.kobby.hymnal.composeApp.database.Hymn
-import com.kobby.hymnal.core.database.DatabaseManager
 import com.kobby.hymnal.core.database.HymnRepository
+import org.koin.compose.koinInject
 import kotlinx.coroutines.launch
 import kotlin.time.measureTime
+import hymnal_cmp.composeapp.generated.resources.Res
+import hymnal_cmp.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 
 class DatabaseInspectorScreen : Screen {
     
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
+        val repository: HymnRepository = koinInject()
         var stats by remember { mutableStateOf<DatabaseStats?>(null) }
         var searchQuery by remember { mutableStateOf("") }
         var searchResults by remember { mutableStateOf<List<Hymn>>(emptyList()) }
@@ -35,7 +39,6 @@ class DatabaseInspectorScreen : Screen {
         LaunchedEffect(Unit) {
             scope.launch {
                 try {
-                    val repository = DatabaseManager.getRepository()
                     stats = collectDatabaseStats(repository)
                 } catch (e: Exception) {
                     error = e.message
@@ -47,7 +50,7 @@ class DatabaseInspectorScreen : Screen {
             modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
             Text(
-                text = "Database Inspector",
+                text = stringResource(Res.string.database_inspector),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 16.dp)
@@ -61,7 +64,7 @@ class DatabaseInspectorScreen : Screen {
                         )
                     ) {
                         Text(
-                            text = "Error: $error",
+                            text = stringResource(Res.string.error_message, error ?: ""),
                             modifier = Modifier.padding(16.dp),
                             color = MaterialTheme.colorScheme.onErrorContainer
                         )
@@ -88,18 +91,18 @@ class DatabaseInspectorScreen : Screen {
                                     modifier = Modifier.padding(16.dp)
                                 ) {
                                     Text(
-                                        text = "Database Statistics",
+                                        text = stringResource(Res.string.database_statistics),
                                         style = MaterialTheme.typography.titleLarge,
                                         fontWeight = FontWeight.Bold,
                                         modifier = Modifier.padding(bottom = 8.dp)
                                     )
                                     
-                                    StatRow("Total Hymns", stats!!.totalHymns.toString())
-                                    StatRow("Ancient & Modern", stats!!.ancientModernCount.toString())
-                                    StatRow("Supplementary", stats!!.supplementaryCount.toString())
-                                    StatRow("Favorites", stats!!.favoritesCount.toString())
-                                    StatRow("History Entries", stats!!.historyCount.toString())
-                                    StatRow("Highlights", stats!!.highlightsCount.toString())
+                                    StatRow(stringResource(Res.string.total_hymns), stats!!.totalHymns.toString())
+                                    StatRow(stringResource(Res.string.ancient_modern), stats!!.ancientModernCount.toString())
+                                    StatRow(stringResource(Res.string.supplementary), stats!!.supplementaryCount.toString())
+                                    StatRow(stringResource(Res.string.favorites), stats!!.favoritesCount.toString())
+                                    StatRow(stringResource(Res.string.history_entries), stats!!.historyCount.toString())
+                                    StatRow(stringResource(Res.string.highlights), stats!!.highlightsCount.toString())
                                 }
                             }
                         }
@@ -111,7 +114,7 @@ class DatabaseInspectorScreen : Screen {
                                     modifier = Modifier.padding(16.dp)
                                 ) {
                                     Text(
-                                        text = "Search Performance Test",
+                                        text = stringResource(Res.string.search_performance_test),
                                         style = MaterialTheme.typography.titleLarge,
                                         fontWeight = FontWeight.Bold,
                                         modifier = Modifier.padding(bottom = 8.dp)
@@ -120,14 +123,14 @@ class DatabaseInspectorScreen : Screen {
                                     OutlinedTextField(
                                         value = searchQuery,
                                         onValueChange = { searchQuery = it },
-                                        label = { Text("Search query") },
+                                        label = { Text(stringResource(Res.string.search_query)) },
                                         trailingIcon = {
                                             IconButton(
                                                 onClick = {
                                                     scope.launch {
                                                         isLoading = true
                                                         try {
-                                                            val repository = DatabaseManager.getRepository()
+                                                            // repository is already available from outer scope
                                                             val duration = measureTime {
                                                                 repository.searchHymns(searchQuery).collect { results ->
                                                                     searchResults = results
@@ -142,7 +145,7 @@ class DatabaseInspectorScreen : Screen {
                                                     }
                                                 }
                                             ) {
-                                                Icon(Icons.Default.Search, contentDescription = "Search")
+                                                Icon(Icons.Default.Search, contentDescription = stringResource(Res.string.cd_search))
                                             }
                                         },
                                         modifier = Modifier.fillMaxWidth()
@@ -151,12 +154,12 @@ class DatabaseInspectorScreen : Screen {
                                     if (searchTime > 0) {
                                         Spacer(modifier = Modifier.height(8.dp))
                                         Text(
-                                            text = "Search completed in ${searchTime}ms",
+                                            text = stringResource(Res.string.search_completed_time, searchTime.toInt()),
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = MaterialTheme.colorScheme.primary
                                         )
                                         Text(
-                                            text = "Found ${searchResults.size} results",
+                                            text = stringResource(Res.string.found_results, searchResults.size),
                                             style = MaterialTheme.typography.bodyMedium
                                         )
                                     }
@@ -176,7 +179,7 @@ class DatabaseInspectorScreen : Screen {
                                     modifier = Modifier.padding(16.dp)
                                 ) {
                                     Text(
-                                        text = "Sample Hymns",
+                                        text = stringResource(Res.string.sample_hymns),
                                         style = MaterialTheme.typography.titleLarge,
                                         fontWeight = FontWeight.Bold,
                                         modifier = Modifier.padding(bottom = 8.dp)
@@ -197,7 +200,7 @@ class DatabaseInspectorScreen : Screen {
                                         modifier = Modifier.padding(16.dp)
                                     ) {
                                         Text(
-                                            text = "Search Results (${searchResults.size})",
+                                            text = stringResource(Res.string.search_results_count, searchResults.size),
                                             style = MaterialTheme.typography.titleLarge,
                                             fontWeight = FontWeight.Bold,
                                             modifier = Modifier.padding(bottom = 8.dp)
@@ -246,7 +249,7 @@ class DatabaseInspectorScreen : Screen {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Hymn ${hymn.number}",
+                    text = stringResource(Res.string.hymn_number, hymn.number ?: 0),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium
                 )

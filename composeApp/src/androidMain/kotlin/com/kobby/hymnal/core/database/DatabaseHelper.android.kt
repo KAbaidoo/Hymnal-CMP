@@ -9,7 +9,7 @@ import java.io.InputStream
 
 actual class DatabaseHelper(private val context: Context) {
     
-    private val databaseName = "hymns.db"
+    private val databaseName = DATABASE_NAME
     private val prepackagedDatabasePath = "composeResources/hymnal_cmp.composeapp.generated.resources/files/$databaseName"
     
     actual suspend fun initializeDatabase(): String = withContext(Dispatchers.IO) {
@@ -51,4 +51,5 @@ actual class DatabaseHelper(private val context: Context) {
             throw RuntimeException("Failed to copy database from assets: ${e.message}", e)
         }
     }
+    
 }

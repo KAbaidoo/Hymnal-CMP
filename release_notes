@@ -1,0 +1,13 @@
+# Before merging each new feature branch into develop, add the current version name, and in the next lines, include the changes made.
+# Separate each release set with a newLine.
+# You can add a new set of changes that belong to the same appVersion, gradle will take only the latest set.
+
+0.1.0
+- first release.
+
+0.2.0
+- added canticles section.
+
+0.3.0
+- Added share hymn feature.
+- Added random hymn feature to start screen.
