@@ -18,9 +18,13 @@ import com.kobby.hymnal.core.sharing.ShareManager
 import org.koin.compose.koinInject
 import com.kobby.hymnal.presentation.components.DetailScreen
 import com.kobby.hymnal.presentation.components.FontSettingsModal
+import com.kobby.hymnal.presentation.screens.home.HomeScreen
 import kotlinx.coroutines.launch
 
-data class HymnDetailScreen(private val hymn: Hymn) : Screen {
+data class HymnDetailScreen(
+    private val hymn: Hymn,
+    private val fromStartScreen: Boolean = false
+) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
@@ -47,7 +51,15 @@ data class HymnDetailScreen(private val hymn: Hymn) : Screen {
         DetailScreen(
             hymn = hymn,
             isFavorite = isFavorite,
-            onBackClick = { navigator.pop() },
+            onBackClick = { 
+                if (fromStartScreen) {
+                    // Navigate to home when coming from start screen
+                    navigator.push(HomeScreen())
+                } else {
+                    // Normal back navigation for other cases
+                    navigator.pop()
+                }
+            },
             onHomeClick = { 
                 // Navigate to home by popping until we reach HomeScreen or we can't pop anymore
                 while (navigator.canPop) {
