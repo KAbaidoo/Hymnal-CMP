@@ -35,6 +35,11 @@ class HymnRepository(private val database: HymnDatabase) {
             .executeAsOneOrNull()
     }
     
+    suspend fun getRandomHymn(): Hymn? = withContext(Dispatchers.Default) {
+        database.hymnsQueries.getRandomHymn()
+            .executeAsOneOrNull()
+    }
+    
     fun searchHymns(query: String): Flow<List<Hymn>> {
         return database.hymnsQueries.searchHymns(query)
             .asFlow()

@@ -85,6 +85,9 @@ JOIN hymn_fts ON hymn.id = hymn_fts.docid
 WHERE hymn_fts MATCH ? 
 ORDER BY hymn.category, hymn.number;
 
+getRandomHymn:
+SELECT * FROM hymn ORDER BY RANDOM() LIMIT 1;
+
 insertHymn:
 INSERT INTO hymn (number, title, category, content) 
 VALUES (?, ?, ?, ?);
