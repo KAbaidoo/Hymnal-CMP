@@ -104,7 +104,7 @@ class StartScreen : Screen {
                 navigator.push(HomeScreen())
             },
             onRandomHymnClicked = { hymn ->
-                navigator.push(HymnDetailScreen(hymn))
+                navigator.push(HymnDetailScreen(hymn, fromStartScreen = true))
             }
         )
     }
