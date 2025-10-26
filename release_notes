@@ -11,3 +11,6 @@
 0.3.0
 - Added share hymn feature.
 - Added random hymn feature to start screen.
+
+0.3.1
+- fixed bug where first line of canticle was not shown.
