@@ -93,10 +93,10 @@ class StartScreen : Screen {
             }
         }
 
-        LaunchedEffect(Unit) {
-            delay(AUTO_NAVIGATION_DELAY_MS)
-            navigator.push(HomeScreen())
-        }
+//        LaunchedEffect(Unit) {
+//            delay(AUTO_NAVIGATION_DELAY_MS)
+//            navigator.push(HomeScreen())
+//        }
 
         StartScreenContent(
             randomHymn = randomHymn,
@@ -270,8 +270,8 @@ fun StartScreenContent(
                                 modifier = Modifier
                                     .offset(y = contentOffsetY)
                                     .alpha(contentAlpha),
-                                text = hymn.content.take(170) + if (hymn.content.length > 170) "..." else "",
-                                style = MaterialTheme.typography.bodySmall,
+                                text = hymn.content.take(200) + if (hymn.content.length > 200) "..." else "",
+                                style = MaterialTheme.typography.bodyMedium,
                                 color = Color.White.copy(alpha = 0.8f),
                                 maxLines = 5,
                                 overflow = TextOverflow.Ellipsis
