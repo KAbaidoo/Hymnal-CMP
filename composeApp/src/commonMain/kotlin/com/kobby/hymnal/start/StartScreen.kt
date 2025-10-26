@@ -93,10 +93,10 @@ class StartScreen : Screen {
             }
         }
 
-//        LaunchedEffect(Unit) {
-//            delay(AUTO_NAVIGATION_DELAY_MS)
-//            navigator.push(HomeScreen())
-//        }
+        LaunchedEffect(Unit) {
+            delay(AUTO_NAVIGATION_DELAY_MS)
+            navigator.push(HomeScreen())
+        }
 
         StartScreenContent(
             randomHymn = randomHymn,
