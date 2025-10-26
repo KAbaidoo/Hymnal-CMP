@@ -11,14 +11,12 @@ import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.transitions.SlideTransition
 import com.kobby.hymnal.core.database.DatabaseInitializer
-import com.kobby.hymnal.presentation.screens.home.HomeScreen
 import com.kobby.hymnal.start.StartScreen
 import com.kobby.hymnal.theme.HymnalAppTheme
 import kotlinx.coroutines.launch
 import hymnal_cmp.composeapp.generated.resources.Res
 import hymnal_cmp.composeapp.generated.resources.database_init_error
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.koinInject
 
 @Composable
 fun HymnalApp(databaseInitializer: DatabaseInitializer) {
@@ -66,17 +64,8 @@ fun HymnalApp(databaseInitializer: DatabaseInitializer) {
             
             else -> {
                 // Show main app
-                val useCase: ShowOnboarding = koinInject()
-                val showOnboarding by useCase.execute().collectAsState(initial = false)
-
-                if (showOnboarding) {
-                    Navigator(StartScreen()) { navigator ->
-                        SlideTransition(navigator)
-                    }
-                } else {
-                    Navigator(HomeScreen()) { navigator ->
-                        SlideTransition(navigator)
-                    }
+                Navigator(StartScreen()) { navigator ->
+                    SlideTransition(navigator)
                 }
             }
         }
