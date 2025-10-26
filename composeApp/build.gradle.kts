@@ -1,5 +1,7 @@
 import java.io.File
 import java.util.regex.Pattern
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.INT
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -8,6 +10,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.firebase.appdistribution)
+    alias(libs.plugins.buildkonfig)
 }
 
 kotlin {
@@ -138,6 +141,15 @@ sqldelight {
         create("HymnDatabase") {
             packageName = "com.kobby.hymnal.composeApp.database"
         }
+    }
+}
+
+buildkonfig {
+    packageName = "com.kobby.hymnal"
+    
+    defaultConfigs {
+        buildConfigField(STRING, "VERSION_NAME", appVersionName)
+        buildConfigField(INT, "VERSION_CODE", appVersionCode.toString())
     }
 }
 
