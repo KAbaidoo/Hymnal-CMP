@@ -14,6 +14,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.composeApp.database.Hymn
 import com.kobby.hymnal.core.database.HymnRepository
 import com.kobby.hymnal.core.settings.FontSettingsManager
+import com.kobby.hymnal.core.sharing.ShareManager
 import org.koin.compose.koinInject
 import com.kobby.hymnal.presentation.components.DetailScreen
 import com.kobby.hymnal.presentation.components.FontSettingsModal
@@ -25,6 +26,7 @@ data class HymnDetailScreen(private val hymn: Hymn) : Screen {
         val navigator = LocalNavigator.currentOrThrow
         val scope = rememberCoroutineScope()
         val repository: HymnRepository = koinInject()
+        val shareManager: ShareManager = koinInject()
         var isFavorite by remember { mutableStateOf(false) }
         var showFontSettings by remember { mutableStateOf(false) }
         
@@ -72,7 +74,7 @@ data class HymnDetailScreen(private val hymn: Hymn) : Screen {
                 showFontSettings = true
             },
             onShareClick = {
-                // TODO: Implement sharing
+                shareManager.shareHymn(hymn)
             },
             fontSettings = fontSettings
         )

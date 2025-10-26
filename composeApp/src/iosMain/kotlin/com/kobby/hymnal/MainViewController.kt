@@ -6,7 +6,7 @@ import com.kobby.hymnal.di.databaseModule
 import com.kobby.hymnal.di.iosModule
 import com.kobby.hymnal.di.settingsModule
 import org.koin.core.context.startKoin
-import org.koin.core.context.GlobalContext
+import org.koin.mp.KoinPlatform.getKoin
 import org.koin.core.logger.Level
 import org.koin.core.logger.PrintLogger
 
@@ -21,6 +21,6 @@ fun MainViewController() = ComposeUIViewController {
         // Koin already started
     }
     
-    val databaseInitializer = GlobalContext.get().get<DatabaseInitializer>()
+    val databaseInitializer = getKoin().get<DatabaseInitializer>()
     HymnalApp(databaseInitializer) 
 }
