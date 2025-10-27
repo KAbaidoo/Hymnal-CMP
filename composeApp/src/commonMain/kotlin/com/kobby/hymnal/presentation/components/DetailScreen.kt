@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -103,16 +104,18 @@ fun DetailScreen(
                     .verticalScroll(rememberScrollState())
                     .padding(16.dp)
             ) {
-                Text(
-                    text = hymn.content ?: "No content available",
-                    style = TextStyle(
-                        fontFamily = getAppFontFamily(fontSettings.fontFamily),
-                        fontWeight = FontWeight.Normal,
-                        fontSize = fontSettings.fontSize.sp,
-                        lineHeight = (fontSettings.fontSize * 1.8f).sp
-                    ),
-                    color = MaterialTheme.colorScheme.onBackground
-                )
+                SelectionContainer {
+                    Text(
+                        text = hymn.content ?: "No content available",
+                        style = TextStyle(
+                            fontFamily = getAppFontFamily(fontSettings.fontFamily),
+                            fontWeight = FontWeight.Normal,
+                            fontSize = fontSettings.fontSize.sp,
+                            lineHeight = (fontSettings.fontSize * 1.8f).sp
+                        ),
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
             }
         },
         onBackClick = onBackClick,
