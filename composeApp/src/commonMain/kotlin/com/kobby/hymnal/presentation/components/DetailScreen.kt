@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -126,9 +127,15 @@ fun DetailScreen(
     fun buildHighlightedText(content: String): AnnotatedString {
         return buildAnnotatedString {
             append(content)
-            highlights.forEach { highlight ->
+            highlights.forEachIndexed { index, highlight ->
                 addStyle(
                     style = SpanStyle(background = highlight.color),
+                    start = highlight.start,
+                    end = highlight.end
+                )
+                addStringAnnotation(
+                    tag = "highlight",
+                    annotation = index.toString(),
                     start = highlight.start,
                     end = highlight.end
                 )
@@ -185,15 +192,32 @@ fun DetailScreen(
             ) {
                 CompositionLocalProvider(LocalTextToolbar provides customTextToolbar) {
                     SelectionContainer {
-                        Text(
+                        ClickableText(
                             text = buildHighlightedText(hymn.content ?: "No content available"),
                             style = TextStyle(
                                 fontFamily = getAppFontFamily(fontSettings.fontFamily),
                                 fontWeight = FontWeight.Normal,
                                 fontSize = fontSettings.fontSize.sp,
-                                lineHeight = (fontSettings.fontSize * 1.8f).sp
+                                lineHeight = (fontSettings.fontSize * 1.8f).sp,
+                                color = MaterialTheme.colorScheme.onBackground
                             ),
-                            color = MaterialTheme.colorScheme.onBackground
+                            onClick = { offset ->
+                                val annotatedText = buildHighlightedText(hymn.content ?: "")
+                                annotatedText.getStringAnnotations(
+                                    tag = "highlight",
+                                    start = offset,
+                                    end = offset
+                                ).firstOrNull()?.let { annotation ->
+                                    val highlightIndex = annotation.item.toIntOrNull()
+                                    highlightIndex?.let { index ->
+                                        if (index < highlights.size) {
+                                            currentHighlightIndex = index
+                                            currentHighlightColor = highlights[index].color
+                                            showHighlightBottomSheet = true
+                                        }
+                                    }
+                                }
+                            }
                         )
                     }
                 }
@@ -210,6 +234,17 @@ fun DetailScreen(
                         currentHighlightColor = color
                         currentHighlightIndex?.let { index ->
                             highlights[index] = highlights[index].copy(color = color)
+                        }
+                        showHighlightBottomSheet = false
+                        currentHighlightIndex = null
+                        selectedTextRange = null
+                    },
+                    onRemoveHighlight = currentHighlightIndex?.let { index ->
+                        {
+                            highlights.removeAt(index)
+                            showHighlightBottomSheet = false
+                            currentHighlightIndex = null
+                            selectedTextRange = null
                         }
                     }
                 )

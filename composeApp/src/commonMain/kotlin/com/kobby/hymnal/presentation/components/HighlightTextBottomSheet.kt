@@ -19,6 +19,7 @@ import com.kobby.hymnal.theme.Shapes
 fun HighlightTextBottomSheet(
     onDismiss: () -> Unit,
     onColorSelected: (Color) -> Unit,
+    onRemoveHighlight: (() -> Unit)? = null,
     currentColor: Color = Color(0xFFD6E8FF)
 ) {
     val fontColor = MaterialTheme.colorScheme.onSurface
@@ -82,7 +83,13 @@ fun HighlightTextBottomSheet(
                         .height(56.dp)
                         .clip(shape)
                         .background(color)
-                        .clickable { onColorSelected(color) },
+                        .clickable { 
+                            if (color == currentColor && onRemoveHighlight != null) {
+                                onRemoveHighlight()
+                            } else {
+                                onColorSelected(color)
+                            }
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     if (color == currentColor) {
@@ -105,6 +112,7 @@ fun HighlightTextModal(
     isVisible: Boolean,
     onDismiss: () -> Unit,
     onColorSelected: (Color) -> Unit,
+    onRemoveHighlight: (() -> Unit)? = null,
     currentColor: Color = Color(0xFFD6E8FF)
 ) {
     if (isVisible) {
@@ -115,6 +123,7 @@ fun HighlightTextModal(
             HighlightTextBottomSheet(
                 onDismiss = onDismiss,
                 onColorSelected = onColorSelected,
+                onRemoveHighlight = onRemoveHighlight,
                 currentColor = currentColor
             )
         }
