@@ -82,8 +82,12 @@ fun HistoryEmptyPreview() {
 fun HighlightsEmptyPreview() {
     HymnalAppTheme {
         HighlightsContent(
+            hymns = emptyList(),
+            searchText = "",
             isLoading = false,
             error = null,
+            onSearchTextChanged = {},
+            onItemClick = {},
             onBackClick = {},
             onHomeClick = {}
         )

@@ -37,8 +37,13 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalClipboardManager
 import com.kobby.hymnal.composeApp.database.Hymn
+import com.kobby.hymnal.core.database.HymnRepository
+import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 import com.kobby.hymnal.core.settings.FontSettings
 import com.kobby.hymnal.theme.getAppFontFamily
 import hymnal_cmp.composeapp.generated.resources.Res
@@ -56,7 +61,8 @@ import org.jetbrains.compose.resources.stringResource
 data class TextHighlight(
     val start: Int,
     val end: Int,
-    val color: Color
+    val color: Color,
+    val dbId: Long? = null // Database ID for persistence
 )
 private fun getCategoryAbbreviation(category: String?): String {
     return when (category) {
@@ -80,12 +86,44 @@ fun DetailScreen(
     showActionButtons: Boolean = true,
     fontSettings: FontSettings = FontSettings()
 ) {
+    val repository: HymnRepository = koinInject()
+    val coroutineScope = rememberCoroutineScope()
+    
     var showHighlightBottomSheet by remember { mutableStateOf(false) }
     var selectedTextRange by remember { mutableStateOf<TextRange?>(null) }
     var currentHighlightColor by remember { mutableStateOf(Color(0xFFD6E8FF)) } // Default light blue
     var currentHighlightIndex by remember { mutableStateOf<Int?>(null) }
     val highlights = remember { mutableStateListOf<TextHighlight>() }
     val clipboardManager = LocalClipboardManager.current
+    
+    // Color palette for highlights (predefined colors)
+    val highlightColors = listOf(
+        Color(0xFFD6E8FF), // Light blue
+        Color(0xFFE7DDFF), // Light purple
+        Color(0xFFE3FFD6), // Light green
+        Color(0xFFFFE8D6)  // Light peach
+    )
+    
+    // Load existing highlights from database
+    LaunchedEffect(hymn.id) {
+        try {
+            val dbHighlights = repository.getHighlightsForHymn(hymn.id)
+            highlights.clear()
+            dbHighlights.forEach { highlight ->
+                // Map highlight to color based on index (cycling through available colors)
+                val colorIndex = highlights.size % highlightColors.size
+                val textHighlight = TextHighlight(
+                    start = highlight.start_index.toInt(),
+                    end = highlight.end_index.toInt(),
+                    color = highlightColors[colorIndex],
+                    dbId = highlight.id
+                )
+                highlights.add(textHighlight)
+            }
+        } catch (e: Exception) {
+            // Handle error silently for now
+        }
+    }
     
     val customTextToolbar = remember {
         object : TextToolbar {
@@ -116,6 +154,15 @@ fun DetailScreen(
                         val newHighlight = TextHighlight(range.start, range.end, currentHighlightColor)
                         highlights.add(newHighlight)
                         currentHighlightIndex = highlights.size - 1
+                        
+                        // Persist to database
+                        coroutineScope.launch {
+                            try {
+                                repository.addHighlight(hymn.id, range.start.toLong(), range.end.toLong())
+                            } catch (e: Exception) {
+                                // Handle error - could remove from memory if database save fails
+                            }
+                        }
                         
                         showHighlightBottomSheet = true
                     }
@@ -241,7 +288,20 @@ fun DetailScreen(
                     },
                     onRemoveHighlight = currentHighlightIndex?.let { index ->
                         {
+                            val highlightToRemove = highlights[index]
                             highlights.removeAt(index)
+                            
+                            // Remove from database if it has a DB ID
+                            highlightToRemove.dbId?.let { dbId ->
+                                coroutineScope.launch {
+                                    try {
+                                        repository.removeHighlight(dbId)
+                                    } catch (e: Exception) {
+                                        // Handle error - could re-add to memory if database removal fails
+                                    }
+                                }
+                            }
+                            
                             showHighlightBottomSheet = false
                             currentHighlightIndex = null
                             selectedTextRange = null
