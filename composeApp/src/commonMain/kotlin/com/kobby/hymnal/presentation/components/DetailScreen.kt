@@ -14,12 +14,29 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalTextToolbar
+import androidx.compose.ui.platform.TextToolbar
+import androidx.compose.ui.platform.TextToolbarStatus
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.ui.platform.LocalClipboardManager
 import com.kobby.hymnal.composeApp.database.Hymn
 import com.kobby.hymnal.core.settings.FontSettings
 import com.kobby.hymnal.theme.getAppFontFamily
@@ -35,6 +52,11 @@ import hymnal_cmp.composeapp.generated.resources.cd_remove_favorite
 import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.resources.stringResource
 
+data class TextHighlight(
+    val start: Int,
+    val end: Int,
+    val color: Color
+)
 private fun getCategoryAbbreviation(category: String?): String {
     return when (category) {
         "ancient_modern" -> "A&M"
@@ -57,6 +79,54 @@ fun DetailScreen(
     showActionButtons: Boolean = true,
     fontSettings: FontSettings = FontSettings()
 ) {
+    var showHighlightBottomSheet by remember { mutableStateOf(false) }
+    var selectedTextRange by remember { mutableStateOf<TextRange?>(null) }
+    val highlights = remember { mutableStateListOf<TextHighlight>() }
+    val clipboardManager = LocalClipboardManager.current
+    
+    val customTextToolbar = remember {
+        object : TextToolbar {
+            override val status: TextToolbarStatus = TextToolbarStatus.Hidden
+            
+            override fun hide() {
+                // Hide toolbar if needed
+            }
+            
+            override fun showMenu(
+                rect: Rect,
+                onCopyRequested: (() -> Unit)?,
+                onPasteRequested: (() -> Unit)?,
+                onCutRequested: (() -> Unit)?,
+                onSelectAllRequested: (() -> Unit)?
+            ) {
+                onCopyRequested?.invoke()
+                val clipboardText = clipboardManager.getText()
+                clipboardText?.let { annotatedString ->
+                    val content = hymn.content ?: ""
+                    val selectedText = annotatedString.text
+                    val startIndex = content.indexOf(selectedText)
+                    if (startIndex >= 0) {
+                        selectedTextRange = TextRange(startIndex, startIndex + selectedText.length)
+                        showHighlightBottomSheet = true
+                    }
+                }
+            }
+        }
+    }
+    
+    fun buildHighlightedText(content: String): AnnotatedString {
+        return buildAnnotatedString {
+            append(content)
+            highlights.forEach { highlight ->
+                addStyle(
+                    style = SpanStyle(background = highlight.color),
+                    start = highlight.start,
+                    end = highlight.end
+                )
+            }
+        }
+    }
+    
     val hymnNumber = if (hymn.number == 0L) "Creed" else hymn.number.toString()
     ContentScreen(
         titleCollapsed = when {
@@ -104,18 +174,32 @@ fun DetailScreen(
                     .verticalScroll(rememberScrollState())
                     .padding(16.dp)
             ) {
-                SelectionContainer {
-                    Text(
-                        text = hymn.content ?: "No content available",
-                        style = TextStyle(
-                            fontFamily = getAppFontFamily(fontSettings.fontFamily),
-                            fontWeight = FontWeight.Normal,
-                            fontSize = fontSettings.fontSize.sp,
-                            lineHeight = (fontSettings.fontSize * 1.8f).sp
-                        ),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
+                CompositionLocalProvider(LocalTextToolbar provides customTextToolbar) {
+                    SelectionContainer {
+                        Text(
+                            text = buildHighlightedText(hymn.content ?: "No content available"),
+                            style = TextStyle(
+                                fontFamily = getAppFontFamily(fontSettings.fontFamily),
+                                fontWeight = FontWeight.Normal,
+                                fontSize = fontSettings.fontSize.sp,
+                                lineHeight = (fontSettings.fontSize * 1.8f).sp
+                            ),
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
                 }
+                
+                HighlightTextModal(
+                    isVisible = showHighlightBottomSheet,
+                    onDismiss = { showHighlightBottomSheet = false },
+                    onColorSelected = { color ->
+                        showHighlightBottomSheet = false
+                        selectedTextRange?.let { range ->
+                            highlights.add(TextHighlight(range.start, range.end, color))
+                            selectedTextRange = null
+                        }
+                    }
+                )
             }
         },
         onBackClick = onBackClick,
