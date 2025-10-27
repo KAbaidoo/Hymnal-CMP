@@ -81,6 +81,8 @@ fun DetailScreen(
 ) {
     var showHighlightBottomSheet by remember { mutableStateOf(false) }
     var selectedTextRange by remember { mutableStateOf<TextRange?>(null) }
+    var currentHighlightColor by remember { mutableStateOf(Color(0xFFD6E8FF)) } // Default light blue
+    var currentHighlightIndex by remember { mutableStateOf<Int?>(null) }
     val highlights = remember { mutableStateListOf<TextHighlight>() }
     val clipboardManager = LocalClipboardManager.current
     
@@ -106,7 +108,14 @@ fun DetailScreen(
                     val selectedText = annotatedString.text
                     val startIndex = content.indexOf(selectedText)
                     if (startIndex >= 0) {
-                        selectedTextRange = TextRange(startIndex, startIndex + selectedText.length)
+                        val range = TextRange(startIndex, startIndex + selectedText.length)
+                        selectedTextRange = range
+                        
+                        // Apply highlight immediately with current color
+                        val newHighlight = TextHighlight(range.start, range.end, currentHighlightColor)
+                        highlights.add(newHighlight)
+                        currentHighlightIndex = highlights.size - 1
+                        
                         showHighlightBottomSheet = true
                     }
                 }
@@ -191,12 +200,16 @@ fun DetailScreen(
                 
                 HighlightTextModal(
                     isVisible = showHighlightBottomSheet,
-                    onDismiss = { showHighlightBottomSheet = false },
-                    onColorSelected = { color ->
+                    onDismiss = { 
                         showHighlightBottomSheet = false
-                        selectedTextRange?.let { range ->
-                            highlights.add(TextHighlight(range.start, range.end, color))
-                            selectedTextRange = null
+                        currentHighlightIndex = null
+                        selectedTextRange = null
+                    },
+                    currentColor = currentHighlightColor,
+                    onColorSelected = { color ->
+                        currentHighlightColor = color
+                        currentHighlightIndex?.let { index ->
+                            highlights[index] = highlights[index].copy(color = color)
                         }
                     }
                 )
