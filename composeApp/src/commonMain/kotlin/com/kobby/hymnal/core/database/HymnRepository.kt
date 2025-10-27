@@ -8,6 +8,7 @@ import com.kobby.hymnal.composeApp.database.HymnDatabase
 import com.kobby.hymnal.composeApp.database.Hymn
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 class HymnRepository(private val database: HymnDatabase) {
@@ -83,6 +84,24 @@ class HymnRepository(private val database: HymnDatabase) {
     suspend fun getHighlightsForHymn(hymnId: Long) = withContext(Dispatchers.Default) {
         database.hymnsQueries.getHighlightsForHymn(hymnId)
             .executeAsList()
+    }
+    
+    fun getHymnsWithHighlights(): Flow<List<Hymn>> {
+        return database.hymnsQueries.getHymnsWithHighlights()
+            .asFlow()
+            .mapToList(Dispatchers.Default)
+            .map { results ->
+                results.map { result ->
+                    Hymn(
+                        id = result.id,
+                        number = result.number,
+                        title = result.title,
+                        category = result.category,
+                        content = result.content,
+                        created_at = result.created_at
+                    )
+                }
+            }
     }
     
     suspend fun addHighlight(hymnId: Long, startIndex: Long, endIndex: Long) = withContext(Dispatchers.Default) {

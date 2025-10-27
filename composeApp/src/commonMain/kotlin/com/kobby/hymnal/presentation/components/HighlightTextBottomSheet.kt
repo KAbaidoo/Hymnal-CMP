@@ -18,7 +18,9 @@ import com.kobby.hymnal.theme.Shapes
 @Composable
 fun HighlightTextBottomSheet(
     onDismiss: () -> Unit,
-    onColorSelected: (Color) -> Unit
+    onColorSelected: (Color) -> Unit,
+    onRemoveHighlight: (() -> Unit)? = null,
+    currentColor: Color = Color(0xFFD6E8FF)
 ) {
     val fontColor = MaterialTheme.colorScheme.onSurface
     val shape = Shapes.medium
@@ -81,8 +83,24 @@ fun HighlightTextBottomSheet(
                         .height(56.dp)
                         .clip(shape)
                         .background(color)
-                        .clickable { onColorSelected(color) }
-                )
+                        .clickable { 
+                            if (color == currentColor && onRemoveHighlight != null) {
+                                onRemoveHighlight()
+                            } else {
+                                onColorSelected(color)
+                            }
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (color == currentColor) {
+                        Text(
+                            text = "✕",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
             }
         }
     }
@@ -93,7 +111,9 @@ fun HighlightTextBottomSheet(
 fun HighlightTextModal(
     isVisible: Boolean,
     onDismiss: () -> Unit,
-    onColorSelected: (Color) -> Unit
+    onColorSelected: (Color) -> Unit,
+    onRemoveHighlight: (() -> Unit)? = null,
+    currentColor: Color = Color(0xFFD6E8FF)
 ) {
     if (isVisible) {
         ModalBottomSheet(
@@ -102,7 +122,9 @@ fun HighlightTextModal(
         ) {
             HighlightTextBottomSheet(
                 onDismiss = onDismiss,
-                onColorSelected = onColorSelected
+                onColorSelected = onColorSelected,
+                onRemoveHighlight = onRemoveHighlight,
+                currentColor = currentColor
             )
         }
     }

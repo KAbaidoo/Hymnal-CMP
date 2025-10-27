@@ -7,19 +7,43 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalTextToolbar
+import androidx.compose.ui.platform.TextToolbar
+import androidx.compose.ui.platform.TextToolbarStatus
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalClipboardManager
 import com.kobby.hymnal.composeApp.database.Hymn
+import com.kobby.hymnal.core.database.HymnRepository
+import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 import com.kobby.hymnal.core.settings.FontSettings
 import com.kobby.hymnal.theme.getAppFontFamily
 import hymnal_cmp.composeapp.generated.resources.Res
@@ -34,6 +58,12 @@ import hymnal_cmp.composeapp.generated.resources.cd_remove_favorite
 import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.resources.stringResource
 
+data class TextHighlight(
+    val start: Int,
+    val end: Int,
+    val color: Color,
+    val dbId: Long? = null // Database ID for persistence
+)
 private fun getCategoryAbbreviation(category: String?): String {
     return when (category) {
         "ancient_modern" -> "A&M"
@@ -56,6 +86,110 @@ fun DetailScreen(
     showActionButtons: Boolean = true,
     fontSettings: FontSettings = FontSettings()
 ) {
+    val repository: HymnRepository = koinInject()
+    val coroutineScope = rememberCoroutineScope()
+    
+    var showHighlightBottomSheet by remember { mutableStateOf(false) }
+    var selectedTextRange by remember { mutableStateOf<TextRange?>(null) }
+    var currentHighlightColor by remember { mutableStateOf(Color(0xFFD6E8FF)) } // Default light blue
+    var currentHighlightIndex by remember { mutableStateOf<Int?>(null) }
+    val highlights = remember { mutableStateListOf<TextHighlight>() }
+    val clipboardManager = LocalClipboardManager.current
+    
+    // Color palette for highlights (predefined colors)
+    val highlightColors = listOf(
+        Color(0xFFD6E8FF), // Light blue
+        Color(0xFFE7DDFF), // Light purple
+        Color(0xFFE3FFD6), // Light green
+        Color(0xFFFFE8D6)  // Light peach
+    )
+    
+    // Load existing highlights from database
+    LaunchedEffect(hymn.id) {
+        try {
+            val dbHighlights = repository.getHighlightsForHymn(hymn.id)
+            highlights.clear()
+            dbHighlights.forEach { highlight ->
+                // Map highlight to color based on index (cycling through available colors)
+                val colorIndex = highlights.size % highlightColors.size
+                val textHighlight = TextHighlight(
+                    start = highlight.start_index.toInt(),
+                    end = highlight.end_index.toInt(),
+                    color = highlightColors[colorIndex],
+                    dbId = highlight.id
+                )
+                highlights.add(textHighlight)
+            }
+        } catch (e: Exception) {
+            // Handle error silently for now
+        }
+    }
+    
+    val customTextToolbar = remember {
+        object : TextToolbar {
+            override val status: TextToolbarStatus = TextToolbarStatus.Hidden
+            
+            override fun hide() {
+                // Hide toolbar if needed
+            }
+            
+            override fun showMenu(
+                rect: Rect,
+                onCopyRequested: (() -> Unit)?,
+                onPasteRequested: (() -> Unit)?,
+                onCutRequested: (() -> Unit)?,
+                onSelectAllRequested: (() -> Unit)?
+            ) {
+                onCopyRequested?.invoke()
+                val clipboardText = clipboardManager.getText()
+                clipboardText?.let { annotatedString ->
+                    val content = hymn.content ?: ""
+                    val selectedText = annotatedString.text
+                    val startIndex = content.indexOf(selectedText)
+                    if (startIndex >= 0) {
+                        val range = TextRange(startIndex, startIndex + selectedText.length)
+                        selectedTextRange = range
+                        
+                        // Apply highlight immediately with current color
+                        val newHighlight = TextHighlight(range.start, range.end, currentHighlightColor)
+                        highlights.add(newHighlight)
+                        currentHighlightIndex = highlights.size - 1
+                        
+                        // Persist to database
+                        coroutineScope.launch {
+                            try {
+                                repository.addHighlight(hymn.id, range.start.toLong(), range.end.toLong())
+                            } catch (e: Exception) {
+                                // Handle error - could remove from memory if database save fails
+                            }
+                        }
+                        
+                        showHighlightBottomSheet = true
+                    }
+                }
+            }
+        }
+    }
+    
+    fun buildHighlightedText(content: String): AnnotatedString {
+        return buildAnnotatedString {
+            append(content)
+            highlights.forEachIndexed { index, highlight ->
+                addStyle(
+                    style = SpanStyle(background = highlight.color),
+                    start = highlight.start,
+                    end = highlight.end
+                )
+                addStringAnnotation(
+                    tag = "highlight",
+                    annotation = index.toString(),
+                    start = highlight.start,
+                    end = highlight.end
+                )
+            }
+        }
+    }
+    
     val hymnNumber = if (hymn.number == 0L) "Creed" else hymn.number.toString()
     ContentScreen(
         titleCollapsed = when {
@@ -103,15 +237,76 @@ fun DetailScreen(
                     .verticalScroll(rememberScrollState())
                     .padding(16.dp)
             ) {
-                Text(
-                    text = hymn.content ?: "No content available",
-                    style = TextStyle(
-                        fontFamily = getAppFontFamily(fontSettings.fontFamily),
-                        fontWeight = FontWeight.Normal,
-                        fontSize = fontSettings.fontSize.sp,
-                        lineHeight = (fontSettings.fontSize * 1.8f).sp
-                    ),
-                    color = MaterialTheme.colorScheme.onBackground
+                CompositionLocalProvider(LocalTextToolbar provides customTextToolbar) {
+                    SelectionContainer {
+                        ClickableText(
+                            text = buildHighlightedText(hymn.content ?: "No content available"),
+                            style = TextStyle(
+                                fontFamily = getAppFontFamily(fontSettings.fontFamily),
+                                fontWeight = FontWeight.Normal,
+                                fontSize = fontSettings.fontSize.sp,
+                                lineHeight = (fontSettings.fontSize * 1.8f).sp,
+                                color = MaterialTheme.colorScheme.onBackground
+                            ),
+                            onClick = { offset ->
+                                val annotatedText = buildHighlightedText(hymn.content ?: "")
+                                annotatedText.getStringAnnotations(
+                                    tag = "highlight",
+                                    start = offset,
+                                    end = offset
+                                ).firstOrNull()?.let { annotation ->
+                                    val highlightIndex = annotation.item.toIntOrNull()
+                                    highlightIndex?.let { index ->
+                                        if (index < highlights.size) {
+                                            currentHighlightIndex = index
+                                            currentHighlightColor = highlights[index].color
+                                            showHighlightBottomSheet = true
+                                        }
+                                    }
+                                }
+                            }
+                        )
+                    }
+                }
+                
+                HighlightTextModal(
+                    isVisible = showHighlightBottomSheet,
+                    onDismiss = { 
+                        showHighlightBottomSheet = false
+                        currentHighlightIndex = null
+                        selectedTextRange = null
+                    },
+                    currentColor = currentHighlightColor,
+                    onColorSelected = { color ->
+                        currentHighlightColor = color
+                        currentHighlightIndex?.let { index ->
+                            highlights[index] = highlights[index].copy(color = color)
+                        }
+                        showHighlightBottomSheet = false
+                        currentHighlightIndex = null
+                        selectedTextRange = null
+                    },
+                    onRemoveHighlight = currentHighlightIndex?.let { index ->
+                        {
+                            val highlightToRemove = highlights[index]
+                            highlights.removeAt(index)
+                            
+                            // Remove from database if it has a DB ID
+                            highlightToRemove.dbId?.let { dbId ->
+                                coroutineScope.launch {
+                                    try {
+                                        repository.removeHighlight(dbId)
+                                    } catch (e: Exception) {
+                                        // Handle error - could re-add to memory if database removal fails
+                                    }
+                                }
+                            }
+                            
+                            showHighlightBottomSheet = false
+                            currentHighlightIndex = null
+                            selectedTextRange = null
+                        }
+                    }
                 )
             }
         },
