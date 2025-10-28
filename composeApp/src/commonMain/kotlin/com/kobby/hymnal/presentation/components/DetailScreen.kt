@@ -111,8 +111,8 @@ fun DetailScreen(
             val dbHighlights = repository.getHighlightsForHymn(hymn.id)
             highlights.clear()
             dbHighlights.forEach { highlight ->
-                // Map highlight to color based on index (cycling through available colors)
-                val colorIndex = highlights.size % highlightColors.size
+                // Use the stored color index to restore the original color
+                val colorIndex = highlight.color_index.toInt().coerceIn(0, highlightColors.size - 1)
                 val textHighlight = TextHighlight(
                     start = highlight.start_index.toInt(),
                     end = highlight.end_index.toInt(),
@@ -151,20 +151,9 @@ fun DetailScreen(
                         val range = TextRange(startIndex, startIndex + selectedText.length)
                         selectedTextRange = range
                         
-                        // Apply highlight immediately with current color
-                        val newHighlight = TextHighlight(range.start, range.end, currentHighlightColor)
-                        highlights.add(newHighlight)
-                        currentHighlightIndex = highlights.size - 1
-                        
-                        // Persist to database
-                        coroutineScope.launch {
-                            try {
-                                repository.addHighlight(hymn.id, range.start.toLong(), range.end.toLong())
-                            } catch (e: Exception) {
-                                // Handle error - could remove from memory if database save fails
-                            }
-                        }
-                        
+                        // Just show bottom sheet for new text selection (no color selected initially)
+                        currentHighlightIndex = null
+                        currentHighlightColor = Color.Transparent // No color selected initially
                         showHighlightBottomSheet = true
                     }
                 }
@@ -280,12 +269,45 @@ fun DetailScreen(
                         currentHighlightIndex = null
                         selectedTextRange = null
                     },
-                    currentColor = currentHighlightColor,
+                    currentColor = if (currentHighlightColor == Color.Transparent) null else currentHighlightColor,
                     onColorSelected = { color ->
                         currentHighlightColor = color
+                        
                         currentHighlightIndex?.let { index ->
-                            highlights[index] = highlights[index].copy(color = color)
+                            // Editing existing highlight - update color and persist to database
+                            val highlightToUpdate = highlights[index]
+                            highlights[index] = highlightToUpdate.copy(color = color)
+                            
+                            // Update color in database
+                            highlightToUpdate.dbId?.let { dbId ->
+                                val colorIndex = highlightColors.indexOf(color).coerceAtLeast(0)
+                                coroutineScope.launch {
+                                    try {
+                                        repository.updateHighlightColor(dbId, colorIndex.toLong())
+                                    } catch (e: Exception) {
+                                        // Handle error - could revert memory change
+                                    }
+                                }
+                            }
+                        } ?: run {
+                            // Creating new highlight from selected text
+                            selectedTextRange?.let { range ->
+                                val colorIndex = highlightColors.indexOf(color).coerceAtLeast(0)
+                                val newHighlight = TextHighlight(range.start, range.end, color)
+                                highlights.add(newHighlight)
+                                
+                                // Persist to database
+                                coroutineScope.launch {
+                                    try {
+                                        repository.addHighlight(hymn.id, range.start.toLong(), range.end.toLong(), colorIndex.toLong())
+                                    } catch (e: Exception) {
+                                        // Handle error - could remove from memory if database save fails
+                                        highlights.removeLastOrNull()
+                                    }
+                                }
+                            }
                         }
+                        
                         showHighlightBottomSheet = false
                         currentHighlightIndex = null
                         selectedTextRange = null

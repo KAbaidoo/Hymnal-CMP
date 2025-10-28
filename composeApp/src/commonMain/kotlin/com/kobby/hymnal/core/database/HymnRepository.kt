@@ -104,8 +104,12 @@ class HymnRepository(private val database: HymnDatabase) {
             }
     }
     
-    suspend fun addHighlight(hymnId: Long, startIndex: Long, endIndex: Long) = withContext(Dispatchers.Default) {
-        database.hymnsQueries.addHighlight(hymnId, startIndex, endIndex)
+    suspend fun addHighlight(hymnId: Long, startIndex: Long, endIndex: Long, colorIndex: Long = 0) = withContext(Dispatchers.Default) {
+        database.hymnsQueries.addHighlight(hymnId, startIndex, endIndex, colorIndex)
+    }
+    
+    suspend fun updateHighlightColor(highlightId: Long, colorIndex: Long) = withContext(Dispatchers.Default) {
+        database.hymnsQueries.updateHighlightColor(colorIndex, highlightId)
     }
     
     suspend fun removeHighlight(highlightId: Long) = withContext(Dispatchers.Default) {
