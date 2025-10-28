@@ -20,3 +20,8 @@
 - Added settings screen with highlight color selection.
 - Added persistent storage for highlights.
 - Minor UI improvements.
+
+0.4.1
+- fixed bug where highlight color was not saved correctly.
+- fixed bug where highlights were not displayed after app restart.
+- fixed dark mode text color for highlighted text.
