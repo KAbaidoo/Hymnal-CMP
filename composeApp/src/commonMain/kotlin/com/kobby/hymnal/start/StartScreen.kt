@@ -70,7 +70,7 @@ import hymnal_cmp.composeapp.generated.resources.author_name
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
-private const val AUTO_NAVIGATION_DELAY_MS = 5000L
+private const val AUTO_NAVIGATION_DELAY_MS = 6000L
 
 class StartScreen : Screen {
 
@@ -221,7 +221,7 @@ fun StartScreenContent(
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .offset(x = 28.dp, y = (-30).dp)
+                .offset(x = 28.dp, y = (-50).dp)
         ) {
             Box {
                 Image(
