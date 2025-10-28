@@ -108,6 +108,10 @@ class HymnRepository(private val database: HymnDatabase) {
         database.hymnsQueries.addHighlight(hymnId, startIndex, endIndex, colorIndex)
     }
     
+    suspend fun updateHighlightColor(highlightId: Long, colorIndex: Long) = withContext(Dispatchers.Default) {
+        database.hymnsQueries.updateHighlightColor(colorIndex, highlightId)
+    }
+    
     suspend fun removeHighlight(highlightId: Long) = withContext(Dispatchers.Default) {
         database.hymnsQueries.removeHighlight(highlightId)
     }

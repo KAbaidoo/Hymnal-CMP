@@ -136,6 +136,9 @@ addHighlight:
 INSERT INTO highlight (hymn_id, start_index, end_index, color_index) 
 VALUES (?, ?, ?, ?);
 
+updateHighlightColor:
+UPDATE highlight SET color_index = ? WHERE id = ?;
+
 removeHighlight:
 DELETE FROM highlight WHERE id = ?;
 

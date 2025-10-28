@@ -21,7 +21,7 @@ fun HighlightTextBottomSheet(
     onDismiss: () -> Unit,
     onColorSelected: (Color) -> Unit,
     onRemoveHighlight: (() -> Unit)? = null,
-    currentColor: Color = Color(0xFFD6E8FF)
+    currentColor: Color? = null // Null means no color selected
 ) {
     val fontColor = MaterialTheme.colorScheme.onSurface
     val shape = Shapes.medium
@@ -93,7 +93,7 @@ fun HighlightTextBottomSheet(
                         },
                     contentAlignment = Alignment.Center
                 ) {
-                    if (color == currentColor) {
+                    if (color == currentColor && currentColor != null) {
                         Text(
                             text = "✕",
                             fontSize = 20.sp,
@@ -114,7 +114,7 @@ fun HighlightTextModal(
     onDismiss: () -> Unit,
     onColorSelected: (Color) -> Unit,
     onRemoveHighlight: (() -> Unit)? = null,
-    currentColor: Color = Color(0xFFD6E8FF)
+    currentColor: Color? = null
 ) {
     if (isVisible) {
         ModalBottomSheet(
