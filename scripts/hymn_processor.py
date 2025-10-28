@@ -124,7 +124,7 @@ def parse_hymn_file(file_path, category):
                 "Benedictus.txt",
                 "Magnificat.txt",
                 "Nunc dimittis.txt",
-                "THE CREED.txt"
+                "The Apostles Creed.txt"
             ]
             try:
                 number = 1001 + canticle_order.index(filename)
