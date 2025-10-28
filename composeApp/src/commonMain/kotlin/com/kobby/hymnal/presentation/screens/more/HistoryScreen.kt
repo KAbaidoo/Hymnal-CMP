@@ -5,8 +5,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.core.screen.Screen
+import kotlinx.coroutines.launch
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.core.database.HymnRepository
@@ -19,6 +21,7 @@ class HistoryScreen : Screen {
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val repository: HymnRepository = koinInject()
+        val coroutineScope = rememberCoroutineScope()
         var searchText by remember { mutableStateOf("") }
         
         // Get recent hymns from repository
@@ -71,7 +74,9 @@ class HistoryScreen : Screen {
                 }
             },
             onClearHistory = {
-                // TODO: Implement clear history
+                coroutineScope.launch {
+                    repository.clearHistory()
+                }
             }
         )
     }

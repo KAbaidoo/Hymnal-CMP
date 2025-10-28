@@ -31,12 +31,13 @@ fun ListScreen(
     onSearchTextChanged: (String) -> Unit = {},
     onItemClick: (Hymn) -> Unit = {},
     onBackClick: () -> Unit = {},
-    onHomeClick: () -> Unit = {}
+    onHomeClick: () -> Unit = {},
+    actionButtons: @Composable() (() -> Unit?)? = null
 ){
     ContentScreen(
         titleCollapsed = titleCollapsed,
         titleExpanded = titleExpanded,
-        actionButtons = null,
+        actionButtons = actionButtons,
         content = { innerPadding ->
             LazyColumn(
                 modifier = Modifier

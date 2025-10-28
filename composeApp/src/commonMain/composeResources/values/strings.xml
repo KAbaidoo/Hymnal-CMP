@@ -49,6 +49,13 @@
     <string name="cd_navigate">Navigate</string>
     <string name="cd_font_settings">Font settings</string>
     <string name="cd_share">Share</string>
+    <string name="cd_clear_history">Clear history</string>
+
+    <!-- Dialogs -->
+    <string name="clear_history">Clear History</string>
+    <string name="clear_history_message">Are you sure you want to clear all history? This action cannot be undone.</string>
+    <string name="cancel">Cancel</string>
+    <string name="clear">Clear</string>
     <string name="cd_get_started">Get Started</string>
     <string name="cd_settings">Settings</string>
     <string name="cd_menu">Menu</string>
