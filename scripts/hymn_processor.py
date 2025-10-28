@@ -39,6 +39,7 @@ def create_database_schema(cursor):
             hymn_id INTEGER NOT NULL,
             start_index INTEGER NOT NULL,
             end_index INTEGER NOT NULL,
+            color_index INTEGER NOT NULL DEFAULT 0,
             created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
             FOREIGN KEY (hymn_id) REFERENCES hymn(id)
         )""",

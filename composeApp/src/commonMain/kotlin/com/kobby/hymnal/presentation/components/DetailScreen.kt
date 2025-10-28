@@ -111,8 +111,8 @@ fun DetailScreen(
             val dbHighlights = repository.getHighlightsForHymn(hymn.id)
             highlights.clear()
             dbHighlights.forEach { highlight ->
-                // Map highlight to color based on index (cycling through available colors)
-                val colorIndex = highlights.size % highlightColors.size
+                // Use the stored color index to restore the original color
+                val colorIndex = highlight.color_index.toInt().coerceIn(0, highlightColors.size - 1)
                 val textHighlight = TextHighlight(
                     start = highlight.start_index.toInt(),
                     end = highlight.end_index.toInt(),
@@ -152,6 +152,7 @@ fun DetailScreen(
                         selectedTextRange = range
                         
                         // Apply highlight immediately with current color
+                        val colorIndex = highlightColors.indexOf(currentHighlightColor).coerceAtLeast(0)
                         val newHighlight = TextHighlight(range.start, range.end, currentHighlightColor)
                         highlights.add(newHighlight)
                         currentHighlightIndex = highlights.size - 1
@@ -159,7 +160,7 @@ fun DetailScreen(
                         // Persist to database
                         coroutineScope.launch {
                             try {
-                                repository.addHighlight(hymn.id, range.start.toLong(), range.end.toLong())
+                                repository.addHighlight(hymn.id, range.start.toLong(), range.end.toLong(), colorIndex.toLong())
                             } catch (e: Exception) {
                                 // Handle error - could remove from memory if database save fails
                             }
