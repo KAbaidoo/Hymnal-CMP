@@ -63,7 +63,7 @@ import hymnal_cmp.composeapp.generated.resources.cathedral
 import hymnal_cmp.composeapp.generated.resources.heart_2_line
 import hymnal_cmp.composeapp.generated.resources.find_your_hymns
 import hymnal_cmp.composeapp.generated.resources.explore_collection
-import hymnal_cmp.composeapp.generated.resources.open_hymns
+import hymnal_cmp.composeapp.generated.resources.my_hymns
 import hymnal_cmp.composeapp.generated.resources.cd_open
 import hymnal_cmp.composeapp.generated.resources.cd_settings
 import hymnal_cmp.composeapp.generated.resources.cd_search
@@ -177,7 +177,7 @@ private fun HomeScreenContent(
                             )
 
                             Button(
-                                onClick = onAncientModernClick,
+                                onClick = onFavoritesClick,
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = MaterialTheme.colorScheme.secondary
                                 ),
@@ -185,7 +185,7 @@ private fun HomeScreenContent(
                                 modifier = Modifier.height(40.dp)
                             ) {
                                 Text(
-                                    text = stringResource(Res.string.open_hymns),
+                                    text = stringResource(Res.string.my_hymns),
                                     color = MaterialTheme.colorScheme.primary,
                                     style = MaterialTheme.typography.bodyLarge,
                                 )
@@ -214,11 +214,11 @@ private fun HomeScreenContent(
                             onClick = onCanticleClick
                         )
                         Spacer(modifier = Modifier.height(12.dp))
-                        CategoryButtons(
-                            title = "Favourites",
-                            icon = vectorResource(Res.drawable.heart_2_line),
-                            onClick = onFavoritesClick
-                        )
+//                        CategoryButtons(
+//                            title = "Favourites",
+//                            icon = vectorResource(Res.drawable.heart_2_line),
+//                            onClick = onFavoritesClick
+//                        )
                         
                         if (isDeveloperMode) {
                             Spacer(modifier = Modifier.height(12.dp))
