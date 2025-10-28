@@ -20,7 +20,7 @@
     <string name="search_query">Search query</string>
     
     <!-- UI Labels & Buttons -->
-    <string name="open_hymns">Open Hymns</string>
+    <string name="my_hymns">My Hymns</string>
     <string name="open">Open</string>
     <string name="highlight">Highlight</string>
     <string name="font">Font</string>
