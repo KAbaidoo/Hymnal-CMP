@@ -124,7 +124,7 @@ def parse_hymn_file(file_path, category):
                 "Benedictus.txt",
                 "Magnificat.txt",
                 "Nunc dimittis.txt",
-                "The Creed.txt"
+                "The Apostles Creed.txt"
             ]
             try:
                 number = 1001 + canticle_order.index(filename)
@@ -133,25 +133,18 @@ def parse_hymn_file(file_path, category):
         else:
             number = 0
         
-        # For canticles, start from the beginning; for hymns, skip the first line (HYMN X)
-        if category == "canticles":
-            content_start_index = 0
-        else:
-            # Skip the first line (HYMN X) and any empty lines to get to actual content
-            content_start_index = 1
-            while content_start_index < len(lines) and not lines[content_start_index].strip():
-                content_start_index += 1
+        # Skip the first line (HYMN X) and any empty lines to get to actual content
+        content_start_index = 1
+        while content_start_index < len(lines) and not lines[content_start_index].strip():
+            content_start_index += 1
         
-        # Extract hymn content (everything after the header for hymns, or from start for canticles)
+        # Extract hymn content (everything after the header)
         hymn_content = '\n'.join(lines[content_start_index:]).strip()
         
         # Extract title based on category
         if category == "canticles":
             # For canticles, use filename as title (remove .txt extension)
             title = os.path.splitext(filename)[0]
-            # Clean up specific formatting
-            if title == "The Creed":
-                title = "The Creed"
         else:
             # For hymns, extract title from first line of content
             title = ""
