@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kobby.hymnal.theme.Shapes
+import com.kobby.hymnal.theme.PurplePrimary
 
 @Composable
 fun HighlightTextBottomSheet(
@@ -97,7 +98,7 @@ fun HighlightTextBottomSheet(
                             text = "✕",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = PurplePrimary
                         )
                     }
                 }

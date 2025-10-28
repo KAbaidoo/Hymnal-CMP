@@ -46,6 +46,7 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import com.kobby.hymnal.core.settings.FontSettings
 import com.kobby.hymnal.theme.getAppFontFamily
+import com.kobby.hymnal.theme.LightTextColor
 import hymnal_cmp.composeapp.generated.resources.Res
 import hymnal_cmp.composeapp.generated.resources.font_settng
 import hymnal_cmp.composeapp.generated.resources.heart_2_fill
@@ -176,7 +177,10 @@ fun DetailScreen(
             append(content)
             highlights.forEachIndexed { index, highlight ->
                 addStyle(
-                    style = SpanStyle(background = highlight.color),
+                    style = SpanStyle(
+                        background = highlight.color,
+                        color = LightTextColor
+                    ),
                     start = highlight.start,
                     end = highlight.end
                 )

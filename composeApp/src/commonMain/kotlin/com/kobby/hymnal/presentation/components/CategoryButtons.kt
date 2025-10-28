@@ -25,6 +25,7 @@ import com.kobby.hymnal.theme.Shapes
 import hymnal_cmp.composeapp.generated.resources.Res
 import hymnal_cmp.composeapp.generated.resources.musical_note
 import org.jetbrains.compose.resources.vectorResource
+import com.kobby.hymnal.theme.DarkBackground
 
 @Composable
 fun CategoryButtons(
@@ -39,8 +40,8 @@ fun CategoryButtons(
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        MaterialTheme.colorScheme.background.copy(alpha = 0.6f),
-                        MaterialTheme.colorScheme.background.copy(alpha = 0.6f)
+                        DarkBackground.copy(alpha = 0.6f),
+                        DarkBackground.copy(alpha = 0.6f)
                     )
                 )
             )

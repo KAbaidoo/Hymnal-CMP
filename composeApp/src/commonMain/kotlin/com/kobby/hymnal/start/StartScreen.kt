@@ -82,6 +82,7 @@ class StartScreen : Screen {
         val scope = rememberCoroutineScope()
         val repository: HymnRepository = koinInject()
         var randomHymn by remember { mutableStateOf<Hymn?>(null) }
+        var hasNavigated by remember { mutableStateOf(false) }
 
         // Fetch random hymn when screen loads
         LaunchedEffect(Unit) {
@@ -95,16 +96,25 @@ class StartScreen : Screen {
 
         LaunchedEffect(Unit) {
             delay(AUTO_NAVIGATION_DELAY_MS)
-            navigator.push(HomeScreen())
+            if (!hasNavigated) {
+                hasNavigated = true
+                navigator.push(HomeScreen())
+            }
         }
 
         StartScreenContent(
             randomHymn = randomHymn,
             onStartButtonClicked = {
-                navigator.push(HomeScreen())
+                if (!hasNavigated) {
+                    hasNavigated = true
+                    navigator.push(HomeScreen())
+                }
             },
             onRandomHymnClicked = { hymn ->
-                navigator.push(HymnDetailScreen(hymn, fromStartScreen = true))
+                if (!hasNavigated) {
+                    hasNavigated = true
+                    navigator.push(HymnDetailScreen(hymn, fromStartScreen = true))
+                }
             }
         )
     }
