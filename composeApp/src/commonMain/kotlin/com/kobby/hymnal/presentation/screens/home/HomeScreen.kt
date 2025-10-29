@@ -73,6 +73,7 @@ import hymnal_cmp.composeapp.generated.resources.menu_2_line
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.resources.stringResource
+import com.kobby.hymnal.theme.DarkTextColor
 
 class HomeScreen : Screen {
     @Composable
@@ -166,12 +167,12 @@ private fun HomeScreenContent(
                             Text(
                                 text = stringResource(Res.string.find_your_hymns),
                                 style = MaterialTheme.typography.headlineMedium,
-                                color = MaterialTheme.colorScheme.onPrimary,
+                                color = DarkTextColor,
                                 modifier = Modifier.padding(bottom = 8.dp)
                             )
                             Text(
                                 text = stringResource(Res.string.explore_collection),
-                                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
+                                color = DarkTextColor.copy(alpha = 0.7f),
                                 style = MaterialTheme.typography.bodySmall,
                                 modifier = Modifier.padding(top = 4.dp, bottom = 24.dp)
                             )
@@ -259,7 +260,7 @@ private fun AppBar(
                     modifier = Modifier.padding(16.dp),
                     text = stringResource(Res.string.anglican_hymnal),
                     style = MaterialTheme.typography.headlineLarge,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = DarkTextColor
                 )
             }
         },

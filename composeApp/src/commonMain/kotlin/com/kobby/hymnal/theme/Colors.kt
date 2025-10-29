@@ -1,5 +1,6 @@
 package com.kobby.hymnal.theme
 
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
@@ -25,7 +26,7 @@ internal val LightColorScheme = lightColorScheme(
     onSecondary = PurplePrimary
 )
 
-internal val DarkColorScheme = lightColorScheme(
+internal val DarkColorScheme = darkColorScheme(
     primary = PurplePrimary,
     background = DarkBackground,
     onBackground = DarkTextColor,
