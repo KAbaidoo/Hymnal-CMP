@@ -21,7 +21,7 @@ class MoreScreen : Screen {
             onDarkModeToggle = { isDarkMode = it },
             onItemClick = { item ->
                 when (item) {
-                    "Bookmarks" -> navigator.push(FavoritesScreen())
+                    "Favorites" -> navigator.push(FavoritesScreen())
                     "History" -> navigator.push(HistoryScreen())
                     "Highlights" -> navigator.push(HighlightsScreen())
                 }

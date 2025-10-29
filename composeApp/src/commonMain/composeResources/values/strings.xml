@@ -4,6 +4,7 @@
     <!-- Screen Titles & Headers -->
     <string name="database_inspector">Database Inspector</string>
     <string name="search_performance_test">Search Performance Test</string>
+    <string name="more">More</string>
     <string name="database_statistics">Database Statistics</string>
     <string name="sample_hymns">Sample Hymns</string>
     <string name="hymn_database_test">Hymn Database Test</string>
