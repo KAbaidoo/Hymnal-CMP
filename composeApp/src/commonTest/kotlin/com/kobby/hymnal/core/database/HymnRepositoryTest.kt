@@ -265,9 +265,9 @@ class HymnRepositoryTest {
 
         // Then
         assertEquals(2, recentHymns.size)
-        // Most recent should be first
-        assertEquals(secondHymnId, recentHymns[0].id)
-        assertEquals(firstHymnId, recentHymns[1].id)
+        // First added should be first in results
+        assertEquals(firstHymnId, recentHymns[0].id)
+        assertEquals(secondHymnId, recentHymns[1].id)
     }
 
     @Test
