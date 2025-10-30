@@ -43,7 +43,7 @@ This document provides a comprehensive summary of the unit test coverage for the
 - ✅ `getRandomHymn returns a hymn when hymns exist`
 - ✅ `getRandomHymn returns null when no hymns exist`
 
-#### Favorites (4 tests)
+#### Favorites (5 tests)
 - ✅ `addToFavorites and getFavoriteHymns work correctly`
 - ✅ `removeFromFavorites removes hymn from favorites`
 - ✅ `isFavorite returns true when hymn is favorited`
@@ -56,7 +56,7 @@ This document provides a comprehensive summary of the unit test coverage for the
 - ✅ `clearHistory removes all history entries`
 - ✅ `multiple hymns can be in history and ordered by most recent access`
 
-#### Highlights (6 tests)
+#### Highlights (5 tests)
 - ✅ `addHighlight and getHighlightsForHymn work correctly`
 - ✅ `getHymnsWithHighlights returns only hymns with highlights`
 - ✅ `updateHighlightColor updates the color of highlight`
@@ -84,7 +84,7 @@ This document provides a comprehensive summary of the unit test coverage for the
 - ✅ `initial font settings have default values`
 - ✅ `initial font settings load from existing preferences`
 
-#### Font Family Management (4 tests)
+#### Font Family Management (3 tests)
 - ✅ `updateFontFamily changes font family`
 - ✅ `updateFontFamily persists to settings`
 - ✅ `changing only font family preserves font size`
@@ -104,7 +104,7 @@ This document provides a comprehensive summary of the unit test coverage for the
 - ✅ `font size stays within bounds after multiple increases`
 - ✅ `font size stays within bounds after multiple decreases`
 
-#### State Flow (2 tests)
+#### State Flow and Edge Cases (2 tests)
 - ✅ `fontSettings flow emits updated values`
 - ✅ `zero size change keeps font size unchanged`
 
