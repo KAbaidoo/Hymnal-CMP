@@ -72,6 +72,7 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
             implementation(libs.sqldelight.jvm)
+            implementation("com.russhwolf:multiplatform-settings-test:1.1.1")
         }
 
         iosMain.dependencies {
