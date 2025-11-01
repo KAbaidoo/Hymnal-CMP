@@ -34,6 +34,7 @@ fun ListItem(title: String, onClick: () -> Unit = {}){
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Icon(

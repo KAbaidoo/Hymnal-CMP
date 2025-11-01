@@ -69,6 +69,8 @@ import hymnal_cmp.composeapp.generated.resources.created_by
 import hymnal_cmp.composeapp.generated.resources.author_name
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import com.kobby.hymnal.theme.DarkTextColor
+import com.kobby.hymnal.theme.LightTextColor
 
 private const val AUTO_NAVIGATION_DELAY_MS = 6000L
 
@@ -94,13 +96,13 @@ class StartScreen : Screen {
             }
         }
 
-        LaunchedEffect(Unit) {
-            delay(AUTO_NAVIGATION_DELAY_MS)
-            if (!hasNavigated) {
-                hasNavigated = true
-                navigator.push(HomeScreen())
-            }
-        }
+//        LaunchedEffect(Unit) {
+//            delay(AUTO_NAVIGATION_DELAY_MS)
+//            if (!hasNavigated) {
+//                hasNavigated = true
+//                navigator.push(HomeScreen())
+//            }
+//        }
 
         StartScreenContent(
             randomHymn = randomHymn,
@@ -202,7 +204,7 @@ fun StartScreenContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
+            .background(DarkTextColor)
     ) {
         Column {
             ScreenBackground(modifier = Modifier.weight(0.5f).fillMaxSize()) {
@@ -221,7 +223,7 @@ fun StartScreenContent(
                     Text(
                         text = stringResource(Res.string.anglican_hymnal_multiline),
                         style = MaterialTheme.typography.displayMedium,
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = DarkTextColor
                     )
                 }
             }
@@ -314,13 +316,13 @@ fun StartScreenContent(
                 modifier = Modifier.padding( vertical = 8.dp),
                 text = stringResource(Res.string.created_by),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = LightTextColor
             )
             Text(
                 modifier = Modifier.padding(0.dp),
                 text = stringResource(Res.string.author_name),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = LightTextColor
             )
         }
     }

@@ -26,6 +26,7 @@ import hymnal_cmp.composeapp.generated.resources.Res
 import hymnal_cmp.composeapp.generated.resources.musical_note
 import org.jetbrains.compose.resources.vectorResource
 import com.kobby.hymnal.theme.DarkBackground
+import com.kobby.hymnal.theme.DarkTextColor
 
 @Composable
 fun CategoryButtons(
@@ -63,12 +64,13 @@ fun CategoryButtons(
                     .background(MaterialTheme.colorScheme.primary)
                     .padding(12.dp),
                 imageVector = icon,
+                tint = DarkTextColor,
                 contentDescription = null,
             )
             Spacer(modifier = Modifier.width(16.dp))
             Text(
                 text = title,
-                color = Color.White,
+                color = DarkTextColor,
                 style = MaterialTheme.typography.headlineMedium
             )
         }
