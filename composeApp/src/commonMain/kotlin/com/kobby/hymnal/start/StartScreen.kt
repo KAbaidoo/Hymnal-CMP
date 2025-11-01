@@ -58,7 +58,6 @@ import com.kobby.hymnal.presentation.screens.home.HomeScreen
 import com.kobby.hymnal.presentation.screens.hymns.HymnDetailScreen
 import com.kobby.hymnal.theme.HymnalAppTheme
 import com.kobby.hymnal.theme.Shapes
-import com.russhwolf.settings.Settings
 import org.koin.compose.koinInject
 import hymnal_cmp.composeapp.generated.resources.Res
 import hymnal_cmp.composeapp.generated.resources.book_open
@@ -75,8 +74,6 @@ import com.kobby.hymnal.theme.LightTextColor
 private const val AUTO_NAVIGATION_DELAY_MS = 6000L
 
 class StartScreen : Screen {
-
-    private val settings = Settings()
 
     @Composable
     override fun Content() {
@@ -115,7 +112,7 @@ class StartScreen : Screen {
             onRandomHymnClicked = { hymn ->
                 if (!hasNavigated) {
                     hasNavigated = true
-                    navigator.push(HymnDetailScreen(hymn, fromStartScreen = true))
+                    navigator.push(HymnDetailScreen(hymnId = hymn.id, fromStartScreen = true))
                 }
             }
         )
@@ -270,7 +267,7 @@ fun StartScreenContent(
                                 modifier = Modifier
                                     .offset(y = hymnNumberOffsetY)
                                     .alpha(hymnNumberAlpha),
-                                text = "Hymn ${hymn.number}",
+                                text = "Hymn ${'$'}{hymn.number}",
                                 style = MaterialTheme.typography.labelMedium,
                                 color = Color.White.copy(alpha = 0.8f),
                                 fontWeight = FontWeight.Bold,
@@ -327,4 +324,3 @@ fun StartScreenContent(
         }
     }
 }
-

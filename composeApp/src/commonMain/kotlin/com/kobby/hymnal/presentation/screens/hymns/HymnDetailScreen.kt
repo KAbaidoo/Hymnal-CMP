@@ -21,8 +21,9 @@ import com.kobby.hymnal.presentation.components.FontSettingsModal
 import com.kobby.hymnal.presentation.screens.home.HomeScreen
 import kotlinx.coroutines.launch
 
+// Accept only primitive/serializable arguments to keep Screen serializable
 data class HymnDetailScreen(
-    private val hymn: Hymn,
+    private val hymnId: Long,
     private val fromStartScreen: Boolean = false
 ) : Screen {
     @Composable
@@ -33,64 +34,65 @@ data class HymnDetailScreen(
         val shareManager: ShareManager = koinInject()
         var isFavorite by remember { mutableStateOf(false) }
         var showFontSettings by remember { mutableStateOf(false) }
-        
+        var hymn by remember { mutableStateOf<Hymn?>(null) }
+
         // Font settings
         val fontSettingsManager: FontSettingsManager = koinInject()
         val fontSettings by fontSettingsManager.fontSettings.collectAsState()
         
-        // Check if hymn is favorite
-        LaunchedEffect(Unit) {
-            isFavorite = repository.isFavorite(hymn.id)
+        // Load hymn and favorite state
+        LaunchedEffect(hymnId) {
+            hymn = repository.getHymnById(hymnId)
+            isFavorite = repository.isFavorite(hymnId)
+            // Add to history once we navigate here
+            repository.addToHistory(hymnId)
         }
         
-        // Add to history when screen opens
-        LaunchedEffect(hymn.id) {
-            repository.addToHistory(hymn.id)
-        }
-        
-        DetailScreen(
-            hymn = hymn,
-            isFavorite = isFavorite,
-            onBackClick = { 
-                if (fromStartScreen) {
-                    // Navigate to home when coming from start screen
-                    navigator.push(HomeScreen())
-                } else {
-                    // Normal back navigation for other cases
-                    navigator.pop()
-                }
-            },
-            onHomeClick = { 
-                // Navigate to home by popping until we reach HomeScreen or we can't pop anymore
-                while (navigator.canPop) {
-                    navigator.pop()
-                    // Check if current screen is HomeScreen by trying to find it in the stack
-                    if (navigator.lastItem is com.kobby.hymnal.presentation.screens.home.HomeScreen) {
-                        break
+        hymn?.let { loadedHymn ->
+            DetailScreen(
+                hymn = loadedHymn,
+                isFavorite = isFavorite,
+                onBackClick = {
+                    if (fromStartScreen) {
+                        // Navigate to home when coming from start screen
+                        navigator.push(HomeScreen())
+                    } else {
+                        // Normal back navigation for other cases
+                        navigator.pop()
                     }
-                }
-            },
-            onFavoriteClick = {
-                scope.launch {
-                    repository?.let { repo ->
-                        if (isFavorite) {
-                            repo.removeFromFavorites(hymn.id)
-                        } else {
-                            repo.addToFavorites(hymn.id)
+                },
+                onHomeClick = {
+                    // Navigate to home by popping until we reach HomeScreen or we can't pop anymore
+                    while (navigator.canPop) {
+                        navigator.pop()
+                        // Check if current screen is HomeScreen by trying to find it in the stack
+                        if (navigator.lastItem is com.kobby.hymnal.presentation.screens.home.HomeScreen) {
+                            break
                         }
-                        isFavorite = !isFavorite
                     }
-                }
-            },
-            onFontSettingsClick = {
-                showFontSettings = true
-            },
-            onShareClick = {
-                shareManager.shareHymn(hymn)
-            },
-            fontSettings = fontSettings
-        )
-        
+                },
+                onFavoriteClick = {
+                    scope.launch {
+                        repository.let { repo ->
+                            if (isFavorite) {
+                                repo.removeFromFavorites(hymnId)
+                            } else {
+                                repo.addToFavorites(hymnId)
+                            }
+                            isFavorite = !isFavorite
+                        }
+                    }
+                },
+                onFontSettingsClick = {
+                    showFontSettings = true
+                },
+                onShareClick = {
+                    shareManager.shareHymn(loadedHymn)
+                },
+                fontSettings = fontSettings
+            )
+        }
+
         // Font Settings Modal
         FontSettingsModal(
             isVisible = showFontSettings,
