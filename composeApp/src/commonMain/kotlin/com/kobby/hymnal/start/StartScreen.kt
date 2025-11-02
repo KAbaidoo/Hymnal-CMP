@@ -93,13 +93,13 @@ class StartScreen : Screen {
             }
         }
 
-//        LaunchedEffect(Unit) {
-//            delay(AUTO_NAVIGATION_DELAY_MS)
-//            if (!hasNavigated) {
-//                hasNavigated = true
-//                navigator.push(HomeScreen())
-//            }
-//        }
+        LaunchedEffect(Unit) {
+            delay(AUTO_NAVIGATION_DELAY_MS)
+            if (!hasNavigated) {
+                hasNavigated = true
+                navigator.push(HomeScreen())
+            }
+        }
 
         StartScreenContent(
             randomHymn = randomHymn,
@@ -119,7 +119,15 @@ class StartScreen : Screen {
     }
 
 }
-
+private fun getCategoryAbbreviation(category: String?): String {
+    return when (category) {
+        "ancient_modern" -> "A&M"
+        "supplementary" -> "Supp"
+        "canticles" -> ""
+        "psalms" -> "Psalm"
+        else -> "Hymn"
+    }
+}
 @Composable
 fun StartScreenContent(
     modifier: Modifier = Modifier,
@@ -267,7 +275,7 @@ fun StartScreenContent(
                                 modifier = Modifier
                                     .offset(y = hymnNumberOffsetY)
                                     .alpha(hymnNumberAlpha),
-                                text = "Hymn ${'$'}{hymn.number}",
+                                text = "${getCategoryAbbreviation(hymn.category)} ${hymn.number}",
                                 style = MaterialTheme.typography.labelMedium,
                                 color = Color.White.copy(alpha = 0.8f),
                                 fontWeight = FontWeight.Bold,
