@@ -26,6 +26,7 @@ import hymnal_cmp.composeapp.generated.resources.Res
 import hymnal_cmp.composeapp.generated.resources.settings
 import hymnal_cmp.composeapp.generated.resources.dark_mode
 import hymnal_cmp.composeapp.generated.resources.version
+import hymnal_cmp.composeapp.generated.resources.more
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -37,11 +38,11 @@ fun MoreScreenContent(
     onHomeClick: () -> Unit
 ) {
     ContentScreen(
-        titleCollapsed = "More",
-        titleExpanded = "More",
+        titleCollapsed = stringResource(Res.string.more),
+        titleExpanded = stringResource(Res.string.more),
         actionButtons = null,
         content = { innerPadding ->
-            val menuItems = listOf("Bookmarks", "History", "Highlights")
+            val menuItems = listOf("Favorites", "History", "Highlights")
 
             Column(
                 modifier = Modifier

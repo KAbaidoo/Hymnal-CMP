@@ -128,14 +128,7 @@ private fun FavoritesListScreen(
                 }
             }
         },
-        bottomBar = { 
-            SearchTextField(
-                modifier = Modifier.fillMaxWidth(), 
-                searchText = searchText, 
-                onTextChanged = onSearchTextChanged, 
-                placeholderText = stringResource(Res.string.search_placeholder)
-            ) 
-        },
+        bottomBar = {},
         onBackClick = onBackClick,
         onHomeClick = onHomeClick
     )

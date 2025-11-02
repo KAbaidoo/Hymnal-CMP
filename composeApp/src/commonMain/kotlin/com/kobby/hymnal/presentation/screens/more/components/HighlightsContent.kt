@@ -126,14 +126,6 @@ private fun HighlightsListScreen(
                 }
             }
         },
-        bottomBar = { 
-            SearchTextField(
-                modifier = Modifier.fillMaxWidth(), 
-                searchText = searchText, 
-                onTextChanged = onSearchTextChanged, 
-                placeholderText = stringResource(Res.string.search_placeholder)
-            ) 
-        },
         onBackClick = onBackClick,
         onHomeClick = onHomeClick
     )

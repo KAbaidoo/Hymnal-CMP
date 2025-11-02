@@ -58,7 +58,6 @@ import com.kobby.hymnal.presentation.screens.home.HomeScreen
 import com.kobby.hymnal.presentation.screens.hymns.HymnDetailScreen
 import com.kobby.hymnal.theme.HymnalAppTheme
 import com.kobby.hymnal.theme.Shapes
-import com.russhwolf.settings.Settings
 import org.koin.compose.koinInject
 import hymnal_cmp.composeapp.generated.resources.Res
 import hymnal_cmp.composeapp.generated.resources.book_open
@@ -69,12 +68,12 @@ import hymnal_cmp.composeapp.generated.resources.created_by
 import hymnal_cmp.composeapp.generated.resources.author_name
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import com.kobby.hymnal.theme.DarkTextColor
+import com.kobby.hymnal.theme.LightTextColor
 
 private const val AUTO_NAVIGATION_DELAY_MS = 6000L
 
 class StartScreen : Screen {
-
-    private val settings = Settings()
 
     @Composable
     override fun Content() {
@@ -113,14 +112,22 @@ class StartScreen : Screen {
             onRandomHymnClicked = { hymn ->
                 if (!hasNavigated) {
                     hasNavigated = true
-                    navigator.push(HymnDetailScreen(hymn, fromStartScreen = true))
+                    navigator.push(HymnDetailScreen(hymnId = hymn.id, fromStartScreen = true))
                 }
             }
         )
     }
 
 }
-
+private fun getCategoryAbbreviation(category: String?): String {
+    return when (category) {
+        "ancient_modern" -> "A&M"
+        "supplementary" -> "Supp"
+        "canticles" -> ""
+        "psalms" -> "Psalm"
+        else -> "Hymn"
+    }
+}
 @Composable
 fun StartScreenContent(
     modifier: Modifier = Modifier,
@@ -202,7 +209,7 @@ fun StartScreenContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
+            .background(DarkTextColor)
     ) {
         Column {
             ScreenBackground(modifier = Modifier.weight(0.5f).fillMaxSize()) {
@@ -221,7 +228,7 @@ fun StartScreenContent(
                     Text(
                         text = stringResource(Res.string.anglican_hymnal_multiline),
                         style = MaterialTheme.typography.displayMedium,
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = DarkTextColor
                     )
                 }
             }
@@ -268,7 +275,7 @@ fun StartScreenContent(
                                 modifier = Modifier
                                     .offset(y = hymnNumberOffsetY)
                                     .alpha(hymnNumberAlpha),
-                                text = "Hymn ${hymn.number}",
+                                text = "${getCategoryAbbreviation(hymn.category)} ${hymn.number}",
                                 style = MaterialTheme.typography.labelMedium,
                                 color = Color.White.copy(alpha = 0.8f),
                                 fontWeight = FontWeight.Bold,
@@ -314,15 +321,14 @@ fun StartScreenContent(
                 modifier = Modifier.padding( vertical = 8.dp),
                 text = stringResource(Res.string.created_by),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = LightTextColor
             )
             Text(
                 modifier = Modifier.padding(0.dp),
                 text = stringResource(Res.string.author_name),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = LightTextColor
             )
         }
     }
 }
-

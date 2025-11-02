@@ -43,7 +43,7 @@ class HighlightsScreen : Screen {
             error = null,
             onSearchTextChanged = { searchText = it },
             onItemClick = { hymn ->
-                navigator.push(HymnDetailScreen(hymn))
+                navigator.push(HymnDetailScreen(hymnId = hymn.id))
             },
             onBackClick = { navigator.pop() },
             onHomeClick = { 
