@@ -125,5 +125,6 @@ class HymnRepository(private val database: HymnDatabase) {
         const val CATEGORY_ANCIENT_MODERN = "ancient_modern"
         const val CATEGORY_SUPPLEMENTARY = "supplementary"
         const val CATEGORY_CANTICLES = "canticles"
+        const val CATEGORY_PSALMS = "psalms"
     }
 }

@@ -131,21 +131,49 @@ def parse_hymn_file(file_path, category):
                 number = 1001 + canticle_order.index(filename)
             except ValueError:
                 number = 1000  # fallback for unknown canticles
+        elif category == "psalms":
+            # Extract from "Psalm 23.txt"
+            match = re.search(r'Psalm (\d+)\.txt', filename)
+            number = int(match.group(1)) if match else 0
         else:
             number = 0
         
-        # Skip the first line (HYMN X) and any empty lines to get to actual content
-        content_start_index = 1
-        while content_start_index < len(lines) and not lines[content_start_index].strip():
-            content_start_index += 1
-        
-        # Extract hymn content (everything after the header)
-        hymn_content = '\n'.join(lines[content_start_index:]).strip()
+        # Handle content extraction based on category
+        if category == "psalms":
+            # For psalms, include the first line (it's the actual first verse, not a header)
+            hymn_content = '\n'.join(lines).strip()
+        else:
+            # Skip the first line (HYMN X) and any empty lines to get to actual content
+            content_start_index = 1
+            while content_start_index < len(lines) and not lines[content_start_index].strip():
+                content_start_index += 1
+            
+            # Extract hymn content (everything after the header)
+            hymn_content = '\n'.join(lines[content_start_index:]).strip()
         
         # Extract title based on category
         if category == "canticles":
             # For canticles, use filename as title (remove .txt extension)
             title = os.path.splitext(filename)[0]
+        elif category == "psalms":
+            # For psalms, extract opening phrase to the colon (primary delimiter)
+            title = ""
+            if hymn_content:
+                first_line = hymn_content.split('\n')[0].strip()
+                
+                # Use colon as primary delimiter (Anglican psalm structure)
+                if ':' in first_line:
+                    title = first_line.split(':')[0].strip()
+                elif ',' in first_line:
+                    # Fallback to comma only if no colon
+                    title = first_line.split(',')[0].strip()
+                else:
+                    # No punctuation: take first several words
+                    words = first_line.split()
+                    title = ' '.join(words[:6]) if len(words) > 6 else first_line
+                
+                # Clean up any remaining punctuation except exclamation marks
+                title = title.rstrip('.,;:?').strip()
         else:
             # For hymns, extract title from first line of content
             title = ""
@@ -202,6 +230,16 @@ def process_hymn_directory(anglican_dir):
                 if canticle:
                     hymns.append(canticle)
     
+    # Process Psalms
+    psalms_dir = os.path.join(anglican_dir, "The Psalms")
+    if os.path.exists(psalms_dir):
+        for filename in os.listdir(psalms_dir):
+            if filename.endswith('.txt') and filename.startswith('Psalm '):
+                file_path = os.path.join(psalms_dir, filename)
+                psalm = parse_hymn_file(file_path, "psalms")
+                if psalm:
+                    hymns.append(psalm)
+    
     # Sort hymns by category and number
     hymns.sort(key=lambda x: (x['category'], x['number']))
     return hymns
@@ -222,7 +260,7 @@ def insert_hymns(cursor, hymns):
 
 def main():
     # Paths
-    anglican_dir = "/Users/kobby/Desktop/Anglican"
+    anglican_dir = "../hymnal_data/Anglican"
     output_dir = "../composeApp/src/commonMain/composeResources/files"
     
     if not os.path.exists(anglican_dir):
@@ -270,11 +308,13 @@ def main():
         ancient_modern_count = sum(1 for h in hymns if h['category'] == 'ancient_modern')
         supplementary_count = sum(1 for h in hymns if h['category'] == 'supplementary')
         canticles_count = sum(1 for h in hymns if h['category'] == 'canticles')
+        psalms_count = sum(1 for h in hymns if h['category'] == 'psalms')
         
         print(f"\nCategory breakdown:")
         print(f"- Ancient & Modern: {ancient_modern_count} hymns")
         print(f"- Supplementary: {supplementary_count} hymns")
         print(f"- Canticles: {canticles_count} canticles")
+        print(f"- Psalms: {psalms_count} psalms")
         
     finally:
         conn.close()

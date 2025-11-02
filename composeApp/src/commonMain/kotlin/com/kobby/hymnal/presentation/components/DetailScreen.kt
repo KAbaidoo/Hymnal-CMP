@@ -70,7 +70,7 @@ private fun getCategoryAbbreviation(category: String?): String {
         "ancient_modern" -> "A&M"
         "supplementary" -> "Supp"
         "canticles" -> ""
-        "creed" -> "The"
+        "psalms" -> "Psalm"
         else -> "Hymn"
     }
 }
@@ -183,16 +183,25 @@ fun DetailScreen(
         }
     }
     
-    val hymnNumber = if (hymn.number == 0L) "Creed" else hymn.number.toString()
     ContentScreen(
         titleCollapsed = when {
-            hymn.number == 0L -> "The Creed"
             hymn.category == "canticles" -> hymn.title ?: "Untitled"
             else -> "${getCategoryAbbreviation(hymn.category)} ${hymn.number}"
         },
         titleExpanded = when {
-            hymn.category == "canticles" -> hymn.title ?: "Untitled"
-            else -> "${getCategoryAbbreviation(hymn.category)}\n$hymnNumber"
+            // for canticles, take first word of title and append with line break and the rest of the title
+            hymn.category == "canticles" -> {
+                val title = hymn.title ?: "Untitled"
+                val firstSpaceIndex = title.indexOf(' ')
+                if (firstSpaceIndex > 0) {
+                    val firstWord = title.substring(0, firstSpaceIndex)
+                    val restOfTitle = title.substring(firstSpaceIndex + 1)
+                    "$firstWord\n$restOfTitle"
+                } else {
+                    title
+                }
+            }
+            else -> "${getCategoryAbbreviation(hymn.category)}\n${hymn.number}"
         },
         actionButtons = if (showActionButtons) {
             {

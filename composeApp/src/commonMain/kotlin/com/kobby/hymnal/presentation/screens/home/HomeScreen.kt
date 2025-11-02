@@ -105,6 +105,13 @@ class HomeScreen : Screen {
                     titleExpanded = "Canticles"
                 ))
             },
+            onPsalmsClick = {
+                navigator.push(HymnListScreen(
+                    category = HymnRepository.CATEGORY_PSALMS,
+                    titleCollapsed = "The Psalms",
+                    titleExpanded = "The\nPsalms"
+                ))
+            },
             onMoreClick = { navigator.push(MoreScreen()) },
             onMoreLongClick = { isDeveloperMode = !isDeveloperMode },
             onTestDatabaseClick = { navigator.push(TestHymnScreen()) },
@@ -121,6 +128,7 @@ private fun HomeScreenContent(
     onSupplementaryClick: () -> Unit = {},
     onFavoritesClick: () -> Unit = {},
     onCanticleClick: () -> Unit = {},
+    onPsalmsClick: () -> Unit = {},
     onMoreClick: () -> Unit = {},
     onMoreLongClick: () -> Unit = {},
     onTestDatabaseClick: () -> Unit = {},
@@ -215,12 +223,10 @@ private fun HomeScreenContent(
                             onClick = onCanticleClick
                         )
                         Spacer(modifier = Modifier.height(12.dp))
-//                        CategoryButtons(
-//                            title = "Favourites",
-//                            icon = vectorResource(Res.drawable.heart_2_line),
-//                            onClick = onFavoritesClick
-//                        )
-                        
+                        CategoryButtons(
+                            title = "The Psalms",
+                            onClick = onPsalmsClick
+                        )
                         if (isDeveloperMode) {
                             Spacer(modifier = Modifier.height(12.dp))
                             CategoryButtons(
