@@ -139,11 +139,11 @@ def parse_hymn_file(file_path, category):
             number = 0
         
         # Handle content extraction based on category
-        if category == "psalms":
-            # For psalms, include the first line (it's the actual first verse, not a header)
+        if category in ["psalms", "canticles"]:
+            # For psalms and canticles, preserve the first line (it's actual content, not a header)
             hymn_content = '\n'.join(lines).strip()
         else:
-            # Skip the first line (HYMN X) and any empty lines to get to actual content
+            # For hymns, skip the first line (HYMN X) and any empty lines to get to actual content
             content_start_index = 1
             while content_start_index < len(lines) and not lines[content_start_index].strip():
                 content_start_index += 1
