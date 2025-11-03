@@ -12,14 +12,19 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import com.google.firebase.Firebase
 import com.google.firebase.initialize
+import com.kobby.hymnal.core.crashlytics.CrashlyticsManager
 import com.kobby.hymnal.di.androidModule
+import com.kobby.hymnal.di.crashlyticsModule
 import com.kobby.hymnal.di.databaseModule
 import com.kobby.hymnal.di.settingsModule
+import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 
 class MainActivity : ComponentActivity() {
+    
+    private val crashlytics: CrashlyticsManager by inject()
     
     override fun onCreate(savedInstanceState: Bundle?) {
         window.statusBarColor = Color.Black.toArgb()
@@ -29,10 +34,13 @@ class MainActivity : ComponentActivity() {
         startKoin {
             androidLogger()
             androidContext(this@MainActivity)
-            modules(databaseModule, settingsModule, androidModule)
+            modules(databaseModule, settingsModule, androidModule, crashlyticsModule)
         }
 
         Firebase.initialize(this)
+        
+        // Set custom keys for Crashlytics context (release builds only)
+        setupCrashlyticsKeys()
 
         installSplashScreen()
         setContent {
@@ -54,6 +62,16 @@ class MainActivity : ComponentActivity() {
 
             HymnalApp()
         }
+    }
+    
+    private fun setupCrashlyticsKeys() {
+        // Set app version
+        crashlytics.setCustomKey("app_version", BuildConfig.VERSION_NAME)
+        crashlytics.setCustomKey("version_code", BuildConfig.VERSION_CODE)
+        crashlytics.setCustomKey("build_type", if (BuildConfig.DEBUG) "debug" else "release")
+        
+        // Log initialization
+        crashlytics.log("App initialized - version ${BuildConfig.VERSION_NAME}")
     }
 }
 

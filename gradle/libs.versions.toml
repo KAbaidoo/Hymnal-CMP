@@ -26,6 +26,7 @@ koin-bom = "3.5.6"
 sqldelight = "2.0.1"
 appdistribution = "3.0.1"
 buildkonfig = "0.17.1"
+firebase-crashlytics-plugin = "3.0.2"
 
 [libraries]
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
@@ -48,6 +49,7 @@ multiplatform-settings-noargs = { module = "com.russhwolf:multiplatform-settings
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
 firebase-common = { module = "com.google.firebase:firebase-common-ktx" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics-ktx" }
 kotlinx-coroutines = {group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kolinx-coroutines"}
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
 koin-core = { module = "io.insert-koin:koin-core" }
@@ -69,4 +71,5 @@ googleServices = { id = "com.google.gms.google-services", version.ref = "google-
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
 toolChainResolver = { id = "org.gradle.toolchains.foojay-resolver-convention", version.ref = "tool-chain-resolver" }
 firebase-appdistribution = { id = "com.google.firebase.appdistribution" , version.ref = "appdistribution"}
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebase-crashlytics-plugin" }
 buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfig" }
