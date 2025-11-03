@@ -29,7 +29,7 @@ This document summarizes the Firebase Crashlytics integration implemented for th
 - Non-fatal exception reporting via `CrashlyticsManager.recordException()`
 - Helper extension functions for easy reporting:
   - `safeLet()`: Returns null on exception
-  - `safeSuspend()`: Suspend function variant
+  - `safeCall()`: Suspend function variant, returns null on exception
   - `safeExecute()`: Re-throws after logging
 
 ### ✅ Find and Capture Risky Code Areas

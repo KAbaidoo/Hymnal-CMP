@@ -303,7 +303,7 @@ Add more exception handling as needed:
 
 ```kotlin
 // Example: Wrapping risky operations
-crashlytics.safeSuspend(
+crashlytics.safeCall(
     logMessage = "Loading hymn data",
     customKeys = mapOf("hymn_id" to hymnId)
 ) {

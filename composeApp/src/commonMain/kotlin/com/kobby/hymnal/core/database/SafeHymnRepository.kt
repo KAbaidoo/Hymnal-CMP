@@ -8,6 +8,11 @@ import kotlinx.coroutines.flow.catch
 /**
  * Wrapper around HymnRepository that adds Crashlytics error reporting
  * for all database operations.
+ * 
+ * Note: Long IDs are converted to String for custom keys to avoid potential
+ * overflow issues when converting to Int. This ensures all ID values can be
+ * safely logged regardless of size. While CrashlyticsManager supports Int keys,
+ * String is used for consistency and safety across all ID-related logging.
  */
 class SafeHymnRepository(
     private val repository: HymnRepository,

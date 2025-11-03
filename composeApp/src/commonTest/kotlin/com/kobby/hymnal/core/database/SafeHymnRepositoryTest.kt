@@ -51,14 +51,18 @@ class SafeHymnRepositoryTest {
     }
     
     // Test double that mimics HymnRepository behavior without requiring actual database
+    // Note: This is a simplified test implementation. In production code, consider using:
+    // - A proper in-memory test database
+    // - A mocking framework like MockK for better type safety
+    // - Extracting an interface for easier testing
     private class TestHymnRepository(
         private val shouldThrow: Boolean = false,
         @Suppress("UNUSED_PARAMETER") database: Any? = null
     ) : HymnRepository(
-        // Create a minimal test database placeholder
-        object : Any() {
-            // This is a workaround for testing - in real code, proper mock or test database would be used
-        } as com.kobby.hymnal.composeApp.database.HymnDatabase
+        // Workaround: Cast to HymnDatabase for testing purposes
+        // The methods are overridden, so the database is never actually used
+        @Suppress("UNCHECKED_CAST")
+        (object : Any() {} as com.kobby.hymnal.composeApp.database.HymnDatabase)
     ) {
         
         override fun getAllHymns(): Flow<List<Hymn>> {
