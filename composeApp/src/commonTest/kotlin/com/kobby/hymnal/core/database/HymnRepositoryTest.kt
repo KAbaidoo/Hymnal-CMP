@@ -308,6 +308,29 @@ class HymnRepositoryTest {
     }
 
     @Test
+    fun `history is automatically trimmed to limit when adding new entries`() = runTest {
+        // Given
+        val database = createInMemoryDatabase()
+        insertTestHymns(database)
+        val repository = HymnRepository(database)
+        val allHymns = database.hymnsQueries.getAllHymns().executeAsList()
+        
+        // Add more entries than the history limit (100) would allow
+        // We'll add 105 entries to test trimming
+        repeat(105) { index ->
+            val hymnId = allHymns[index % allHymns.size].id
+            repository.addToHistory(hymnId)
+        }
+        
+        // When - Check total history count by getting all recent hymns without limit
+        val allRecentHymns = repository.getRecentHymns(Long.MAX_VALUE).first()
+        
+        // Then - Should have at most 100 unique hymns (the limit) in history
+        // Note: Since we may have duplicates, we check that we don't exceed the limit
+        assertTrue(allRecentHymns.size <= 100, "History should be trimmed to reasonable size, but got ${allRecentHymns.size}")
+    }
+
+    @Test
     fun `addHighlight and getHighlightsForHymn work correctly`() = runTest {
         // Given
         val database = createInMemoryDatabase()

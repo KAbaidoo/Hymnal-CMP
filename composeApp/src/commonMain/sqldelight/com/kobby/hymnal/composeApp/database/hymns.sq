@@ -122,6 +122,13 @@ INSERT INTO history (hymn_id) VALUES (?);
 clearHistory:
 DELETE FROM history;
 
+trimHistoryToLimit:
+DELETE FROM history WHERE id NOT IN (
+    SELECT id FROM history 
+    ORDER BY accessed_at DESC 
+    LIMIT ?
+);
+
 -- Queries for highlights
 getHighlightsForHymn:
 SELECT * FROM highlight WHERE hymn_id = ? ORDER BY start_index;

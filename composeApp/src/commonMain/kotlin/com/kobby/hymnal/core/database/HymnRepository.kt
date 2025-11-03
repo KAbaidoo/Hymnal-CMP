@@ -74,10 +74,15 @@ class HymnRepository(private val database: HymnDatabase) {
     
     suspend fun addToHistory(hymnId: Long) = withContext(Dispatchers.Default) {
         database.hymnsQueries.addToHistory(hymnId)
+        trimHistoryToLimit()
     }
     
     suspend fun clearHistory() = withContext(Dispatchers.Default) {
         database.hymnsQueries.clearHistory()
+    }
+    
+    private suspend fun trimHistoryToLimit() = withContext(Dispatchers.Default) {
+        database.hymnsQueries.trimHistoryToLimit(HISTORY_LIMIT)
     }
     
     // Highlight queries
@@ -126,5 +131,8 @@ class HymnRepository(private val database: HymnDatabase) {
         const val CATEGORY_SUPPLEMENTARY = "supplementary"
         const val CATEGORY_CANTICLES = "canticles"
         const val CATEGORY_PSALMS = "psalms"
+        
+        // History management
+        private const val HISTORY_LIMIT = 100L
     }
 }
