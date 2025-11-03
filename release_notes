@@ -30,3 +30,7 @@
 - Added 'The Psalms' section with all 150 psalms.
 - Fixed crash caused during  navigation.
 - Minor UI improvements in Hymn list and detail screens.
+
+0.5.1
+- Fixed missing first line in Canticles.
+- Optimized storage for recently viewed hymns.
