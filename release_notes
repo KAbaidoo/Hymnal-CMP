@@ -25,3 +25,12 @@
 - fixed bug where highlight color was not saved correctly.
 - fixed bug where highlights were not displayed after app restart.
 - fixed dark mode text color for highlighted text.
+
+0.5.0
+- Added 'The Psalms' section with all 150 psalms.
+- Fixed crash caused during  navigation.
+- Minor UI improvements in Hymn list and detail screens.
+
+0.5.1
+- Fixed missing first line in Canticles.
+- Optimized storage for recently viewed hymns.
