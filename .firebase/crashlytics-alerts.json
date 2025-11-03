@@ -1,0 +1,39 @@
+{
+  "alertsConfig": {
+    "description": "Firebase Crashlytics email alert configuration",
+    "instructions": [
+      "1. Go to Firebase Console: https://console.firebase.google.com/",
+      "2. Select your project",
+      "3. Navigate to Crashlytics → Settings (gear icon)",
+      "4. Click on 'Email notifications'",
+      "5. Add the email addresses and configure alerts as specified below"
+    ],
+    "emailRecipients": [
+      "kobbykolmes@gmail.com"
+    ],
+    "alertTypes": {
+      "newFatalIssues": {
+        "enabled": true,
+        "description": "Alert when new fatal crash types are detected"
+      },
+      "regressedIssues": {
+        "enabled": true,
+        "description": "Alert when previously resolved crashes reappear"
+      },
+      "velocityAlerts": {
+        "enabled": true,
+        "threshold": "5%",
+        "description": "Alert when crash rate increases by 5% or more"
+      },
+      "highPriorityIssues": {
+        "enabled": true,
+        "description": "Alert for crashes affecting many users"
+      }
+    },
+    "additionalSettings": {
+      "digestFrequency": "daily",
+      "includeStackTraces": true,
+      "minimumAffectedUsers": 10
+    }
+  }
+}
