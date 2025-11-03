@@ -24,8 +24,6 @@ import org.koin.core.context.startKoin
 
 class MainActivity : ComponentActivity() {
     
-    private val crashlytics: CrashlyticsManager by inject()
-    
     override fun onCreate(savedInstanceState: Bundle?) {
         window.statusBarColor = Color.Black.toArgb()
         super.onCreate(savedInstanceState)
@@ -65,6 +63,9 @@ class MainActivity : ComponentActivity() {
     }
     
     private fun setupCrashlyticsKeys() {
+        // Get crashlytics from Koin after initialization
+        val crashlytics: CrashlyticsManager by inject()
+        
         // Set app version
         crashlytics.setCustomKey("app_version", BuildConfig.VERSION_NAME)
         crashlytics.setCustomKey("version_code", BuildConfig.VERSION_CODE)

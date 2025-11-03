@@ -39,7 +39,7 @@ class SafeHymnRepository(
             repository.getHymnById(id)
         } catch (e: Exception) {
             crashlytics.log("Error in getHymnById: $id")
-            crashlytics.setCustomKey("hymn_id", id.toInt())
+            crashlytics.setCustomKey("hymn_id", id.toString())
             crashlytics.recordException(e)
             null
         }
@@ -50,7 +50,7 @@ class SafeHymnRepository(
             repository.getHymnByNumber(number, category)
         } catch (e: Exception) {
             crashlytics.log("Error in getHymnByNumber: $number, category: $category")
-            crashlytics.setCustomKey("hymn_number", number.toInt())
+            crashlytics.setCustomKey("hymn_number", number.toString())
             crashlytics.setCustomKey("category", category)
             crashlytics.recordException(e)
             null
@@ -92,7 +92,7 @@ class SafeHymnRepository(
             repository.addToFavorites(hymnId)
         } catch (e: Exception) {
             crashlytics.log("Error in addToFavorites: $hymnId")
-            crashlytics.setCustomKey("hymn_id", hymnId.toInt())
+            crashlytics.setCustomKey("hymn_id", hymnId.toString())
             crashlytics.recordException(e)
             throw e
         }
@@ -103,7 +103,7 @@ class SafeHymnRepository(
             repository.removeFromFavorites(hymnId)
         } catch (e: Exception) {
             crashlytics.log("Error in removeFromFavorites: $hymnId")
-            crashlytics.setCustomKey("hymn_id", hymnId.toInt())
+            crashlytics.setCustomKey("hymn_id", hymnId.toString())
             crashlytics.recordException(e)
             throw e
         }
@@ -114,7 +114,7 @@ class SafeHymnRepository(
             repository.isFavorite(hymnId)
         } catch (e: Exception) {
             crashlytics.log("Error in isFavorite: $hymnId")
-            crashlytics.setCustomKey("hymn_id", hymnId.toInt())
+            crashlytics.setCustomKey("hymn_id", hymnId.toString())
             crashlytics.recordException(e)
             false
         }
@@ -125,7 +125,7 @@ class SafeHymnRepository(
         return repository.getRecentHymns(limit)
             .catch { e ->
                 crashlytics.log("Error in getRecentHymns: limit=$limit")
-                crashlytics.setCustomKey("history_limit", limit.toInt())
+                crashlytics.setCustomKey("history_limit", limit.toString())
                 crashlytics.recordException(e)
                 throw e
             }
@@ -136,7 +136,7 @@ class SafeHymnRepository(
             repository.addToHistory(hymnId)
         } catch (e: Exception) {
             crashlytics.log("Error in addToHistory: $hymnId")
-            crashlytics.setCustomKey("hymn_id", hymnId.toInt())
+            crashlytics.setCustomKey("hymn_id", hymnId.toString())
             crashlytics.recordException(e)
             throw e
         }
@@ -157,7 +157,7 @@ class SafeHymnRepository(
         repository.getHighlightsForHymn(hymnId)
     } catch (e: Exception) {
         crashlytics.log("Error in getHighlightsForHymn: $hymnId")
-        crashlytics.setCustomKey("hymn_id", hymnId.toInt())
+        crashlytics.setCustomKey("hymn_id", hymnId.toString())
         crashlytics.recordException(e)
         emptyList()
     }
@@ -176,9 +176,9 @@ class SafeHymnRepository(
             repository.addHighlight(hymnId, startIndex, endIndex, colorIndex)
         } catch (e: Exception) {
             crashlytics.log("Error in addHighlight: hymnId=$hymnId, start=$startIndex, end=$endIndex")
-            crashlytics.setCustomKey("hymn_id", hymnId.toInt())
-            crashlytics.setCustomKey("start_index", startIndex.toInt())
-            crashlytics.setCustomKey("end_index", endIndex.toInt())
+            crashlytics.setCustomKey("hymn_id", hymnId.toString())
+            crashlytics.setCustomKey("start_index", startIndex.toString())
+            crashlytics.setCustomKey("end_index", endIndex.toString())
             crashlytics.recordException(e)
             throw e
         }
@@ -189,8 +189,8 @@ class SafeHymnRepository(
             repository.updateHighlightColor(highlightId, colorIndex)
         } catch (e: Exception) {
             crashlytics.log("Error in updateHighlightColor: highlightId=$highlightId")
-            crashlytics.setCustomKey("highlight_id", highlightId.toInt())
-            crashlytics.setCustomKey("color_index", colorIndex.toInt())
+            crashlytics.setCustomKey("highlight_id", highlightId.toString())
+            crashlytics.setCustomKey("color_index", colorIndex.toString())
             crashlytics.recordException(e)
             throw e
         }
@@ -201,7 +201,7 @@ class SafeHymnRepository(
             repository.removeHighlight(highlightId)
         } catch (e: Exception) {
             crashlytics.log("Error in removeHighlight: $highlightId")
-            crashlytics.setCustomKey("highlight_id", highlightId.toInt())
+            crashlytics.setCustomKey("highlight_id", highlightId.toString())
             crashlytics.recordException(e)
             throw e
         }
@@ -212,7 +212,7 @@ class SafeHymnRepository(
             repository.clearHighlightsForHymn(hymnId)
         } catch (e: Exception) {
             crashlytics.log("Error in clearHighlightsForHymn: $hymnId")
-            crashlytics.setCustomKey("hymn_id", hymnId.toInt())
+            crashlytics.setCustomKey("hymn_id", hymnId.toString())
             crashlytics.recordException(e)
             throw e
         }

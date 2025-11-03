@@ -50,9 +50,16 @@ class SafeHymnRepositoryTest {
         }
     }
     
-    private class MockHymnRepository(
-        private val shouldThrow: Boolean = false
-    ) : HymnRepository(null as Any /* Database not used in mock */) {
+    // Test double that mimics HymnRepository behavior without requiring actual database
+    private class TestHymnRepository(
+        private val shouldThrow: Boolean = false,
+        @Suppress("UNUSED_PARAMETER") database: Any? = null
+    ) : HymnRepository(
+        // Create a minimal test database placeholder
+        object : Any() {
+            // This is a workaround for testing - in real code, proper mock or test database would be used
+        } as com.kobby.hymnal.composeApp.database.HymnDatabase
+    ) {
         
         override fun getAllHymns(): Flow<List<Hymn>> {
             if (shouldThrow) throw RuntimeException("Test error")
@@ -77,7 +84,7 @@ class SafeHymnRepositoryTest {
     @Test
     fun testGetHymnByIdSuccess() = runTest {
         val crashlytics = TestCrashlyticsManager()
-        val repository = MockHymnRepository(shouldThrow = false)
+        val repository = TestHymnRepository(shouldThrow = false)
         val safeRepository = SafeHymnRepository(repository, crashlytics)
         
         val result = safeRepository.getHymnById(1L)
@@ -90,7 +97,7 @@ class SafeHymnRepositoryTest {
     @Test
     fun testGetHymnByIdFailure() = runTest {
         val crashlytics = TestCrashlyticsManager()
-        val repository = MockHymnRepository(shouldThrow = true)
+        val repository = TestHymnRepository(shouldThrow = true)
         val safeRepository = SafeHymnRepository(repository, crashlytics)
         
         val result = safeRepository.getHymnById(123L)
@@ -105,7 +112,7 @@ class SafeHymnRepositoryTest {
     @Test
     fun testAddToFavoritesSuccess() = runTest {
         val crashlytics = TestCrashlyticsManager()
-        val repository = MockHymnRepository(shouldThrow = false)
+        val repository = TestHymnRepository(shouldThrow = false)
         val safeRepository = SafeHymnRepository(repository, crashlytics)
         
         safeRepository.addToFavorites(1L)
@@ -116,7 +123,7 @@ class SafeHymnRepositoryTest {
     @Test
     fun testAddToFavoritesFailure() = runTest {
         val crashlytics = TestCrashlyticsManager()
-        val repository = MockHymnRepository(shouldThrow = true)
+        val repository = TestHymnRepository(shouldThrow = true)
         val safeRepository = SafeHymnRepository(repository, crashlytics)
         
         try {
@@ -134,7 +141,7 @@ class SafeHymnRepositoryTest {
     @Test
     fun testSearchHymnsReportsExceptionOnError() = runTest {
         val crashlytics = TestCrashlyticsManager()
-        val repository = MockHymnRepository(shouldThrow = true)
+        val repository = TestHymnRepository(shouldThrow = true)
         val safeRepository = SafeHymnRepository(repository, crashlytics)
         
         try {
@@ -151,7 +158,7 @@ class SafeHymnRepositoryTest {
     @Test
     fun testGetAllHymnsSuccess() = runTest {
         val crashlytics = TestCrashlyticsManager()
-        val repository = MockHymnRepository(shouldThrow = false)
+        val repository = TestHymnRepository(shouldThrow = false)
         val safeRepository = SafeHymnRepository(repository, crashlytics)
         
         val result = safeRepository.getAllHymns().first()
@@ -163,7 +170,7 @@ class SafeHymnRepositoryTest {
     @Test
     fun testMultipleOperationsRecordsSeparateExceptions() = runTest {
         val crashlytics = TestCrashlyticsManager()
-        val repository = MockHymnRepository(shouldThrow = true)
+        val repository = TestHymnRepository(shouldThrow = true)
         val safeRepository = SafeHymnRepository(repository, crashlytics)
         
         // First operation

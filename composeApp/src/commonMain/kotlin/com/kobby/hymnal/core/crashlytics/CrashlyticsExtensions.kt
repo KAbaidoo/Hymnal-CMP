@@ -33,8 +33,9 @@ inline fun <T> CrashlyticsManager.safeLet(
 /**
  * Execute a suspend block and catch any exceptions, reporting them to Crashlytics
  * Returns the result or null if an exception occurred
+ * Note: Catches Exception, not Throwable. For fatal errors, they will propagate.
  */
-suspend inline fun <T> CrashlyticsManager.safeSuspend(
+suspend inline fun <T> CrashlyticsManager.safeCall(
     logMessage: String? = null,
     customKeys: Map<String, Any> = emptyMap(),
     crossinline block: suspend () -> T

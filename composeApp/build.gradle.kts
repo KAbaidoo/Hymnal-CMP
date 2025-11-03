@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.googleServices)
     alias(libs.plugins.firebase.appdistribution)
     alias(libs.plugins.firebase.crashlytics)
     alias(libs.plugins.buildkonfig)
@@ -249,6 +250,3 @@ fun versionNameToCode(versionName: String): Int {
     
     return major * 10000 + minor * 100 + patch
 }
-
-// Apply Google Services plugin for Firebase
-apply(plugin = "com.google.gms.google-services")
