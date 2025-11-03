@@ -80,12 +80,16 @@ fun HistoryContent(
                         showClearDialog = false
                     }
                 ) {
-                    Text(stringResource(Res.string.clear))
+                    Text(text = stringResource(Res.string.clear),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showClearDialog = false }) {
-                    Text(stringResource(Res.string.cancel))
+                    Text(text = stringResource(Res.string.cancel),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface)
                 }
             }
         )
