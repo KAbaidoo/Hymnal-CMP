@@ -21,7 +21,8 @@
       "mcp__exa__get_code_context_exa",
       "mcp__ide__getDiagnostics",
       "Bash(cp:*)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "mcp__exa__web_search_exa"
     ],
     "additionalDirectories": [
       "/Users/kobby/Desktop/Anglican"

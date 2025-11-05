@@ -9,7 +9,9 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.googleServices)
     alias(libs.plugins.firebase.appdistribution)
+    alias(libs.plugins.firebase.crashlytics)
     alias(libs.plugins.buildkonfig)
 }
 
@@ -39,6 +41,7 @@ kotlin {
             implementation(project.dependencies.platform(libs.firebase.bom))
             implementation(libs.firebase.common)
             implementation(libs.firebase.analytics)
+            implementation(libs.firebase.crashlytics)
             implementation(libs.sqldelight.android)
 
 
@@ -110,7 +113,11 @@ android {
 
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
 
         getByName("debug") {
@@ -129,6 +136,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     compileOptions {

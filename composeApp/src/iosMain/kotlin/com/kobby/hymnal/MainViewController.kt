@@ -1,6 +1,7 @@
 package com.kobby.hymnal
 
 import androidx.compose.ui.window.ComposeUIViewController
+import com.kobby.hymnal.di.crashlyticsModule
 import com.kobby.hymnal.di.databaseModule
 import com.kobby.hymnal.di.iosModule
 import com.kobby.hymnal.di.settingsModule
@@ -13,7 +14,7 @@ fun MainViewController() = ComposeUIViewController {
     try {
         startKoin {
             logger(PrintLogger(Level.DEBUG))
-            modules(databaseModule, settingsModule, iosModule)
+            modules(databaseModule, settingsModule, iosModule, crashlyticsModule)
         }
     } catch (e: Exception) {
         // Koin already started
