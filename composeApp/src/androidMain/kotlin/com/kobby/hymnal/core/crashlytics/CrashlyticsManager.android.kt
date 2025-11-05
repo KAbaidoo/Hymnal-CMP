@@ -7,47 +7,38 @@ import com.kobby.hymnal.BuildConfig
  * Android implementation of CrashlyticsManager using Firebase Crashlytics
  */
 class AndroidCrashlyticsManager : CrashlyticsManager {
-    private val crashlytics: FirebaseCrashlytics = FirebaseCrashlytics.getInstance()
-    
-    init {
-        // Only enable Crashlytics in release builds
-        crashlytics.setCrashlyticsCollectionEnabled(!BuildConfig.DEBUG)
+    // Lazily initialize Crashlytics only for release builds to avoid debug network calls
+    private val crashlytics: FirebaseCrashlytics? = if (!BuildConfig.DEBUG) {
+        FirebaseCrashlytics.getInstance().apply {
+            // Ensure collection is enabled in release
+            setCrashlyticsCollectionEnabled(true)
+        }
+    } else {
+        null
     }
     
     override fun recordException(throwable: Throwable) {
-        if (!BuildConfig.DEBUG) {
-            crashlytics.recordException(throwable)
-        }
+        crashlytics?.recordException(throwable)
     }
     
     override fun setCustomKey(key: String, value: String) {
-        if (!BuildConfig.DEBUG) {
-            crashlytics.setCustomKey(key, value)
-        }
+        crashlytics?.setCustomKey(key, value)
     }
     
     override fun setCustomKey(key: String, value: Boolean) {
-        if (!BuildConfig.DEBUG) {
-            crashlytics.setCustomKey(key, value)
-        }
+        crashlytics?.setCustomKey(key, value)
     }
     
     override fun setCustomKey(key: String, value: Int) {
-        if (!BuildConfig.DEBUG) {
-            crashlytics.setCustomKey(key, value)
-        }
+        crashlytics?.setCustomKey(key, value)
     }
     
     override fun setUserId(userId: String) {
-        if (!BuildConfig.DEBUG) {
-            crashlytics.setUserId(userId)
-        }
+        crashlytics?.setUserId(userId)
     }
     
     override fun log(message: String) {
-        if (!BuildConfig.DEBUG) {
-            crashlytics.log(message)
-        }
+        crashlytics?.log(message)
     }
 }
 

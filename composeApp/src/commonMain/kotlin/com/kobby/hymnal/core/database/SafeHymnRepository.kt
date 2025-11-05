@@ -4,6 +4,7 @@ import com.kobby.hymnal.composeApp.database.Hymn
 import com.kobby.hymnal.core.crashlytics.CrashlyticsManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 
 /**
  * Wrapper around HymnRepository that adds Crashlytics error reporting
@@ -128,6 +129,18 @@ class SafeHymnRepository(
     // History queries
     fun getRecentHymns(limit: Long = 20): Flow<List<Hymn>> {
         return repository.getRecentHymns(limit)
+            .map { getRecentHymnsList ->
+                getRecentHymnsList.map { data ->
+                    Hymn(
+                        id = data.id,
+                        number = data.number,
+                        title = data.title,
+                        category = data.category,
+                        content = data.content,
+                        created_at = data.created_at
+                    )
+                }
+            }
             .catch { e ->
                 crashlytics.log("Error in getRecentHymns: limit=$limit")
                 crashlytics.setCustomKey("history_limit", limit.toString())
