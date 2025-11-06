@@ -44,10 +44,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.LaunchedEffect
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.kobby.hymnal.core.performance.PerformanceManager
 import com.kobby.hymnal.presentation.components.CategoryButtons
+import org.koin.compose.koinInject
 import com.kobby.hymnal.presentation.components.ScreenBackground
 import com.kobby.hymnal.presentation.components.SemiTransparentCard
 import com.kobby.hymnal.presentation.screens.hymns.HymnListScreen
@@ -79,7 +82,14 @@ class HomeScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val performanceManager: PerformanceManager? = try { koinInject() } catch (e: Exception) { null }
         var isDeveloperMode by remember { mutableStateOf(false) }
+        
+        // Track screen render time
+        LaunchedEffect(Unit) {
+            val screenTrace = performanceManager?.startTrace("screen_home_render")
+            screenTrace?.putAttribute("screen_name", "HomeScreen")
+        }
         
         HomeScreenContent(
             onSearchClick = { navigator.push(GlobalSearchScreen()) },

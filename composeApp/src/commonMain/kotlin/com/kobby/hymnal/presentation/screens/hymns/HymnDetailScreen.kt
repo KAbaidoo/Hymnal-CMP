@@ -13,6 +13,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.composeApp.database.Hymn
 import com.kobby.hymnal.core.database.HymnRepository
+import com.kobby.hymnal.core.performance.PerformanceManager
 import com.kobby.hymnal.core.settings.FontSettingsManager
 import com.kobby.hymnal.core.sharing.ShareManager
 import org.koin.compose.koinInject
@@ -32,6 +33,7 @@ data class HymnDetailScreen(
         val scope = rememberCoroutineScope()
         val repository: HymnRepository = koinInject()
         val shareManager: ShareManager = koinInject()
+        val performanceManager: PerformanceManager? = try { koinInject() } catch (e: Exception) { null }
         var isFavorite by remember { mutableStateOf(false) }
         var showFontSettings by remember { mutableStateOf(false) }
         var hymn by remember { mutableStateOf<Hymn?>(null) }
@@ -40,12 +42,28 @@ data class HymnDetailScreen(
         val fontSettingsManager: FontSettingsManager = koinInject()
         val fontSettings by fontSettingsManager.fontSettings.collectAsState()
         
+        // Track screen render
+        LaunchedEffect(Unit) {
+            val screenTrace = performanceManager?.startTrace("screen_hymn_detail_render")
+            screenTrace?.putAttribute("screen_name", "HymnDetailScreen")
+            screenTrace?.putAttribute("hymn_id", hymnId.toString())
+        }
+        
         // Load hymn and favorite state
         LaunchedEffect(hymnId) {
-            hymn = repository.getHymnById(hymnId)
-            isFavorite = repository.isFavorite(hymnId)
-            // Add to history once we navigate here
-            repository.addToHistory(hymnId)
+            val loadTrace = performanceManager?.startTrace("hymn_detail_load_data")
+            try {
+                hymn = repository.getHymnById(hymnId)
+                isFavorite = repository.isFavorite(hymnId)
+                // Add to history once we navigate here
+                repository.addToHistory(hymnId)
+                loadTrace?.putAttribute("load_status", "success")
+            } catch (e: Exception) {
+                loadTrace?.putAttribute("load_status", "error")
+                loadTrace?.putAttribute("error", e.message ?: "unknown")
+            } finally {
+                loadTrace?.stop()
+            }
         }
         
         hymn?.let { loadedHymn ->
