@@ -154,7 +154,7 @@ private fun HistoryListScreen(
     ContentScreen(
         titleCollapsed = stringResource(Res.string.history),
         titleExpanded = stringResource(Res.string.history),
-        actionButtons = actionButtons,
+        actionButtons = if (items.isEmpty()) null else actionButtons,
         content = { innerPadding ->
             LazyColumn(
                 modifier = Modifier
