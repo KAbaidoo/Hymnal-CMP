@@ -89,6 +89,9 @@ class StartScreen : Screen {
         LaunchedEffect(Unit) {
             val screenTrace = performanceManager?.startTrace("screen_start_render")
             screenTrace?.putAttribute("screen_name", "StartScreen")
+            // Stop trace after a short delay to measure initial render
+            delay(100)
+            screenTrace?.stop()
         }
 
         // Fetch random hymn when screen loads

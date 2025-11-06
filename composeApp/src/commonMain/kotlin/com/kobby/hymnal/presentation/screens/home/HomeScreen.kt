@@ -46,6 +46,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.LaunchedEffect
 import cafe.adriel.voyager.core.screen.Screen
+import kotlinx.coroutines.delay
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.core.performance.PerformanceManager
@@ -89,6 +90,9 @@ class HomeScreen : Screen {
         LaunchedEffect(Unit) {
             val screenTrace = performanceManager?.startTrace("screen_home_render")
             screenTrace?.putAttribute("screen_name", "HomeScreen")
+            // Stop trace after a short delay to measure initial render
+            delay(100)
+            screenTrace?.stop()
         }
         
         HomeScreenContent(

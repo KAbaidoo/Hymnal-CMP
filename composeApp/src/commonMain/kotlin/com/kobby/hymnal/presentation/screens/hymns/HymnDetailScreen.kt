@@ -47,6 +47,9 @@ data class HymnDetailScreen(
             val screenTrace = performanceManager?.startTrace("screen_hymn_detail_render")
             screenTrace?.putAttribute("screen_name", "HymnDetailScreen")
             screenTrace?.putAttribute("hymn_id", hymnId.toString())
+            // Stop trace after a short delay to measure initial render
+            delay(100)
+            screenTrace?.stop()
         }
         
         // Load hymn and favorite state

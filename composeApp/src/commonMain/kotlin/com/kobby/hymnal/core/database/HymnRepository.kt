@@ -50,17 +50,16 @@ class HymnRepository(
     }
     
     fun searchHymns(query: String): Flow<List<Hymn>> {
-        val trace = performanceManager?.startTrace("db_search_hymns")
-        trace?.putAttribute("query_length", query.length.toString())
+        // Note: Tracing Flow operations is complex due to async nature
+        // For now, we'll trace the query setup only
+        performanceManager?.startTrace("db_search_hymns")?.let { trace ->
+            trace.putAttribute("query_length", query.length.toString())
+            trace.stop()
+        }
         
         return database.hymnsQueries.searchHymns(query)
             .asFlow()
             .mapToList(Dispatchers.Default)
-            .map { results ->
-                trace?.putMetric("results_count", results.size.toLong())
-                trace?.stop()
-                results
-            }
     }
     
     // Favorite queries
