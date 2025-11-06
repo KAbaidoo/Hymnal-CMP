@@ -21,6 +21,7 @@ uiTooling = "1.7.3"
 tool-chain-resolver = "0.9.0"
 google-services = "4.4.2"
 firebase-bom = "33.13.0"
+firebase-perf-plugin = "1.4.2"
 kolinx-coroutines = "1.10.2"
 koin-bom = "3.5.6"
 sqldelight = "2.0.1"
@@ -50,6 +51,7 @@ firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "fir
 firebase-common = { module = "com.google.firebase:firebase-common-ktx" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics-ktx" }
+firebase-perf = { module = "com.google.firebase:firebase-perf-ktx" }
 kotlinx-coroutines = {group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kolinx-coroutines"}
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
 koin-core = { module = "io.insert-koin:koin-core" }
@@ -72,4 +74,5 @@ sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
 toolChainResolver = { id = "org.gradle.toolchains.foojay-resolver-convention", version.ref = "tool-chain-resolver" }
 firebase-appdistribution = { id = "com.google.firebase.appdistribution" , version.ref = "appdistribution"}
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebase-crashlytics-plugin" }
+firebase-perf = { id = "com.google.firebase.firebase-perf", version.ref = "firebase-perf-plugin" }
 buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfig" }

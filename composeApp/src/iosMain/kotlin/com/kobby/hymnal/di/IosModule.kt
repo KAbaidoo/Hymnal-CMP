@@ -11,7 +11,7 @@ import org.koin.dsl.module
 val iosModule = module {
     single<DriverFactory> { DriverFactory() }
     single { runBlocking { createDatabase(get<DriverFactory>()) } }
-    single<DatabaseHelper> { DatabaseHelper() }
+    single<DatabaseHelper> { DatabaseHelper(getOrNull()) }
     single<DatabaseInitializer> { DatabaseInitializer() }
     single<ShareManager> { ShareManager() }
 }

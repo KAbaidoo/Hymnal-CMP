@@ -8,6 +8,6 @@ import com.kobby.hymnal.core.database.createDatabase
 import org.koin.dsl.module
 
 val databaseModule = module {
-    single<HymnRepository> { HymnRepository(get()) }
+    single<HymnRepository> { HymnRepository(get(), getOrNull()) }
     single<SafeHymnRepository> { SafeHymnRepository(get(), get()) }
 }

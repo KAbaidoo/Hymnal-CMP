@@ -12,7 +12,7 @@ import org.koin.dsl.module
 val androidModule = module {
     single<DriverFactory> { DriverFactory(androidContext()) }
     single { runBlocking { createDatabase(get<DriverFactory>()) } }
-    single<DatabaseHelper> { DatabaseHelper(androidContext()) }
+    single<DatabaseHelper> { DatabaseHelper(androidContext(), getOrNull()) }
     single<DatabaseInitializer> { DatabaseInitializer(androidContext()) }
     single<ShareManager> { ShareManager(androidContext()) }
 }

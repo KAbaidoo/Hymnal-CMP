@@ -12,6 +12,7 @@ plugins {
     alias(libs.plugins.googleServices)
     alias(libs.plugins.firebase.appdistribution)
     alias(libs.plugins.firebase.crashlytics)
+    alias(libs.plugins.firebase.perf)
     alias(libs.plugins.buildkonfig)
 }
 
@@ -42,6 +43,7 @@ kotlin {
             implementation(libs.firebase.common)
             implementation(libs.firebase.analytics)
             implementation(libs.firebase.crashlytics)
+            implementation(libs.firebase.perf)
             implementation(libs.sqldelight.android)
 
 

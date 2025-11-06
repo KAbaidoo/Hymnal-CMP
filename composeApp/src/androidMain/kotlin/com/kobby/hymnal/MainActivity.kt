@@ -15,9 +15,11 @@ import com.google.firebase.initialize
 import com.kobby.hymnal.BuildKonfig
 import com.kobby.hymnal.BuildConfig
 import com.kobby.hymnal.core.crashlytics.CrashlyticsManager
+import com.kobby.hymnal.core.performance.PerformanceManager
 import com.kobby.hymnal.di.androidModule
 import com.kobby.hymnal.di.crashlyticsModule
 import com.kobby.hymnal.di.databaseModule
+import com.kobby.hymnal.di.performanceModule
 import com.kobby.hymnal.di.settingsModule
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
@@ -34,13 +36,16 @@ class MainActivity : ComponentActivity() {
         startKoin {
             androidLogger()
             androidContext(this@MainActivity)
-            modules(databaseModule, settingsModule, androidModule, crashlyticsModule)
+            modules(databaseModule, settingsModule, androidModule, crashlyticsModule, performanceModule)
         }
 
         Firebase.initialize(this)
         
         // Set custom keys for Crashlytics context (release builds only)
         setupCrashlyticsKeys()
+        
+        // Set performance attributes
+        setupPerformanceAttributes()
 
         installSplashScreen()
         setContent {
@@ -75,6 +80,15 @@ class MainActivity : ComponentActivity() {
         
         // Log initialization
         crashlytics.log("App initialized - version ${BuildKonfig.VERSION_NAME}")
+    }
+    
+    private fun setupPerformanceAttributes() {
+        // Get performance manager from Koin after initialization
+        val performance: PerformanceManager by inject()
+        
+        // Set global attributes for all traces
+        performance.putAttribute("app_version", BuildKonfig.VERSION_NAME)
+        performance.putAttribute("build_type", if (BuildConfig.DEBUG) "debug" else "release")
     }
 }
 
