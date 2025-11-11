@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -22,11 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalTextToolbar
-import androidx.compose.ui.platform.TextToolbar
-import androidx.compose.ui.platform.TextToolbarStatus
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.dp
@@ -41,6 +39,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalClipboardManager
 import com.kobby.hymnal.composeApp.database.Hymn
+import com.kobby.hymnal.presentation.components.CustomTextToolbar
 import com.kobby.hymnal.core.database.HymnRepository
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -126,39 +125,23 @@ fun DetailScreen(
         }
     }
     
-    val customTextToolbar = remember {
-        object : TextToolbar {
-            override val status: TextToolbarStatus = TextToolbarStatus.Hidden
-            
-            override fun hide() {
-                // Hide toolbar if needed
-            }
-            
-            override fun showMenu(
-                rect: Rect,
-                onCopyRequested: (() -> Unit)?,
-                onPasteRequested: (() -> Unit)?,
-                onCutRequested: (() -> Unit)?,
-                onSelectAllRequested: (() -> Unit)?
-            ) {
-                onCopyRequested?.invoke()
-                val clipboardText = clipboardManager.getText()
-                clipboardText?.let { annotatedString ->
-                    val content = hymn.content ?: ""
-                    val selectedText = annotatedString.text
-                    val startIndex = content.indexOf(selectedText)
-                    if (startIndex >= 0) {
-                        val range = TextRange(startIndex, startIndex + selectedText.length)
-                        selectedTextRange = range
-                        
-                        // Just show bottom sheet for new text selection (no color selected initially)
-                        currentHighlightIndex = null
-                        currentHighlightColor = Color.Transparent // No color selected initially
-                        showHighlightBottomSheet = true
-                    }
+    val defaultToolbar = LocalTextToolbar.current
+    val customTextToolbar = remember(defaultToolbar, hymn.id, hymn.content) {
+        CustomTextToolbar(
+            defaultToolbar = defaultToolbar,
+            clipboardManager = clipboardManager,
+            onSelectionChanged = { range ->
+                selectedTextRange = range
+                if (range != null) {
+                    currentHighlightIndex = null
+                    currentHighlightColor = Color.Transparent
+                    showHighlightBottomSheet = true
+                } else {
+                    showHighlightBottomSheet = false
                 }
-            }
-        }
+            },
+            textContent = hymn.content ?: ""
+        )
     }
     
     fun buildHighlightedText(content: String): AnnotatedString {
@@ -238,6 +221,14 @@ fun DetailScreen(
                     .background(MaterialTheme.colorScheme.background)
                     .verticalScroll(rememberScrollState())
                     .padding(16.dp)
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onTap = { 
+                                // Clear selection when tapping outside text
+                                customTextToolbar.hide()
+                            }
+                        )
+                    }
             ) {
                 CompositionLocalProvider(LocalTextToolbar provides customTextToolbar) {
                     SelectionContainer {
