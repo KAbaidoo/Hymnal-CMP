@@ -35,5 +35,6 @@
 - Fixed missing first line in Canticles.
 - Optimized storage for recently viewed hymns.
 
-0.6.0
+0.6.1
 - Added `The Beatitudes`, `The Nicene Creed` and updated `The Apostles Creed`
+- Firebase crashlytics integration
