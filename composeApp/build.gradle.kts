@@ -74,8 +74,8 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
-            implementation(libs.sqldelight.jvm)
-            implementation("com.russhwolf:multiplatform-settings-test:1.1.1")
+            // Removed sqldelight.jvm to fix iOS test compilation
+            // Add platform-specific test drivers if needed
         }
 
         iosMain.dependencies {
@@ -118,6 +118,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
 
         getByName("debug") {
