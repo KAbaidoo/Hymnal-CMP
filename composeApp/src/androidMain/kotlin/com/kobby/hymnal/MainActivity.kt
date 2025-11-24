@@ -27,7 +27,6 @@ import org.koin.core.context.startKoin
 class MainActivity : ComponentActivity() {
     
     override fun onCreate(savedInstanceState: Bundle?) {
-        window.statusBarColor = Color.Black.toArgb()
         super.onCreate(savedInstanceState)
 
         // Initialize Koin
