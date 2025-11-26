@@ -9,4 +9,5 @@ plugins {
     alias(libs.plugins.googleServices) apply false
     alias(libs.plugins.firebase.crashlytics) apply false
     alias(libs.plugins.toolChainResolver) apply false
+    alias(libs.plugins.kotlinCocoapods) apply false
 }

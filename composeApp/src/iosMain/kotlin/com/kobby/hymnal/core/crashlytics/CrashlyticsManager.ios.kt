@@ -1,55 +1,41 @@
 package com.kobby.hymnal.core.crashlytics
 
-/**
- * iOS implementation of CrashlyticsManager
- * 
- * Note: Full Firebase Crashlytics integration on iOS requires:
- * 1. Adding Firebase Crashlytics via CocoaPods or SPM to the Xcode project
- * 2. Configuring the Run Script phase for dSYM upload
- * 3. Enabling Crashlytics in iOSApp.swift
- * 
- * This is a stub implementation that logs to console.
- * For production, integrate with Firebase SDK via CocoaPods interop.
- */
+import cocoapods.FirebaseCrashlytics.FIRCrashlytics
+import platform.Foundation.NSError
+
 class IosCrashlyticsManager : CrashlyticsManager {
-    
-    init {
-        println("IosCrashlyticsManager initialized - Stub implementation")
-        println("To enable full Crashlytics on iOS:")
-        println("1. Add Firebase/Crashlytics pod to your Podfile")
-        println("2. Configure dSYM upload in Xcode build phases")
-        println("3. Initialize Firebase in iOSApp.swift")
-    }
-    
+    private val crashlytics = FIRCrashlytics.crashlytics()
+
     override fun recordException(throwable: Throwable) {
-        // Stub: In production, call FIRCrashlytics.crashlytics().record(error)
-        println("Crashlytics (iOS): Exception recorded - ${throwable.message}")
-        println("Stack trace: ${throwable.stackTraceToString()}")
+        val error = NSError.errorWithDomain(
+            domain = throwable::class.simpleName ?: "Unknown",
+            code = 0,
+            userInfo = mapOf(
+                "message" to (throwable.message ?: "No message"),
+                "stackTrace" to (throwable.stackTraceToString())
+            )
+        )
+        crashlytics.recordError(error)
     }
-    
+
     override fun setCustomKey(key: String, value: String) {
-        // Stub: In production, call FIRCrashlytics.crashlytics().setCustomValue(value, forKey: key)
-        println("Crashlytics (iOS): Custom key - $key: $value")
+        crashlytics.setCustomValue(value, key)
     }
-    
+
     override fun setCustomKey(key: String, value: Boolean) {
-        // Stub: In production, call FIRCrashlytics.crashlytics().setCustomValue(value, forKey: key)
-        println("Crashlytics (iOS): Custom key - $key: $value")
+        crashlytics.setCustomValue(value, key)
     }
-    
+
     override fun setCustomKey(key: String, value: Int) {
-        // Stub: In production, call FIRCrashlytics.crashlytics().setCustomValue(value, forKey: key)
-        println("Crashlytics (iOS): Custom key - $key: $value")
+        crashlytics.setCustomValue(value.toLong(), key)
     }
-    
+
     override fun setUserId(userId: String) {
-        // Stub: In production, call FIRCrashlytics.crashlytics().setUserID(userId)
-        println("Crashlytics (iOS): User ID set - $userId")
+        crashlytics.setUserID(userId)
     }
-    
+
     override fun log(message: String) {
-        // Stub: In production, call FIRCrashlytics.crashlytics().log(message)
-        println("Crashlytics (iOS): Log - $message")
+        crashlytics.log(message)
     }
 }
 

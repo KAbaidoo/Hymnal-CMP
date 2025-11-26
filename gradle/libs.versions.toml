@@ -15,7 +15,7 @@ compose-multiplatform = "1.7.3"
 coreSplashscreen = "1.0.1"
 voyager = "1.0.0"
 junit = "4.13.2"
-kotlin = "2.1.21"
+kotlin = "2.2.21"
 multiplatform-settings = "1.1.1"
 uiTooling = "1.7.3"
 tool-chain-resolver = "0.9.0"
@@ -73,3 +73,4 @@ toolChainResolver = { id = "org.gradle.toolchains.foojay-resolver-convention", v
 firebase-appdistribution = { id = "com.google.firebase.appdistribution" , version.ref = "appdistribution"}
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebase-crashlytics-plugin" }
 buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfig" }
+kotlinCocoapods = { id = "org.jetbrains.kotlin.native.cocoapods", version.ref = "kotlin" }
