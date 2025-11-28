@@ -73,4 +73,3 @@ toolChainResolver = { id = "org.gradle.toolchains.foojay-resolver-convention", v
 firebase-appdistribution = { id = "com.google.firebase.appdistribution" , version.ref = "appdistribution"}
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebase-crashlytics-plugin" }
 buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfig" }
-kotlinCocoapods = { id = "org.jetbrains.kotlin.native.cocoapods", version.ref = "kotlin" }

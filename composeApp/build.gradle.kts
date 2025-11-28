@@ -13,7 +13,6 @@ plugins {
     alias(libs.plugins.firebase.appdistribution)
     alias(libs.plugins.firebase.crashlytics)
     alias(libs.plugins.buildkonfig)
-    alias(libs.plugins.kotlinCocoapods)
 }
 
 kotlin {
@@ -82,24 +81,9 @@ kotlin {
         iosMain.dependencies {
             implementation(libs.sqldelight.ios)
         }
-        cocoapods {
-            version = "1.0"
-            summary = "Hymnal Compose Multiplatform App"
-            homepage = "https://github.com/KAbaidoo/Hymnal-CMP"
-            ios.deploymentTarget = "14.0"
 
-            framework {
-//                baseName = "ComposeApp"
-                isStatic = true
-            }
-
-            pod("FirebaseCrashlytics") {
-                version = "~> 10.0"
-            }
-        }
     }
 
-//    jvmToolchain(17)
 
 }
 
