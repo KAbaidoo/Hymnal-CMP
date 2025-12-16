@@ -81,9 +81,9 @@ kotlin {
         iosMain.dependencies {
             implementation(libs.sqldelight.ios)
         }
+
     }
 
-//    jvmToolchain(17)
 
 }
 
