@@ -44,10 +44,6 @@ kotlin {
             implementation(libs.firebase.crashlytics)
             implementation(libs.sqldelight.android)
 
-
-            implementation(libs.androidx.lifecycle.viewmodel)
-            implementation(libs.androidx.lifecycle.runtime.compose)
-            implementation(compose.uiTooling)
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
         }
@@ -58,7 +54,9 @@ kotlin {
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
-
+            implementation(compose.components.uiToolingPreview)
+            implementation(libs.androidx.lifecycle.viewmodelCompose)
+            implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.transitions)
             implementation(libs.multiplatform.settings)
@@ -145,6 +143,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+}
+
+dependencies {
+    debugImplementation(compose.uiTooling)
 }
 
 sqldelight {
