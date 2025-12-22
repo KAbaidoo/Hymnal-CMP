@@ -27,6 +27,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.BlendMode.Companion.Color
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -34,19 +37,25 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kobby.hymnal.theme.DarkTextColor
 import com.kobby.hymnal.theme.HymnalAppTheme
-import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.resources.stringResource
+import com.kobby.hymnal.theme.YellowAccent
 import hymnal_cmp.composeapp.generated.resources.Res
+import hymnal_cmp.composeapp.generated.resources.ai_generate
 import hymnal_cmp.composeapp.generated.resources.arrow_left_s_line
 import hymnal_cmp.composeapp.generated.resources.book_leaf
+import hymnal_cmp.composeapp.generated.resources.bookmark_line
 import hymnal_cmp.composeapp.generated.resources.cd_back
 import hymnal_cmp.composeapp.generated.resources.cd_home
+import hymnal_cmp.composeapp.generated.resources.close_circle_line
 import hymnal_cmp.composeapp.generated.resources.home_3_line
+import hymnal_cmp.composeapp.generated.resources.music_2_line
+import hymnal_cmp.composeapp.generated.resources.wifi_off_line
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 // Simple plan model
-enum class PayPlan { Monthly, Yearly, OneTime }
+enum class PayPlan { Yearly, OneTime }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -142,6 +151,8 @@ fun PayWallContent(
                             .verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
+
+
                         // Radio cards for plan selection
                         PurchaseOptions(
                             selected = selectedPlan,
@@ -155,6 +166,10 @@ fun PayWallContent(
                                 color = MaterialTheme.colorScheme.error
                             )
                         }
+                        // Features card
+                        FeaturesCard()
+
+
 
                         PrimaryCTA(
                             text = if (isLoading) "Processing…" else "Continue",
@@ -198,7 +213,7 @@ private fun PaywallHeader() {
         Text(
             text = "One small payment. A lifetime\nof worship.",
             style = MaterialTheme.typography.bodySmall,
-            color = DarkTextColor.copy(alpha = 0.85f),
+            color = YellowAccent.copy(alpha = 0.85f),
             textAlign = TextAlign.Center
         )
     }
@@ -284,7 +299,7 @@ private fun BadgePill(text: String) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(999.dp))
-            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
+            .background(Color(0xFFCAC0FF))
             .padding(horizontal = 8.dp, vertical = 4.dp)
     ) {
         Text(
@@ -358,6 +373,78 @@ private fun FooterLinks(onPrivacy: () -> Unit, onTerms: () -> Unit) {
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
             modifier = Modifier.clickable { onTerms() }
+        )
+    }
+}
+
+@Composable
+private fun FeaturesCard() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Text(
+            text = "Includes",
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = "Everything you need for worship",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        FeatureRow(vectorResource(Res.drawable.music_2_line),"Full hymn library")
+        FeatureRow(vectorResource(Res.drawable.wifi_off_line),"Offline access")
+        FeatureRow(vectorResource(Res.drawable.bookmark_line),"Bookmarks & favorites")
+        FeatureRow(vectorResource(Res.drawable.close_circle_line),"No ads")
+        FeatureRow(vectorResource(Res.drawable.ai_generate),"Future updates included")
+        // Shared ministry info card (beneath FeaturesCard)
+        SharedMinistryCard()
+    }
+}
+
+@Composable
+private fun SharedMinistryCard() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.background)
+            .padding(12.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Text(
+            text = "A shared ministry",
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.SemiBold
+        )
+        Text(
+            text = "This contribution supports hosting, updates, and improvements to keep the Hymnal app accessible and ad-free.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun FeatureRow(icon: ImageVector, text: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        // Simple dot indicator to avoid external icon deps
+        Icon(
+            modifier = Modifier.size(16.dp),
+            imageVector = icon,
+            contentDescription = stringResource(Res.string.cd_home)
+        )
+        Spacer(Modifier.width(10.dp))
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
