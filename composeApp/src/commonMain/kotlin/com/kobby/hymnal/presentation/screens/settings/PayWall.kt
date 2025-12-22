@@ -205,7 +205,7 @@ private fun PaywallHeader() {
         Spacer(Modifier.height(8.dp))
         Text(
             text = "One small payment. A lifetime\nof worship.",
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.bodySmall,
             color = DarkTextColor.copy(alpha = 0.85f),
             textAlign = TextAlign.Center
         )
