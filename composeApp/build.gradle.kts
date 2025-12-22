@@ -16,7 +16,7 @@ plugins {
 }
 
 kotlin {
-
+    jvmToolchain(17)
     androidTarget()
 
     listOf(
@@ -43,7 +43,6 @@ kotlin {
             implementation(libs.firebase.analytics)
             implementation(libs.firebase.crashlytics)
             implementation(libs.sqldelight.android)
-
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
         }
@@ -53,6 +52,7 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
+            implementation(compose.materialIconsExtended)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
@@ -82,7 +82,6 @@ kotlin {
 
     }
 
-
 }
 
 val appVersionName = readLatestAppVersion()
@@ -92,9 +91,9 @@ android {
     namespace = "com.kobby.hymnal"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-    sourceSets["main"].res.srcDirs("src/androidMain/res")
-    sourceSets["main"].resources.srcDirs("src/commonMain/composeResources")
+//    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+//    sourceSets["main"].res.srcDirs("src/androidMain/res")
+//    sourceSets["main"].resources.srcDirs("src/commonMain/composeResources")
 
     defaultConfig {
         applicationId = "com.kobby.hymnal"
@@ -144,10 +143,10 @@ android {
     }
 
 }
-
 dependencies {
     debugImplementation(compose.uiTooling)
 }
+
 
 sqldelight {
     databases {
