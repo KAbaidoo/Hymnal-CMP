@@ -8,9 +8,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import com.google.firebase.Firebase
+import androidx.compose.runtime.Composable
 import com.google.firebase.initialize
 import com.kobby.hymnal.BuildKonfig
 import com.kobby.hymnal.BuildConfig
@@ -75,5 +77,11 @@ class MainActivity : ComponentActivity() {
         // Log initialization
         crashlytics.log("App initialized - version ${BuildKonfig.VERSION_NAME}")
     }
+}
+
+@Preview
+@Composable
+fun AppAndroidPreview() {
+    HymnalApp()
 }
 
