@@ -1,84 +1,102 @@
 <resources>
-    <string name="app_name">Anglican Hymnal</string>
-    
-    <!-- Screen Titles & Headers -->
-    <string name="database_inspector">Database Inspector</string>
-    <string name="search_performance_test">Search Performance Test</string>
-    <string name="more">More</string>
-    <string name="database_statistics">Database Statistics</string>
-    <string name="sample_hymns">Sample Hymns</string>
-    <string name="hymn_database_test">Hymn Database Test</string>
-    <string name="find_your_hymns">Find Your Hymns</string>
-    <string name="anglican_hymnal">Anglican Hymnal</string>
-    <string name="anglican_hymnal_multiline">Anglican\nHymnal</string>
-    <string name="fonts_settings">Fonts &amp; Settings</string>
-    <string name="settings">Settings</string>
-    <string name="search_hymns">Search Hymns</string>
-    <string name="search_hymns_multiline">Search\nHymns</string>
-    
-    <!-- Search & Input -->
-    <string name="search_placeholder">Search by number, word..</string>
-    <string name="search_query">Search query</string>
-    
-    <!-- UI Labels & Buttons -->
-    <string name="my_hymns">My Hymns</string>
-    <string name="open">Open</string>
-    <string name="highlight">Highlight</string>
-    <string name="history">History</string>
-    <string name="font">Font</string>
-    <string name="font_decrease">A-</string>
-    <string name="font_increase">A+</string>
-    <string name="close">✕</string>
-    <string name="dark_mode">Dark mode</string>
-    
-    <!-- Messages & Status Text -->
-    <string name="no_favorite_hymns">No favorite hymns yet.\nTap the heart icon on any hymn to add it to favorites.</string>
-    <string name="no_highlighted_text">No highlighted text yet.\nHighlight text in hymns to see them here.</string>
-    <string name="no_recent_hymns">No recently viewed hymns.\nStart browsing hymns to see your history here.</string>
-    <string name="search_completed_time">Search completed in %1$dms</string>
-    <string name="found_results">Found %1$d results</string>
-    <string name="search_results_count">Search Results (%1$d)</string>
-    <string name="error_message">Error: %1$s</string>
-    <string name="database_init_error">Failed to initialize database: %1$s</string>
-    <string name="found_hymns">Found %1$d hymns</string>
-    <string name="hymn_number">Hymn %1$d</string>
-    <string name="category_label">Category: %1$s</string>
-    
-    <!-- Content Descriptions -->
-    <string name="cd_search">Search</string>
+    <!-- Header -->
+    <string name="settings_title_paywall">Unlock the Full\nAnglican Hymnal</string>
+    <string name="settings_subtitle_paywall">One small payment. A lifetime\nof worship.</string>
+
+    <!-- Purchase options -->
+    <string name="settings_option_yearly_title">USD 1.99 / year</string>
+    <string name="settings_option_yearly_subtitle">Renews automatically</string>
+    <string name="settings_option_onetime_title">USD 3.99 / One-time payment</string>
+    <string name="settings_option_onetime_subtitle">Pay once. Own it forever.</string>
+    <string name="settings_option_onetime_badge">Best Value</string>
+
+    <!-- CTA -->
+    <string name="settings_action_continue">Continue</string>
+    <string name="settings_action_processing">Processing…</string>
+    <string name="settings_action_restore">Restore purchases</string>
+    <string name="settings_action_maybe_later">Maybe later</string>
+
+    <!-- Footer links -->
+    <string name="settings_action_privacy">Privacy Policy</string>
+    <string name="settings_action_terms">Terms of Use</string>
+    <string name="settings_separator_bullet">  •  </string>
+
+    <!-- Features card -->
+    <string name="settings_section_features_title">Includes</string>
+    <string name="settings_section_features_subtitle">Everything you need for worship</string>
+    <string name="settings_feature_full_library">Full hymn library</string>
+    <string name="settings_feature_offline_access">Offline access</string>
+    <string name="settings_feature_bookmarks">Bookmarks &amp; favorites</string>
+    <string name="settings_feature_no_ads">No ads</string>
+    <string name="settings_feature_future_updates">Future updates included</string>
+
+    <!-- Shared ministry card -->
+    <string name="settings_section_shared_ministry_title">A shared ministry</string>
+    <string name="settings_section_shared_ministry_body">This contribution supports hosting, updates, and improvements to keep the Hymnal app accessible and ad-free.</string>
+
+    <!-- Accessibility / content descriptions -->
     <string name="cd_back">Back</string>
     <string name="cd_home">Home</string>
-    <string name="cd_navigate">Navigate</string>
-    <string name="cd_font_settings">Font settings</string>
-    <string name="cd_share">Share</string>
-    <string name="cd_clear_history">Clear history</string>
-
-    <!-- Dialogs -->
-    <string name="clear_history">Clear History</string>
-    <string name="clear_history_message">Are you sure you want to clear all history? This action cannot be undone.</string>
-    <string name="cancel">Cancel</string>
-    <string name="clear">Clear</string>
-    <string name="cd_get_started">Get Started</string>
-    <string name="cd_settings">Settings</string>
-    <string name="cd_menu">Menu</string>
     <string name="cd_open">Open</string>
+    <string name="cd_settings">Settings</string>
+    <string name="cd_search">Search</string>
+    <string name="cd_share">Share</string>
+    <string name="cd_get_started">Get started</string>
+    <string name="cd_font_settings">Font settings</string>
     <string name="cd_add_favorite">Add to favorites</string>
     <string name="cd_remove_favorite">Remove from favorites</string>
-    
-    <!-- About Info -->
-    <string name="created_by">created by</string>
-    <string name="author_name">Dennis Abban</string>
+    <string name="cd_clear_history">Clear history</string>
+
+    <!-- App/general labels -->
+    <string name="anglican_hymnal">Anglican Hymnal</string>
+    <string name="anglican_hymnal_multiline">Anglican\nHymnal</string>
+    <string name="search_hymns">Search Hymns</string>
+    <string name="search_hymns_multiline">Search\nHymns</string>
+    <string name="search_placeholder">Search hymns</string>
+    <string name="find_your_hymns">Find your hymns</string>
+    <string name="explore_collection">Explore the collection</string>
+    <string name="my_hymns">My hymns</string>
+    <string name="favorites">Favorites</string>
+    <string name="highlights">Highlights</string>
+    <string name="history">History</string>
+    <string name="more">More</string>
+    <string name="settings">Settings</string>
+    <string name="dark_mode">Dark mode</string>
     <string name="version">Version</string>
-    <string name="explore_collection">Explore our collection of Anglican hymns.</string>
-    
-    <!-- Statistics Labels -->
-    <string name="total_hymns">Total Hymns</string>
+
+    <!-- Favorites/Highlights/History empty and actions -->
+    <string name="no_favorite_hymns">No favorite hymns yet</string>
+    <string name="no_recent_hymns">No recent hymns</string>
+    <string name="clear_all">Clear all</string>
+    <string name="clear_history">Clear history</string>
+    <string name="clear_history_message">Are you sure you want to clear your history?</string>
+    <string name="cancel">Cancel</string>
+    <string name="clear">Clear</string>
+
+    <!-- Start screen credits -->
+    <string name="created_by">Created by</string>
+    <string name="author_name">Kobby</string>
+
+    <!-- Database inspector screen -->
+    <string name="database_inspector">Database Inspector</string>
+    <string name="error_message">Error: %s</string>
+    <string name="database_statistics">Database Statistics</string>
+    <string name="total_hymns">Total hymns</string>
     <string name="ancient_modern">Ancient &amp; Modern</string>
     <string name="supplementary">Supplementary</string>
-    <string name="favorites">Favorites</string>
-    <string name="history_entries">History Entries</string>
-    <string name="highlights">Highlights</string>
+    <string name="history_entries">History entries</string>
+    <string name="search_performance_test">Search performance test</string>
+    <string name="search_query">Search query</string>
+    <string name="search_completed_time">Search completed in %d ms</string>
+    <string name="found_results">Found %d results</string>
+    <string name="sample_hymns">Sample hymns</string>
+    <string name="search_results_count">Search results (%d)</string>
+    <string name="hymn_number">Hymn %d</string>
 
-    <!-- Action labels -->
-    <string name="clear_all">Clear all</string>
+    <!-- Font settings -->
+    <string name="fonts_settings">Font settings</string>
+    <string name="close">Close</string>
+    <string name="font_decrease">Decrease</string>
+    <string name="font_increase">Increase</string>
+    <string name="font">Font</string>
 </resources>

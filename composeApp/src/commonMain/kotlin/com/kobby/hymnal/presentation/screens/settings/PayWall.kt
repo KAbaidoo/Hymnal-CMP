@@ -12,7 +12,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,7 +28,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.BlendMode.Companion.Color
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -45,11 +43,32 @@ import hymnal_cmp.composeapp.generated.resources.ai_generate
 import hymnal_cmp.composeapp.generated.resources.arrow_left_s_line
 import hymnal_cmp.composeapp.generated.resources.book_leaf
 import hymnal_cmp.composeapp.generated.resources.bookmark_line
-import hymnal_cmp.composeapp.generated.resources.cd_back
-import hymnal_cmp.composeapp.generated.resources.cd_home
 import hymnal_cmp.composeapp.generated.resources.close_circle_line
 import hymnal_cmp.composeapp.generated.resources.home_3_line
 import hymnal_cmp.composeapp.generated.resources.music_2_line
+import hymnal_cmp.composeapp.generated.resources.settings_action_continue
+import hymnal_cmp.composeapp.generated.resources.settings_action_maybe_later
+import hymnal_cmp.composeapp.generated.resources.settings_action_privacy
+import hymnal_cmp.composeapp.generated.resources.settings_action_processing
+import hymnal_cmp.composeapp.generated.resources.settings_action_restore
+import hymnal_cmp.composeapp.generated.resources.settings_action_terms
+import hymnal_cmp.composeapp.generated.resources.settings_feature_bookmarks
+import hymnal_cmp.composeapp.generated.resources.settings_feature_full_library
+import hymnal_cmp.composeapp.generated.resources.settings_feature_future_updates
+import hymnal_cmp.composeapp.generated.resources.settings_feature_no_ads
+import hymnal_cmp.composeapp.generated.resources.settings_feature_offline_access
+import hymnal_cmp.composeapp.generated.resources.settings_option_onetime_badge
+import hymnal_cmp.composeapp.generated.resources.settings_option_onetime_subtitle
+import hymnal_cmp.composeapp.generated.resources.settings_option_onetime_title
+import hymnal_cmp.composeapp.generated.resources.settings_option_yearly_subtitle
+import hymnal_cmp.composeapp.generated.resources.settings_option_yearly_title
+import hymnal_cmp.composeapp.generated.resources.settings_section_features_subtitle
+import hymnal_cmp.composeapp.generated.resources.settings_section_features_title
+import hymnal_cmp.composeapp.generated.resources.settings_section_shared_ministry_body
+import hymnal_cmp.composeapp.generated.resources.settings_section_shared_ministry_title
+import hymnal_cmp.composeapp.generated.resources.settings_separator_bullet
+import hymnal_cmp.composeapp.generated.resources.settings_subtitle_paywall
+import hymnal_cmp.composeapp.generated.resources.settings_title_paywall
 import hymnal_cmp.composeapp.generated.resources.wifi_off_line
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -88,7 +107,7 @@ fun PayWallContent(
                             Icon(
                                 modifier = Modifier.size(30.dp),
                                 imageVector = vectorResource(Res.drawable.arrow_left_s_line),
-                                contentDescription = stringResource(Res.string.cd_back),
+                                contentDescription = null,
                             )
                         }
                     },
@@ -97,7 +116,7 @@ fun PayWallContent(
                             Icon(
                                 modifier = Modifier.size(30.dp),
                                 imageVector = vectorResource(Res.drawable.home_3_line),
-                                contentDescription = stringResource(Res.string.cd_home)
+                                contentDescription = null
                             )
                         }
                     },
@@ -170,11 +189,12 @@ fun PayWallContent(
                         }
                         // Features card
                         FeaturesCard()
-
+                        // Shared ministry card just beneath FeaturesCard
+                        SharedMinistryCard()
 
 
                         PrimaryCTA(
-                            text = if (isLoading) "Processing…" else "Continue",
+                            text = if (isLoading) stringResource(Res.string.settings_action_processing) else stringResource(Res.string.settings_action_continue),
                             enabled = !isLoading,
                             onClick = { onPurchase(selectedPlan) }
                         )
@@ -206,14 +226,14 @@ private fun PaywallHeader() {
 
         Spacer(Modifier.height(12.dp))
         Text(
-            text = "Unlock the Full\nAnglican Hymnal",
+            text = stringResource(Res.string.settings_title_paywall),
             style =  MaterialTheme.typography.headlineLarge,
             color = DarkTextColor,
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            text = "One small payment. A lifetime\nof worship.",
+            text = stringResource(Res.string.settings_subtitle_paywall),
             style = MaterialTheme.typography.bodySmall,
             color = YellowAccent.copy(alpha = 0.85f),
             textAlign = TextAlign.Center
@@ -225,16 +245,16 @@ private fun PaywallHeader() {
 private fun PurchaseOptions(selected: PayPlan, onSelected: (PayPlan) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         RadioPlanCard(
-            title = "USD 1.99 / year",
-            subtitle = "Renews automatically",
+            title = stringResource(Res.string.settings_option_yearly_title),
+            subtitle = stringResource(Res.string.settings_option_yearly_subtitle),
             badge = null,
             selected = selected == PayPlan.Yearly,
             onClick = { onSelected(PayPlan.Yearly) }
         )
         RadioPlanCard(
-            title = "USD 3.99 / One-time payment",
-            subtitle = "Pay once. Own it forever.",
-            badge = "Best Value",
+            title = stringResource(Res.string.settings_option_onetime_title),
+            subtitle = stringResource(Res.string.settings_option_onetime_subtitle),
+            badge = stringResource(Res.string.settings_option_onetime_badge),
             selected = selected == PayPlan.OneTime,
             onClick = { onSelected(PayPlan.OneTime) }
         )
@@ -326,7 +346,7 @@ private fun PrimaryCTA(text: String, enabled: Boolean, onClick: () -> Unit) {
         enabled = enabled,
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
+            containerColor = MaterialTheme.colorScheme.onBackground,
             contentColor = MaterialTheme.colorScheme.onPrimary
         ),
         shape = RoundedCornerShape(12.dp)
@@ -346,14 +366,14 @@ private fun SecondaryCTAs(onRestore: () -> Unit) {
             onClick = onRestore,
             shape = RoundedCornerShape(12.dp)
         ) {
-            Text("Restore Purchases")
+            Text(stringResource(Res.string.settings_action_restore))
         }
         OutlinedButton(
             modifier = Modifier.weight(1f),
             onClick = { /* Maybe later: gift */ },
             shape = RoundedCornerShape(12.dp)
         ) {
-            Text("Maybe Later")
+            Text(stringResource(Res.string.settings_action_maybe_later))
         }
     }
 }
@@ -367,18 +387,18 @@ private fun FooterLinks(onPrivacy: () -> Unit, onTerms: () -> Unit) {
         horizontalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Privacy Policy",
+            text = stringResource(Res.string.settings_action_privacy),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
             modifier = Modifier.clickable { onPrivacy() }
         )
         Text(
-            text = "  •  ",
+            text = stringResource(Res.string.settings_separator_bullet),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f)
         )
         Text(
-            text = "Terms of Use",
+            text = stringResource(Res.string.settings_action_terms),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
             modifier = Modifier.clickable { onTerms() }
@@ -397,22 +417,20 @@ private fun FeaturesCard() {
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Text(
-            text = "Includes",
+            text = stringResource(Res.string.settings_section_features_title),
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurface
         )
         Text(
-            text = "Everything you need for worship",
+            text = stringResource(Res.string.settings_section_features_subtitle),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
         )
-        FeatureRow(vectorResource(Res.drawable.music_2_line),"Full hymn library")
-        FeatureRow(vectorResource(Res.drawable.wifi_off_line),"Offline access")
-        FeatureRow(vectorResource(Res.drawable.bookmark_line),"Bookmarks & favorites")
-        FeatureRow(vectorResource(Res.drawable.close_circle_line),"No ads")
-        FeatureRow(vectorResource(Res.drawable.ai_generate),"Future updates included")
-        // Shared ministry info card (beneath FeaturesCard)
-        SharedMinistryCard()
+        FeatureRow(vectorResource(Res.drawable.music_2_line), stringResource(Res.string.settings_feature_full_library))
+        FeatureRow(vectorResource(Res.drawable.wifi_off_line), stringResource(Res.string.settings_feature_offline_access))
+        FeatureRow(vectorResource(Res.drawable.bookmark_line), stringResource(Res.string.settings_feature_bookmarks))
+        FeatureRow(vectorResource(Res.drawable.close_circle_line), stringResource(Res.string.settings_feature_no_ads))
+        FeatureRow(vectorResource(Res.drawable.ai_generate), stringResource(Res.string.settings_feature_future_updates))
     }
 }
 
@@ -427,13 +445,13 @@ private fun SharedMinistryCard() {
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         Text(
-            text = "A shared ministry",
+            text = stringResource(Res.string.settings_section_shared_ministry_title),
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.SemiBold
         )
         Text(
-            text = "This contribution supports hosting, updates, and improvements to keep the Hymnal app accessible and ad-free.",
+            text = stringResource(Res.string.settings_section_shared_ministry_body),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -443,11 +461,10 @@ private fun SharedMinistryCard() {
 @Composable
 private fun FeatureRow(icon: ImageVector, text: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        // Simple dot indicator to avoid external icon deps
         Icon(
             modifier = Modifier.size(16.dp),
             imageVector = icon,
-            contentDescription = stringResource(Res.string.cd_home)
+            contentDescription = null
         )
         Spacer(Modifier.width(10.dp))
         Text(
