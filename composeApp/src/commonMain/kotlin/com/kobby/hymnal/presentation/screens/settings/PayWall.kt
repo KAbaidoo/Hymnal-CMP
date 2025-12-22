@@ -248,16 +248,16 @@ private fun RadioPlanCard(
     selected: Boolean,
     onClick: () -> Unit,
 ) {
-    val bg = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.08f) else MaterialTheme.colorScheme.surface
-    val borderColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
+    val borderColor = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.58f)
+    val borderWidth = if (selected) 2.dp else 1.dp
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(bg)
+            .background(MaterialTheme.colorScheme.surface)
             .combinedClickable(onClick = onClick)
-            .then(Modifier.border(width = 1.dp, color = borderColor, shape = RoundedCornerShape(16.dp)))
+            .then(Modifier.border(width = borderWidth, color = borderColor, shape = RoundedCornerShape(16.dp)))
             .padding(horizontal = 4.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -454,6 +454,13 @@ private fun FeatureRow(icon: ImageVector, text: String) {
 @Composable
 fun PayWallContentPreviewLight() {
     HymnalAppTheme {
+        PayWallContent()
+    }
+}
+@Preview(name = "PayWall Dark")
+@Composable
+fun PayWallContentPreviewDark() {
+    HymnalAppTheme(darkTheme = true) {
         PayWallContent()
     }
 }
