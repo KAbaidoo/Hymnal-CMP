@@ -12,12 +12,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonColors
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -249,7 +251,7 @@ private fun RadioPlanCard(
     onClick: () -> Unit,
 ) {
     val borderColor = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.58f)
-    val borderWidth = if (selected) 2.dp else 1.dp
+    val borderWidth = if (selected) 1.dp else 1.dp
 
     Row(
         modifier = Modifier
@@ -264,8 +266,15 @@ private fun RadioPlanCard(
         // Radio indicator
         RadioButton(
             selected = selected,
-            onClick = onClick
+            onClick = onClick,
+            colors = RadioButtonColors(
+                selectedColor = MaterialTheme.colorScheme.onSurface,
+                unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledSelectedColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledUnselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         )
+
 
 
         Column(modifier = Modifier.weight(1f)) {
@@ -283,7 +292,7 @@ private fun RadioPlanCard(
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
                 if (badge != null) {
                     Spacer(Modifier.width(48.dp))
@@ -395,7 +404,7 @@ private fun FeaturesCard() {
         Text(
             text = "Everything you need for worship",
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
         )
         FeatureRow(vectorResource(Res.drawable.music_2_line),"Full hymn library")
         FeatureRow(vectorResource(Res.drawable.wifi_off_line),"Offline access")
