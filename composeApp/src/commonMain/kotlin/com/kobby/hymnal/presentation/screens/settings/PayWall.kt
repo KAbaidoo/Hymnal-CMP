@@ -355,28 +355,6 @@ private fun PrimaryCTA(text: String, enabled: Boolean, onClick: () -> Unit) {
     }
 }
 
-@Composable
-private fun SecondaryCTAs(onRestore: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        OutlinedButton(
-            modifier = Modifier.weight(1f),
-            onClick = onRestore,
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text(stringResource(Res.string.settings_action_restore))
-        }
-        OutlinedButton(
-            modifier = Modifier.weight(1f),
-            onClick = { /* Maybe later: gift */ },
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text(stringResource(Res.string.settings_action_maybe_later))
-        }
-    }
-}
 
 @Composable
 private fun FooterLinks(onPrivacy: () -> Unit, onTerms: () -> Unit) {
