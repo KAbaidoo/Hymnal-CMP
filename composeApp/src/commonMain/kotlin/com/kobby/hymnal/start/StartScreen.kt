@@ -5,8 +5,6 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,10 +18,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowForward
+import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -56,6 +53,7 @@ import com.kobby.hymnal.core.database.HymnRepository
 import com.kobby.hymnal.presentation.components.ScreenBackground
 import com.kobby.hymnal.presentation.screens.home.HomeScreen
 import com.kobby.hymnal.presentation.screens.hymns.HymnDetailScreen
+import com.kobby.hymnal.presentation.screens.settings.PayWallContent
 import com.kobby.hymnal.theme.HymnalAppTheme
 import com.kobby.hymnal.theme.Shapes
 import org.koin.compose.koinInject
@@ -70,6 +68,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import com.kobby.hymnal.theme.DarkTextColor
 import com.kobby.hymnal.theme.LightTextColor
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 private const val AUTO_NAVIGATION_DELAY_MS = 6000L
 
@@ -132,7 +131,7 @@ private fun getCategoryAbbreviation(category: String?): String {
 fun StartScreenContent(
     modifier: Modifier = Modifier,
     randomHymn: Hymn? = null,
-    onStartButtonClicked: () -> Unit,
+    onStartButtonClicked: () -> Unit = {},
     onRandomHymnClicked: (Hymn) -> Unit = {}
 ) {
     // Animation states
@@ -310,7 +309,7 @@ fun StartScreenContent(
                         .clip(Shapes.medium)
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.ArrowForward,
+                        imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
                         contentDescription = stringResource(Res.string.cd_get_started),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(24.dp)
