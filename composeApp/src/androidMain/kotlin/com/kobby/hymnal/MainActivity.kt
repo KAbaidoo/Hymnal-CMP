@@ -21,6 +21,7 @@ import com.kobby.hymnal.di.androidModule
 import com.kobby.hymnal.di.crashlyticsModule
 import com.kobby.hymnal.di.databaseModule
 import com.kobby.hymnal.di.settingsModule
+import com.kobby.hymnal.di.subscriptionModule
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -35,7 +36,7 @@ class MainActivity : ComponentActivity() {
         startKoin {
             androidLogger()
             androidContext(this@MainActivity)
-            modules(databaseModule, settingsModule, androidModule, crashlyticsModule)
+            modules(databaseModule, settingsModule, androidModule, crashlyticsModule, subscriptionModule)
         }
 
         Firebase.initialize(this)

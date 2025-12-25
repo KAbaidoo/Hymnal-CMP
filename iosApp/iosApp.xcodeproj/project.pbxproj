@@ -10,6 +10,7 @@
 		058557BB273AAA24004C7B11 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058557BA273AAA24004C7B11 /* Assets.xcassets */; };
 		058557D9273AAEEB004C7B11 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058557D8273AAEEB004C7B11 /* Preview Assets.xcassets */; };
 		2152FB042600AC8F00CF470E /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2152FB032600AC8F00CF470E /* iOSApp.swift */; };
+		617C45D24CDCD459D052F71A /* IosSubscriptionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 617C43368FF6A74ABE0B6DBD /* IosSubscriptionProvider.swift */; };
 		7555FF83242A565900829871 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7555FF82242A565900829871 /* ContentView.swift */; };
 		CE27C6D42DB7433F00B4C7D0 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CE27C6D32DB7433F00B4C7D0 /* LaunchScreen.storyboard */; };
 		CE559BEF2ED99A140019BBAE /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = CE559BEE2ED99A140019BBAE /* FirebaseAnalytics */; };
@@ -24,6 +25,7 @@
 		058557BA273AAA24004C7B11 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		058557D8273AAEEB004C7B11 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		2152FB032600AC8F00CF470E /* iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp.swift; sourceTree = "<group>"; };
+		617C43368FF6A74ABE0B6DBD /* IosSubscriptionProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IosSubscriptionProvider.swift; sourceTree = "<group>"; };
 		7555FF7B242A565900829871 /* Anglican Hymnal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Anglican Hymnal.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7555FF82242A565900829871 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		7555FF8C242A565B00829871 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -78,7 +80,7 @@
 		7555FF7D242A565900829871 /* iosApp */ = {
 			isa = PBXGroup;
 			children = (
-				CE559BFA2ED9B36D0019BBAE /* IosCrashlyticsProvider.swift */,
+				CE41E3CC2EFCE5880093BCC2 /* Core */,
 				CEEF7E722DC0B82E00345ABE /* GoogleService-Info.plist */,
 				058557BA273AAA24004C7B11 /* Assets.xcassets */,
 				7555FF82242A565900829871 /* ContentView.swift */,
@@ -95,6 +97,31 @@
 				AB3632DC29227652001CCB65 /* Config.xcconfig */,
 			);
 			path = Configuration;
+			sourceTree = "<group>";
+		};
+		CE41E3CC2EFCE5880093BCC2 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				CE41E3CE2EFCE5BB0093BCC2 /* crashlytics */,
+				CE41E3CD2EFCE59F0093BCC2 /* iap */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		CE41E3CD2EFCE59F0093BCC2 /* iap */ = {
+			isa = PBXGroup;
+			children = (
+				617C43368FF6A74ABE0B6DBD /* IosSubscriptionProvider.swift */,
+			);
+			path = iap;
+			sourceTree = "<group>";
+		};
+		CE41E3CE2EFCE5BB0093BCC2 /* crashlytics */ = {
+			isa = PBXGroup;
+			children = (
+				CE559BFA2ED9B36D0019BBAE /* IosCrashlyticsProvider.swift */,
+			);
+			path = crashlytics;
 			sourceTree = "<group>";
 		};
 		CE559BED2ED99A140019BBAE /* Frameworks */ = {
@@ -226,6 +253,7 @@
 				2152FB042600AC8F00CF470E /* iOSApp.swift in Sources */,
 				CE559BFB2ED9B3B50019BBAE /* IosCrashlyticsProvider.swift in Sources */,
 				7555FF83242A565900829871 /* ContentView.swift in Sources */,
+				617C45D24CDCD459D052F71A /* IosSubscriptionProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

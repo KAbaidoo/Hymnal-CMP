@@ -5,6 +5,7 @@ import com.kobby.hymnal.di.crashlyticsModule
 import com.kobby.hymnal.di.databaseModule
 import com.kobby.hymnal.di.iosModule
 import com.kobby.hymnal.di.settingsModule
+import com.kobby.hymnal.di.subscriptionModule
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 import org.koin.core.logger.PrintLogger
@@ -14,7 +15,7 @@ fun MainViewController() = ComposeUIViewController {
     try {
         startKoin {
             logger(PrintLogger(Level.DEBUG))
-            modules(databaseModule, settingsModule, iosModule, crashlyticsModule)
+            modules(databaseModule, settingsModule, iosModule, crashlyticsModule, subscriptionModule)
         }
     } catch (e: Exception) {
         // Koin already started
