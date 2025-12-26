@@ -17,6 +17,9 @@ struct iOSApp: App {
         #endif
         
         CrashlyticsManager_iosKt.initializeNativeCrashlyticsProvider(provider: IosCrashlyticsProvider())
+        
+        // Initialize subscription provider
+        SubscriptionManager_iosKt.initializeNativeSubscriptionProvider(provider: IosSubscriptionProvider())
     }
     
     var body: some Scene {

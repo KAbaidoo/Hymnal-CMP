@@ -82,6 +82,8 @@ enum class PayPlan { Yearly, OneTime }
 @Composable
 fun PayWallContent(
     modifier: Modifier = Modifier,
+    isLoading: Boolean = false,
+    errorMsg: String? = null,
     onPurchase: (PayPlan) -> Unit = {},
     onBackClick: () -> Unit = {},
     onHomeClick: () -> Unit = {},
@@ -89,8 +91,6 @@ fun PayWallContent(
     onTerms: () -> Unit = {}
 ) {
     var selectedPlan by remember { mutableStateOf(PayPlan.OneTime) }
-    var isLoading by remember { mutableStateOf(false) }
-    var errorMsg by remember { mutableStateOf<String?>(null) }
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val topAppBarElementColor = MaterialTheme.colorScheme.secondary
 

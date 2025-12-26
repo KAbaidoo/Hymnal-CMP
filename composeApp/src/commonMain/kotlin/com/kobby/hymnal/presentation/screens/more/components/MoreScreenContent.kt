@@ -42,7 +42,7 @@ fun MoreScreenContent(
         titleExpanded = stringResource(Res.string.more),
         actionButtons = null,
         content = { innerPadding ->
-            val menuItems = listOf("Favorites", "History", "Highlights")
+            val menuItems = listOf("Favorites", "History", "Highlights", "Test Subscription")
 
             Column(
                 modifier = Modifier

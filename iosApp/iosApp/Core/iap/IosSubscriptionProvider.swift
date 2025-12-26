@@ -11,20 +11,22 @@ import FirebaseCrashlytics
 import StoreKit
 import UIKit
 
-class IosSubscriptionProvider: NativeSubscriptionProvider, NSObject,SKProductsRequestDelegate, SKPaymentTransactionObserver {
-    let PRODUCT_ID = "ios_subscription"
-    
+class IosSubscriptionProvider: NSObject, NativeSubscriptionProvider,SKProductsRequestDelegate, SKPaymentTransactionObserver {
+    let YEARLY_SUBSCRIPTION_ID = "ios_yearly_subscription"
+    let ONETIME_SUBSCRIPTION_ID = "ios_onetime_subscription"
+
         var products: [SKProduct] = []
         
-        var purchaseCallBack:((Bool)->Void)? = nil
-        
+        var purchaseCallBack:((KotlinBoolean)->Void)? = nil
+
         override init() {
             super.init()
             SKPaymentQueue.default().add(self)
         }
         
         public func fetchSubscriptions() {
-            let request = SKProductsRequest(productIdentifiers: [PRODUCT_ID])
+            let productIds: Set<String> = [YEARLY_SUBSCRIPTION_ID, ONETIME_SUBSCRIPTION_ID]
+            let request = SKProductsRequest(productIdentifiers: productIds)
             request.delegate = self
             request.start()
         }
@@ -37,9 +39,9 @@ class IosSubscriptionProvider: NativeSubscriptionProvider, NSObject,SKProductsRe
             }
         }
         
-       public func purchaseSubscription(callback: @escaping (Bool) -> Void) -> Bool {
-            guard let product = products.first(where: { $0.productIdentifier == PRODUCT_ID }) else {
-                callback(false)
+       public func purchaseSubscription(productId: String, callback: @escaping (KotlinBoolean) -> Void) -> Bool {
+            guard let product = products.first(where: { $0.productIdentifier == productId }) else {
+                callback(KotlinBoolean(value: false))
                 return false
             }
             let payment = SKPayment(product: product)
@@ -56,7 +58,7 @@ class IosSubscriptionProvider: NativeSubscriptionProvider, NSObject,SKProductsRe
                     
                     SKPaymentQueue.default().finishTransaction(transaction)
                 case .failed:
-                    purchaseCallBack?(false)
+                    purchaseCallBack?(KotlinBoolean(value: false))
                     SKPaymentQueue.default().finishTransaction(transaction)
                 default:
                     break
@@ -65,13 +67,14 @@ class IosSubscriptionProvider: NativeSubscriptionProvider, NSObject,SKProductsRe
         }
         
         private func unlockContent(productId: String) {
-            purchaseCallBack?(true)
+            purchaseCallBack?(KotlinBoolean(value: true))
             UserDefaults.standard.set(true, forKey: productId)
         }
         
-        public func isUserSubscribed(callback: @escaping (Bool) -> Void) {
-            let isSubscribed = UserDefaults.standard.bool(forKey: PRODUCT_ID)
-            callback(isSubscribed)
+        public func isUserSubscribed(callback: @escaping (KotlinBoolean) -> Void) {
+            let yearlySubscribed = UserDefaults.standard.bool(forKey: YEARLY_SUBSCRIPTION_ID)
+            let onetimeSubscribed = UserDefaults.standard.bool(forKey: ONETIME_SUBSCRIPTION_ID)
+            callback(KotlinBoolean(value: yearlySubscribed || onetimeSubscribed))
         }
 
         public func manageSubscription() {

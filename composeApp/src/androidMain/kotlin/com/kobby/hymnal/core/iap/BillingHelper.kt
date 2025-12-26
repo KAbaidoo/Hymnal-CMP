@@ -15,7 +15,7 @@ import com.android.billingclient.api.QueryPurchasesParams
 
 class BillingHelper(private val context: Context) {
 
-    val BIGG_BOSS_PREMIUM ="premium_subscription"
+    val PREMIUM ="premium_subscription"
     val TAG = BillingHelper::class.simpleName
     var purchaseCallback:((isSuccess:Boolean)->Unit)? = null
 
@@ -69,7 +69,7 @@ class BillingHelper(private val context: Context) {
             billingClient.queryPurchasesAsync(params) { billingResult, purchases ->
                 Log.d(TAG, "queryPurchasesAsync callback: ${billingResult.responseCode}, ${purchases.size}")
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                    val isSubscribed = purchases.any { it.products.contains(BIGG_BOSS_PREMIUM) }
+                    val isSubscribed = purchases.any { it.products.contains(PREMIUM) }
                     callback(isSubscribed)
                 } else {
                     callback(false)
@@ -85,7 +85,7 @@ class BillingHelper(private val context: Context) {
             .setProductList(
                 listOf(
                     QueryProductDetailsParams.Product.newBuilder()
-                        .setProductId(BIGG_BOSS_PREMIUM)
+                        .setProductId(PREMIUM)
                         .setProductType(BillingClient.ProductType.SUBS)
                         .build()
                 )

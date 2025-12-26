@@ -4,14 +4,16 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import com.kobby.hymnal.presentation.screens.settings.PayPlan
 
 class AndroidSubscriptionManager(
     private val context: Context,
     private val billingHelper: BillingHelper
 ) : SubscriptionManager {
 
-    override fun purchaseSubscription(callback: (Boolean) -> Unit) {
+    override fun purchaseSubscription(plan: PayPlan, callback: (Boolean) -> Unit) {
         (context as? Activity)?.let {
+            // Pass the plan to billingHelper for future multi-plan support
             billingHelper.purchaseSubscription(it, callback)
         } ?: callback(false)
     }
