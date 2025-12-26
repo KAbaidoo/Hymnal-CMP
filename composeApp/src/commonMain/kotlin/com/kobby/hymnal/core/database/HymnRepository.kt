@@ -6,12 +6,17 @@ import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.kobby.hymnal.composeApp.database.HymnDatabase
 import com.kobby.hymnal.composeApp.database.Hymn
+import com.kobby.hymnal.core.performance.PerformanceManager
+import com.kobby.hymnal.core.performance.traceSuspend
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
-class HymnRepository(private val database: HymnDatabase) {
+class HymnRepository(
+    private val database: HymnDatabase,
+    private val performanceManager: PerformanceManager? = null
+) {
     
     // Hymn queries
     fun getAllHymns(): Flow<List<Hymn>> {
@@ -27,8 +32,11 @@ class HymnRepository(private val database: HymnDatabase) {
     }
     
     suspend fun getHymnById(id: Long): Hymn? = withContext(Dispatchers.Default) {
-        database.hymnsQueries.getHymnById(id)
-            .executeAsOneOrNull()
+        performanceManager?.traceSuspend("db_get_hymn_by_id") { trace ->
+            trace.putAttribute("hymn_id", id.toString())
+            database.hymnsQueries.getHymnById(id)
+                .executeAsOneOrNull()
+        } ?: database.hymnsQueries.getHymnById(id).executeAsOneOrNull()
     }
     
     suspend fun getHymnByNumber(number: Long, category: String): Hymn? = withContext(Dispatchers.Default) {
@@ -42,6 +50,13 @@ class HymnRepository(private val database: HymnDatabase) {
     }
     
     fun searchHymns(query: String): Flow<List<Hymn>> {
+        // Note: Tracing Flow operations is complex due to async nature
+        // For now, we'll trace the query setup only
+        performanceManager?.startTrace("db_search_hymns")?.let { trace ->
+            trace.putAttribute("query_length", query.length.toString())
+            trace.stop()
+        }
+        
         return database.hymnsQueries.searchHymns(query)
             .asFlow()
             .mapToList(Dispatchers.Default)
@@ -55,7 +70,10 @@ class HymnRepository(private val database: HymnDatabase) {
     }
     
     suspend fun addToFavorites(hymnId: Long) = withContext(Dispatchers.Default) {
-        database.hymnsQueries.addToFavorites(hymnId)
+        performanceManager?.traceSuspend("db_add_to_favorites") { trace ->
+            trace.putAttribute("hymn_id", hymnId.toString())
+            database.hymnsQueries.addToFavorites(hymnId)
+        } ?: database.hymnsQueries.addToFavorites(hymnId)
     }
     
     suspend fun removeFromFavorites(hymnId: Long) = withContext(Dispatchers.Default) {
@@ -73,8 +91,14 @@ class HymnRepository(private val database: HymnDatabase) {
         .mapToList(Dispatchers.Default)
     
     suspend fun addToHistory(hymnId: Long) = withContext(Dispatchers.Default) {
-        database.hymnsQueries.addToHistory(hymnId)
-        trimHistoryToLimit()
+        performanceManager?.traceSuspend("db_add_to_history") { trace ->
+            trace.putAttribute("hymn_id", hymnId.toString())
+            database.hymnsQueries.addToHistory(hymnId)
+            trimHistoryToLimit()
+        } ?: run {
+            database.hymnsQueries.addToHistory(hymnId)
+            trimHistoryToLimit()
+        }
     }
     
     suspend fun clearHistory() = withContext(Dispatchers.Default) {

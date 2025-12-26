@@ -50,6 +50,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.composeApp.database.Hymn
 import com.kobby.hymnal.core.database.HymnRepository
+import com.kobby.hymnal.core.performance.PerformanceManager
 import com.kobby.hymnal.presentation.components.ScreenBackground
 import com.kobby.hymnal.presentation.screens.home.HomeScreen
 import com.kobby.hymnal.presentation.screens.hymns.HymnDetailScreen
@@ -79,16 +80,32 @@ class StartScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
         val scope = rememberCoroutineScope()
         val repository: HymnRepository = koinInject()
+        val performanceManager: PerformanceManager? = try { koinInject() } catch (e: Exception) { null }
         var randomHymn by remember { mutableStateOf<Hymn?>(null) }
         var hasNavigated by remember { mutableStateOf(false) }
 
+        // Track screen render time
+        LaunchedEffect(Unit) {
+            val screenTrace = performanceManager?.startTrace("screen_start_render")
+            screenTrace?.putAttribute("screen_name", "StartScreen")
+            // Stop trace after a short delay to measure initial render
+            delay(100)
+            screenTrace?.stop()
+        }
+
         // Fetch random hymn when screen loads
         LaunchedEffect(Unit) {
+            val trace = performanceManager?.startTrace("start_screen_load_hymn")
             try {
                 randomHymn = repository.getRandomHymn()
+                trace?.putAttribute("hymn_loaded", "true")
             } catch (e: Exception) {
                 // Silently handle any database errors
                 randomHymn = null
+                trace?.putAttribute("hymn_loaded", "false")
+                trace?.putAttribute("error", e.message ?: "unknown")
+            } finally {
+                trace?.stop()
             }
         }
 

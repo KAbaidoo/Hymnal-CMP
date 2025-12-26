@@ -1,5 +1,6 @@
 package com.kobby.hymnal.core.database
 
+import com.kobby.hymnal.core.performance.PerformanceManager
 import hymnal_cmp.composeapp.generated.resources.Res
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -7,7 +8,9 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import platform.Foundation.*
 import kotlinx.cinterop.*
 
-actual class DatabaseHelper() {
+actual class DatabaseHelper(
+    private val performanceManager: PerformanceManager? = null
+) {
     
     @OptIn(ExperimentalResourceApi::class)
     actual suspend fun initializeDatabase(): String = withContext(Dispatchers.Default) {
