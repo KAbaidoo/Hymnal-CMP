@@ -101,6 +101,7 @@ fun PayWallContent(
                 TopAppBar(
                     title = {
 
+
                     },
                     navigationIcon = {
                         IconButton(onClick = onBackClick) {
@@ -126,8 +127,7 @@ fun PayWallContent(
                         navigationIconContentColor = topAppBarElementColor,
                         titleContentColor = MaterialTheme.colorScheme.onPrimary,
                         actionIconContentColor= topAppBarElementColor,
-                    ),
-                    scrollBehavior = scrollBehavior
+                    )
                 )
                 Image(
                     modifier = Modifier
@@ -137,6 +137,7 @@ fun PayWallContent(
                     contentDescription = null,
                     contentScale = ContentScale.Crop
                 )
+                PaywallHeader()
 
             }
 
@@ -152,16 +153,16 @@ fun PayWallContent(
                 .background(MaterialTheme.colorScheme.primary)
         ) {
 
-            PaywallHeader()
+//            PaywallHeader()
             // Content card
             Box(
                 modifier = Modifier
                     .padding(paddingValues)
+                    .background(MaterialTheme.colorScheme.primary)
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-//                        .fillMaxSize()
+                        .fillMaxSize()
                         .clip(RoundedCornerShape(32.dp, 32.dp, 0.dp, 0.dp))
                         .background(MaterialTheme.colorScheme.background)
                 ) {
@@ -169,8 +170,6 @@ fun PayWallContent(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(horizontal = 20.dp, vertical = 16.dp)
-                            .verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
 
 
@@ -207,8 +206,6 @@ fun PayWallContent(
         }
 
 
-
-
     }
 
 }
@@ -218,13 +215,12 @@ private fun PaywallHeader() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 40.dp)
             .padding(20.dp),
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Bottom,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(80.dp))
         Text(
             text = stringResource(Res.string.settings_title_paywall),
             style =  MaterialTheme.typography.headlineLarge,
