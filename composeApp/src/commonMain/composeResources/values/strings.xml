@@ -4,9 +4,9 @@
     <string name="settings_subtitle_paywall">One small payment. A lifetime\nof worship.</string>
 
     <!-- Purchase options -->
-    <string name="settings_option_yearly_title">USD 1.99 / year</string>
+    <string name="settings_option_yearly_title">USD 0.99 / year</string>
     <string name="settings_option_yearly_subtitle">Renews automatically</string>
-    <string name="settings_option_onetime_title">USD 3.99 / One-time payment</string>
+    <string name="settings_option_onetime_title">USD 2.50 / One-time payment</string>
     <string name="settings_option_onetime_subtitle">Pay once. Own it forever.</string>
     <string name="settings_option_onetime_badge">Best Value</string>
 
