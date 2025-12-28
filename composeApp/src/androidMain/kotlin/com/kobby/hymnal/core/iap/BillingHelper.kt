@@ -31,11 +31,33 @@ class BillingHelper(private val context: Context) {
         billingClient = BillingClient.newBuilder(context)
             .enablePendingPurchases(params)
             .setListener { billingResult, purchases ->
-                Log.d("enablePendingPurchases", "BillingClient creation result : ${billingResult.responseCode}")
-                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
-                    handlePurchase(purchases)
+                Log.d(TAG, "Purchase listener triggered: ${billingResult.responseCode}")
+
+                when (billingResult.responseCode) {
+                    BillingClient.BillingResponseCode.OK -> {
+                        if (purchases != null) {
+                            handlePurchase(purchases)
+                        }
+                    }
+                    BillingClient.BillingResponseCode.USER_CANCELED -> {
+                        Log.d(TAG, "User canceled the purchase")
+                        purchaseCallback?.invoke(false)
+                        purchaseCallback = null
+                    }
+                    BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED -> {
+                        Log.d(TAG, "Item already owned")
+                        purchaseCallback?.invoke(true)
+                        purchaseCallback = null
+                    }
+                    else -> {
+                        Log.e(TAG, "Purchase failed: ${billingResult.responseCode} - ${billingResult.debugMessage}")
+                        purchaseCallback?.invoke(false)
+                        purchaseCallback = null
+                    }
                 }
-            }.build()
+            }
+            .enableAutoServiceReconnection()
+            .build()
     }
 
     private fun connectPlayStore(callback: (isConnected:Boolean) -> Unit) {
@@ -44,16 +66,21 @@ class BillingHelper(private val context: Context) {
         } else {
             billingClient.startConnection(object : BillingClientStateListener {
                 override fun onBillingSetupFinished(billingResult: BillingResult) {
-                    Log.d(TAG, "startConnection onBillingSetupFinished")
+                    Log.d(TAG, "startConnection onBillingSetupFinished: ${billingResult.responseCode}")
                     if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                         // BillingClient is ready
                         Log.d(TAG, "BillingClient is ready")
                         callback.invoke(true)
+                    } else {
+                        // Connection failed
+                        Log.e(TAG, "BillingClient setup failed: ${billingResult.responseCode} - ${billingResult.debugMessage}")
+                        callback.invoke(false)
                     }
                 }
 
                 override fun onBillingServiceDisconnected() {
                     Log.d(TAG, "startConnection onBillingServiceDisconnected")
+                    // Note: Will auto-reconnect due to enableAutoServiceReconnection()
                 }
             })
         }
@@ -61,7 +88,13 @@ class BillingHelper(private val context: Context) {
 
     fun checkSubscriptionStatus(callback: (Boolean) -> Unit) {
         Log.d(TAG, "checkSubscriptionStatus")
-        connectPlayStore {
+        connectPlayStore { isConnected ->
+            if (!isConnected) {
+                Log.e(TAG, "Failed to connect to Play Store for subscription check")
+                callback(false)
+                return@connectPlayStore
+            }
+
             val params = QueryPurchasesParams.newBuilder()
                 .setProductType(BillingClient.ProductType.SUBS)
                 .build()
@@ -72,57 +105,92 @@ class BillingHelper(private val context: Context) {
                     val isSubscribed = purchases.any { it.products.contains(PREMIUM) }
                     callback(isSubscribed)
                 } else {
+                    Log.e(TAG, "Failed to query purchases: ${billingResult.responseCode} - ${billingResult.debugMessage}")
                     callback(false)
                 }
             }
         }
-
     }
 
 
     fun purchaseSubscription(activity: Activity, callback: (Boolean) -> Unit) {
-        val params = QueryProductDetailsParams.newBuilder()
-            .setProductList(
-                listOf(
-                    QueryProductDetailsParams.Product.newBuilder()
-                        .setProductId(PREMIUM)
-                        .setProductType(BillingClient.ProductType.SUBS)
-                        .build()
-                )
-            )
-            .build()
+        // First, ensure we're connected to the Play Store
+        connectPlayStore { isConnected ->
+            if (!isConnected) {
+                Log.e(TAG, "Failed to connect to Play Store")
+                callback(false)
+                return@connectPlayStore
+            }
 
-        billingClient.queryProductDetailsAsync(params) { billingResult, productDetailsList ->
-            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && productDetailsList.isNotEmpty()) {
-                val productDetails = productDetailsList.first()
-                val offerToken = productDetails.subscriptionOfferDetails?.first()?.offerToken
-                    ?: return@queryProductDetailsAsync
-
-                val billingParams = BillingFlowParams.newBuilder()
-                    .setProductDetailsParamsList(
-                        listOf(
-                            BillingFlowParams.ProductDetailsParams.newBuilder()
-                                .setProductDetails(productDetails)
-                                .setOfferToken(offerToken)
-                                .build()
-                        )
+            val params = QueryProductDetailsParams.newBuilder()
+                .setProductList(
+                    listOf(
+                        QueryProductDetailsParams.Product.newBuilder()
+                            .setProductId(PREMIUM)
+                            .setProductType(BillingClient.ProductType.SUBS)
+                            .build()
                     )
-                    .build()
+                )
+                .build()
 
-                purchaseCallback = callback
-                billingClient.launchBillingFlow(activity, billingParams)
+            billingClient.queryProductDetailsAsync(params) { billingResult, queryProductDetailsResult ->
+                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && queryProductDetailsResult.productDetailsList.isNotEmpty()) {
+                    val productDetails = queryProductDetailsResult.productDetailsList.first()
+                    val offerToken = productDetails.subscriptionOfferDetails?.first()?.offerToken
+
+                    if (offerToken == null) {
+                        Log.e(TAG, "No offer token found for product")
+                        callback(false)
+                        return@queryProductDetailsAsync
+                    }
+
+                    val billingParams = BillingFlowParams.newBuilder()
+                        .setProductDetailsParamsList(
+                            listOf(
+                                BillingFlowParams.ProductDetailsParams.newBuilder()
+                                    .setProductDetails(productDetails)
+                                    .setOfferToken(offerToken)
+                                    .build()
+                            )
+                        )
+                        .build()
+
+                    purchaseCallback = callback
+                    val launchResult = billingClient.launchBillingFlow(activity, billingParams)
+
+                    if (launchResult.responseCode != BillingClient.BillingResponseCode.OK) {
+                        Log.e(TAG, "Failed to launch billing flow: ${launchResult.responseCode} - ${launchResult.debugMessage}")
+                        purchaseCallback = null
+                        callback(false)
+                    }
+                } else {
+                    Log.e(TAG, "Failed to query product details: ${billingResult.responseCode} - ${billingResult.debugMessage}")
+                    callback(false)
+                }
             }
         }
     }
 
     private fun handlePurchase(purchases: List<Purchase>) {
         for (purchase in purchases) {
-            if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
-                // Grant subscription benefits
-                Log.d("BillingManager", "Subscription is active: ${purchase.products}")
-                acknowledgePurchase(purchase)
-                purchaseCallback?.invoke(true)
-                purchaseCallback = null
+            when (purchase.purchaseState) {
+                Purchase.PurchaseState.PURCHASED -> {
+                    // Grant subscription benefits
+                    Log.d(TAG, "Subscription is active: ${purchase.products}")
+                    acknowledgePurchase(purchase)
+                    purchaseCallback?.invoke(true)
+                    purchaseCallback = null
+                }
+                Purchase.PurchaseState.PENDING -> {
+                    Log.d(TAG, "Purchase is pending: ${purchase.products}")
+                    // Optionally notify user that purchase is pending
+                    // Don't invoke callback yet - wait for final state
+                }
+                Purchase.PurchaseState.UNSPECIFIED_STATE -> {
+                    Log.w(TAG, "Purchase state is unspecified: ${purchase.products}")
+                    purchaseCallback?.invoke(false)
+                    purchaseCallback = null
+                }
             }
         }
     }
@@ -135,10 +203,22 @@ class BillingHelper(private val context: Context) {
 
             billingClient.acknowledgePurchase(params) { billingResult ->
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                    Log.d("BillingManager", "Purchase acknowledged")
+                    Log.d(TAG, "Purchase acknowledged")
+                } else {
+                    Log.e(TAG, "Failed to acknowledge purchase: ${billingResult.responseCode} - ${billingResult.debugMessage}")
                 }
             }
         }
+    }
+
+    /**
+     * Clean up resources and end the billing client connection.
+     * Should be called when the BillingHelper is no longer needed.
+     */
+    fun endConnection() {
+        Log.d(TAG, "Ending billing client connection")
+        purchaseCallback = null
+        billingClient.endConnection()
     }
 
 }

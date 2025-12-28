@@ -17,6 +17,7 @@ import com.google.firebase.initialize
 import com.kobby.hymnal.BuildKonfig
 import com.kobby.hymnal.BuildConfig
 import com.kobby.hymnal.core.crashlytics.CrashlyticsManager
+import com.kobby.hymnal.core.iap.BillingHelper
 import com.kobby.hymnal.di.androidModule
 import com.kobby.hymnal.di.crashlyticsModule
 import com.kobby.hymnal.di.databaseModule
@@ -77,6 +78,13 @@ class MainActivity : ComponentActivity() {
         
         // Log initialization
         crashlytics.log("App initialized - version ${BuildKonfig.VERSION_NAME}")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Clean up billing client connection
+        val billingHelper: BillingHelper by inject()
+        billingHelper.endConnection()
     }
 }
 
