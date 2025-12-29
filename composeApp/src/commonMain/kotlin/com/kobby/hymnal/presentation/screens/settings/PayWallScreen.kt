@@ -5,6 +5,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.core.iap.SubscriptionManager
+import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 class PayWallScreen : Screen {

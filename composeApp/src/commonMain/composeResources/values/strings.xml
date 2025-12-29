@@ -75,7 +75,7 @@
 
     <!-- Start screen credits -->
     <string name="created_by">Created by</string>
-    <string name="author_name">Kobby</string>
+    <string name="author_name">Dennis Abban</string>
 
     <!-- Database inspector screen -->
     <string name="database_inspector">Database Inspector</string>
