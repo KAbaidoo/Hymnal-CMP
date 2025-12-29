@@ -207,7 +207,7 @@ fun OnboardingFlow() {
 
 ### iOS
 - **Yearly Subscription**: `ios_yearly_subscription`
-- **One-Time Purchase**: `ios_onetime_subscription`
+- **One-Time Purchase**: `ios_onetime_purchase`
 
 ### Android
 - **Premium Subscription**: `premium_subscription`

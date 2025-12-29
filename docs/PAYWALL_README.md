@@ -150,7 +150,7 @@ fun MyFeature() {
 | `SUBSCRIPTION_EXPIRED` | ❌ | ✅ | Renewable subscription lapsed (yearly only) |
 | `NONE` | ❌ | ✅ | No trial or purchase |
 
-**Important Note:** One-time purchases (`ios_onetime_subscription`) **never expire** and remain in `SUBSCRIBED` state forever.
+**Important Note:** One-time purchases (`ios_onetime_purchase`) **never expire** and remain in `SUBSCRIBED` state forever.
 
 ## 💳 Product IDs
 
@@ -159,7 +159,7 @@ fun MyFeature() {
 
 ### iOS (App Store Connect)
 - `ios_yearly_subscription` - Yearly renewable subscription
-- `ios_onetime_subscription` - **One-time purchase (non-consumable) - lifetime access**
+- `ios_onetime_purchase` - **One-time purchase (non-consumable) - lifetime access**
 
 **One-Time Purchase Details:**
 - Configure as **non-consumable** in App Store Connect

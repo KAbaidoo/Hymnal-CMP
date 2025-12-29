@@ -155,7 +155,7 @@ CheckPremiumAccess(
 
 ### iOS (App Store)
 - `ios_yearly_subscription` - Yearly plan
-- `ios_onetime_subscription` - One-time purchase
+- `ios_onetime_purchase` - One-time purchase
 
 ## Files Modified/Created
 

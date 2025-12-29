@@ -353,11 +353,11 @@ const val PREMIUM = "premium_subscription"  // Used for both yearly and one-time
 
 // iOS
 const val YEARLY_SUBSCRIPTION_ID = "ios_yearly_subscription"
-const val ONETIME_SUBSCRIPTION_ID = "ios_onetime_subscription"
+const val ONETIME_SUBSCRIPTION_ID = "ios_onetime_purchase"
 ```
 
 #### One-Time Purchase Products
-The `ios_onetime_subscription` product represents a **non-consumable one-time purchase** - users pay once and own it forever:
+The `ios_onetime_purchase` product represents a **non-consumable one-time purchase** - users pay once and own it forever:
 - iOS: Configure as **non-consumable** in App Store Connect
 - Android: Currently uses same subscription product ID, but should ideally be configured as a separate one-time purchase product
 - **Important**: One-time purchases never expire and grant lifetime access
@@ -578,7 +578,7 @@ data class EntitlementInfo(
 | Aspect | Android | iOS |
 |--------|---------|-----|
 | **Storage** | SharedPreferences | UserDefaults |
-| **Product IDs** | `premium_subscription` | `ios_yearly_subscription`, `ios_onetime_subscription` |
+| **Product IDs** | `premium_subscription` | `ios_yearly_subscription`, `ios_onetime_purchase` |
 | **Restore** | Automatic via query | Manual via restore API |
 | **Verification** | Google Play verifies | StoreKit verifies |
 | **Pending Purchases** | Supported | Not applicable |

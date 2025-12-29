@@ -21,7 +21,7 @@ This document outlines the integration of the subscription module for both iOS a
 1. **IosSubscriptionManager** (`iosMain/core/iap/SubscriptionManager.ios.kt`)
    - Maps PayPlan to product IDs:
      - `Yearly` → `ios_yearly_subscription`
-     - `OneTime` → `ios_onetime_subscription`
+     - `OneTime` → `ios_onetime_purchase`
    - Delegates to native Swift provider
 
 2. **NativeSubscriptionProvider Interface** (`iosMain/core/iap/SubscriptionManager.ios.kt`)
@@ -90,7 +90,7 @@ This document outlines the integration of the subscription module for both iOS a
 ### iOS (App Store Connect)
 Configure these product IDs in App Store Connect:
 - `ios_yearly_subscription` - Annual subscription
-- `ios_onetime_subscription` - One-time purchase
+- `ios_onetime_purchase` - One-time purchase
 
 ### Android (Google Play Console)
 Configure these product IDs in Google Play Console:

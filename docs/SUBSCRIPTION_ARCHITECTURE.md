@@ -213,7 +213,7 @@
 | PayPlan  | iOS Product ID              | Android Product ID    |
 |----------|-----------------------------|-----------------------|
 | Yearly   | ios_yearly_subscription     | premium_subscription  |
-| OneTime  | ios_onetime_subscription    | premium_subscription  |
+| OneTime  | ios_onetime_purchase        | premium_subscription  |
 
 *Note: Android currently uses same product ID for both plans. This can be changed in BillingHelper to support multiple products.*
 

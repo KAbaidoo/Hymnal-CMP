@@ -13,7 +13,7 @@ import UIKit
 
 class IosSubscriptionProvider: NSObject, NativeSubscriptionProvider, SKProductsRequestDelegate, SKPaymentTransactionObserver {
     let YEARLY_SUBSCRIPTION_ID = "ios_yearly_subscription"
-    let ONETIME_SUBSCRIPTION_ID = "ios_onetime_subscription"
+    let ONETIME_PURCHASE_ID = "ios_onetime_purchase"
 
     var products: [SKProduct] = []
     
@@ -26,7 +26,7 @@ class IosSubscriptionProvider: NSObject, NativeSubscriptionProvider, SKProductsR
     }
     
     public func fetchSubscriptions() {
-        let productIds: Set<String> = [YEARLY_SUBSCRIPTION_ID, ONETIME_SUBSCRIPTION_ID]
+        let productIds: Set<String> = [YEARLY_SUBSCRIPTION_ID, ONETIME_PURCHASE_ID]
         let request = SKProductsRequest(productIdentifiers: productIds)
         request.delegate = self
         request.start()
@@ -77,9 +77,9 @@ class IosSubscriptionProvider: NSObject, NativeSubscriptionProvider, SKProductsR
     public func paymentQueueRestoreCompletedTransactionsFinished(_ queue: SKPaymentQueue) {
         // Check if any purchases were restored
         let yearlySubscribed = UserDefaults.standard.bool(forKey: YEARLY_SUBSCRIPTION_ID)
-        let onetimeSubscribed = UserDefaults.standard.bool(forKey: ONETIME_SUBSCRIPTION_ID)
+        let onetimePurchased = UserDefaults.standard.bool(forKey: ONETIME_PURCHASE_ID)
         
-        let hasRestoredPurchases = yearlySubscribed || onetimeSubscribed
+        let hasRestoredPurchases = yearlySubscribed || onetimePurchased
         restoreCallBack?(KotlinBoolean(value: hasRestoredPurchases))
         restoreCallBack = nil
     }
@@ -97,8 +97,8 @@ class IosSubscriptionProvider: NSObject, NativeSubscriptionProvider, SKProductsR
     
     public func isUserSubscribed(callback: @escaping (KotlinBoolean) -> Void) {
         let yearlySubscribed = UserDefaults.standard.bool(forKey: YEARLY_SUBSCRIPTION_ID)
-        let onetimeSubscribed = UserDefaults.standard.bool(forKey: ONETIME_SUBSCRIPTION_ID)
-        callback(KotlinBoolean(value: yearlySubscribed || onetimeSubscribed))
+        let onetimePurchased = UserDefaults.standard.bool(forKey: ONETIME_PURCHASE_ID)
+        callback(KotlinBoolean(value: yearlySubscribed || onetimePurchased))
     }
 
     public func manageSubscription() {

@@ -59,7 +59,7 @@ subscriptionManager.isUserSubscribed { isSubscribed ->
 
 ### iOS (App Store Connect)
 - `ios_yearly_subscription`
-- `ios_onetime_subscription`
+- `ios_onetime_purchase`
 
 ### Android (Google Play Console)
 - `premium_subscription`

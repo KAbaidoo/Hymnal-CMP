@@ -66,7 +66,7 @@ PayWall Screen
 
 1. **iOS**: Configure products in App Store Connect
    - Product ID: `ios_yearly_subscription`
-   - Product ID: `ios_onetime_subscription`
+   - Product ID: `ios_onetime_purchase`
    
 2. **Android**: Configure products in Google Play Console
    - Product ID: `premium_subscription`

@@ -25,7 +25,7 @@
           "locale" : "en_US"
         }
       ],
-      "productID" : "ios_onetime_subscription",
+      "productID" : "ios_onetime_purchase",
       "referenceName" : "One-time Payment",
       "type" : "NonConsumable"
     }

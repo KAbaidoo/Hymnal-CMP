@@ -12,7 +12,7 @@ class IosSubscriptionManager(
 
     companion object {
         const val YEARLY_SUBSCRIPTION_ID = "ios_yearly_subscription"
-        const val ONETIME_SUBSCRIPTION_ID = "ios_onetime_subscription"
+        const val ONETIME_PURCHASE_ID = "ios_onetime_purchase"
     }
     
     private val _entitlementState = MutableStateFlow(storage.getEntitlementInfo())
@@ -33,7 +33,7 @@ class IosSubscriptionManager(
     override fun purchaseSubscription(plan: PayPlan, callback: (Boolean) -> Unit) {
         val productId = when (plan) {
             PayPlan.Yearly -> YEARLY_SUBSCRIPTION_ID
-            PayPlan.OneTime -> ONETIME_SUBSCRIPTION_ID
+            PayPlan.OneTime -> ONETIME_PURCHASE_ID
         }
 
         nativeSubscriptionProvider?.purchaseSubscription(
