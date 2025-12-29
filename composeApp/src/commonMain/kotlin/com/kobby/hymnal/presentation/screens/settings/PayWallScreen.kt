@@ -14,15 +14,23 @@ class PayWallScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
         val subscriptionManager: SubscriptionManager = koinInject()
         var isProcessing by remember { mutableStateOf(false) }
+        var isRestoring by remember { mutableStateOf(false) }
         var purchaseError by remember { mutableStateOf<String?>(null) }
+        var successMessage by remember { mutableStateOf<String?>(null) }
+        
+        val entitlementInfo by subscriptionManager.entitlementState.collectAsState()
 
         PayWallContent(
             isLoading = isProcessing,
+            isRestoring = isRestoring,
             errorMsg = purchaseError,
+            successMsg = successMessage,
+            trialDaysRemaining = entitlementInfo.trialDaysRemaining,
             onPurchase = { plan ->
-                if (!isProcessing) {
+                if (!isProcessing && !isRestoring) {
                     isProcessing = true
                     purchaseError = null
+                    successMessage = null
 
                     // Handle purchase with the selected plan
                     subscriptionManager.purchaseSubscription(plan) { success ->
@@ -37,13 +45,34 @@ class PayWallScreen : Screen {
                     }
                 }
             },
+            onRestore = {
+                if (!isProcessing && !isRestoring) {
+                    isRestoring = true
+                    purchaseError = null
+                    successMessage = null
+                    
+                    subscriptionManager.restorePurchases { success ->
+                        isRestoring = false
+                        if (success) {
+                            successMessage = "Purchases restored successfully!"
+                            // Navigate back after a short delay
+                            kotlinx.coroutines.GlobalScope.launch {
+                                kotlinx.coroutines.delay(1500)
+                                navigator.pop()
+                            }
+                        } else {
+                            purchaseError = "No purchases found to restore."
+                        }
+                    }
+                }
+            },
             onBackClick = {
-                if (!isProcessing) {
+                if (!isProcessing && !isRestoring) {
                     navigator.pop()
                 }
             },
             onHomeClick = {
-                if (!isProcessing) {
+                if (!isProcessing && !isRestoring) {
                     // Pop all screens to go back to home
                     navigator.popAll()
                 }

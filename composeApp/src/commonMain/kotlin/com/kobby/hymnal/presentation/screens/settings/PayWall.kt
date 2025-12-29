@@ -83,8 +83,12 @@ enum class PayPlan { Yearly, OneTime }
 fun PayWallContent(
     modifier: Modifier = Modifier,
     isLoading: Boolean = false,
+    isRestoring: Boolean = false,
     errorMsg: String? = null,
+    successMsg: String? = null,
+    trialDaysRemaining: Int? = null,
     onPurchase: (PayPlan) -> Unit = {},
+    onRestore: () -> Unit = {},
     onBackClick: () -> Unit = {},
     onHomeClick: () -> Unit = {},
     onPrivacy: () -> Unit = {},
@@ -137,7 +141,7 @@ fun PayWallContent(
                     contentDescription = null,
                     contentScale = ContentScale.Crop
                 )
-                PaywallHeader()
+                PaywallHeader(trialDaysRemaining = trialDaysRemaining)
 
             }
 
@@ -180,12 +184,23 @@ fun PayWallContent(
                         )
 
                         if (errorMsg != null) {
+                            Spacer(Modifier.height(8.dp))
                             Text(
-                                text = errorMsg!!,
+                                text = errorMsg,
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.error
                             )
                         }
+                        
+                        if (successMsg != null) {
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                text = successMsg,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color(0xFF4CAF50) // Green for success
+                            )
+                        }
+                        
                         // Features card
                         FeaturesCard()
                         // Shared ministry card just beneath FeaturesCard
@@ -193,10 +208,25 @@ fun PayWallContent(
 
 
                         PrimaryCTA(
-                            text = if (isLoading) stringResource(Res.string.settings_action_processing) else stringResource(Res.string.settings_action_continue),
-                            enabled = !isLoading,
+                            text = if (isLoading) "Processing..." else "Continue",
+                            enabled = !isLoading && !isRestoring,
                             onClick = { onPurchase(selectedPlan) }
                         )
+                        
+                        Spacer(Modifier.height(8.dp))
+                        
+                        // Restore purchases button
+                        OutlinedButton(
+                            modifier = Modifier.fillMaxWidth().height(48.dp),
+                            enabled = !isLoading && !isRestoring,
+                            onClick = onRestore,
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(
+                                text = if (isRestoring) "Restoring..." else "Restore Purchases",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
 
 
                         FooterLinks(onPrivacy = onPrivacy, onTerms = onTerms)
@@ -211,7 +241,7 @@ fun PayWallContent(
 }
 
 @Composable
-private fun PaywallHeader() {
+private fun PaywallHeader(trialDaysRemaining: Int? = null) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -228,6 +258,19 @@ private fun PaywallHeader() {
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(8.dp))
+        
+        // Show trial info if user is in trial period
+        if (trialDaysRemaining != null && trialDaysRemaining > 0) {
+            Text(
+                text = "$trialDaysRemaining day${if (trialDaysRemaining != 1) "s" else ""} left in trial",
+                style = MaterialTheme.typography.bodyMedium,
+                color = YellowAccent,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+            Spacer(Modifier.height(4.dp))
+        }
+        
         Text(
             text = stringResource(Res.string.settings_subtitle_paywall),
             style = MaterialTheme.typography.bodySmall,
