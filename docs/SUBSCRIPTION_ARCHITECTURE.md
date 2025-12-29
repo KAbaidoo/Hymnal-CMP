@@ -1,4 +1,17 @@
-# Subscription Module Architecture
+# Subscription Module Architecture (Updated)
+
+**Latest Changes:**
+- ✅ Trial period tracking (30-day window)
+- ✅ Entitlement state management
+- ✅ Restore purchases functionality
+- ✅ Persistent storage for trial and purchase data
+- ✅ StateFlow for reactive UI updates
+- ✅ Feature gating composables
+
+**See Also:**
+- [Trial Period Guide](./TRIAL_PERIOD_GUIDE.md) - Complete trial implementation details
+- [Paywall Implementation Analysis](./PAYWALL_IMPLEMENTATION_ANALYSIS.md) - Comprehensive analysis
+- [Feature Gating Usage Guide](./FEATURE_GATING_USAGE_GUIDE.md) - Code examples for developers
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -14,9 +27,17 @@
 │           ▼                             ▼                        │
 │    ┌──────────────────────────────────────┐                     │
 │    │      onPurchase(plan: PayPlan)       │                     │
-│    │      - Yearly / OneTime              │                     │
+│    │      onRestore() ← NEW               │                     │
+│    │      trialDaysRemaining ← NEW        │                     │
 │    └──────────────────────────────────────┘                     │
 │                      │                                           │
+│           ┌──────────┴──────────┐                               │
+│           │                     │                               │
+│  ┌────────▼─────────┐  ┌───────▼──────────┐                   │
+│  │ PremiumFeature   │  │ CheckPremium     │  ← NEW             │
+│  │ Gate             │  │ Access           │                     │
+│  └──────────────────┘  └──────────────────┘                     │
+│                                                                   │
 └──────────────────────┼───────────────────────────────────────────┘
                        │
                        ▼
@@ -30,9 +51,25 @@
 │         │ + purchaseSubscription(plan, cb)   │                  │
 │         │ + isUserSubscribed(cb)             │                  │
 │         │ + manageSubscription()             │                  │
+│         │ + restorePurchases(cb)       ← NEW │                  │
+│         │ + getEntitlementInfo()       ← NEW │                  │
+│         │ + initialize()               ← NEW │                  │
+│         │ + entitlementState: StateFlow← NEW │                  │
 │         └────────────────────────────────────┘                  │
 │                      ▲                                           │
 │                      │                                           │
+│         ┌────────────┴────────────┐                             │
+│         │                         │                             │
+│    ┌────▼──────────┐    ┌────────▼─────────┐                   │
+│    │Subscription   │    │ Entitlement      │  ← NEW            │
+│    │Storage        │    │ State            │                    │
+│    └───────────────┘    └──────────────────┘                    │
+│    - firstInstallDate   - TRIAL                                 │
+│    - purchaseDate       - SUBSCRIBED                            │
+│    - purchaseType       - TRIAL_EXPIRED                         │
+│    - isSubscribed       - SUBSCRIPTION_EXPIRED                  │
+│    - expirationDate     - NONE                                  │
+│                                                                   │
 └──────────────────────┼───────────────────────────────────────────┘
                        │
          ┌─────────────┴─────────────┐
@@ -44,6 +81,7 @@
 │                    │     │                    │
 │ IosSubscription    │     │ AndroidSubscription│
 │ Manager            │     │ Manager            │
+│ + Storage          │     │ + Storage          │
 │                    │     │                    │
 │ Maps PayPlan to:   │     │ Uses BillingHelper │
 │ - ios_yearly_      │     │                    │
