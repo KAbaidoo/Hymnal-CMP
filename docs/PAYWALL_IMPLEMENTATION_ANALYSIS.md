@@ -357,9 +357,15 @@ const val ONETIME_SUBSCRIPTION_ID = "ios_onetime_subscription"
 ```
 
 #### One-Time Purchase Products
-Currently, both plans (Yearly and OneTime) use subscription products. For true one-time purchase:
-- iOS: Use `ONETIME_SUBSCRIPTION_ID` as consumable or non-consumable
-- Android: Would need separate product ID configured as one-time purchase
+The `ios_onetime_subscription` product represents a **non-consumable one-time purchase** - users pay once and own it forever:
+- iOS: Configure as **non-consumable** in App Store Connect
+- Android: Currently uses same subscription product ID, but should ideally be configured as a separate one-time purchase product
+- **Important**: One-time purchases never expire and grant lifetime access
+
+The system correctly handles one-time purchases:
+- No expiration date checking for `PurchaseType.ONE_TIME_PURCHASE`
+- Remains in `SUBSCRIBED` state indefinitely
+- Restored via platform mechanisms like any other purchase
 
 ### Purchase Flow
 

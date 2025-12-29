@@ -147,8 +147,10 @@ fun MyFeature() {
 | `TRIAL` | ✅ | ❌ | Within 30 days of first install |
 | `SUBSCRIBED` | ✅ | ❌ | Active purchase |
 | `TRIAL_EXPIRED` | ❌ | ✅ | Trial period ended |
-| `SUBSCRIPTION_EXPIRED` | ❌ | ✅ | Subscription lapsed |
+| `SUBSCRIPTION_EXPIRED` | ❌ | ✅ | Renewable subscription lapsed (yearly only) |
 | `NONE` | ❌ | ✅ | No trial or purchase |
+
+**Important Note:** One-time purchases (`ios_onetime_subscription`) **never expire** and remain in `SUBSCRIBED` state forever.
 
 ## 💳 Product IDs
 
@@ -156,8 +158,15 @@ fun MyFeature() {
 - `premium_subscription` - Subscription product (used for all plans)
 
 ### iOS (App Store Connect)
-- `ios_yearly_subscription` - Yearly subscription
-- `ios_onetime_subscription` - One-time purchase
+- `ios_yearly_subscription` - Yearly renewable subscription
+- `ios_onetime_subscription` - **One-time purchase (non-consumable) - lifetime access**
+
+**One-Time Purchase Details:**
+- Configure as **non-consumable** in App Store Connect
+- User pays once and owns it forever
+- Never expires, no renewal needed
+- Treated as `PurchaseType.ONE_TIME_PURCHASE` in code
+- Remains in `SUBSCRIBED` state indefinitely
 
 ## 🔒 Feature Gating
 

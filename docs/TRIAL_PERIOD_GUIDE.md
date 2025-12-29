@@ -31,10 +31,38 @@ The system uses five distinct states:
 | State | Description | Has Access | Shows Paywall |
 |-------|-------------|-----------|---------------|
 | `TRIAL` | Within 30-day trial period | ✅ Yes | ❌ No |
-| `SUBSCRIBED` | Active subscription or purchase | ✅ Yes | ❌ No |
+| `SUBSCRIBED` | Active subscription or one-time purchase | ✅ Yes | ❌ No |
 | `TRIAL_EXPIRED` | Trial ended, no purchase | ❌ No | ✅ Yes |
-| `SUBSCRIPTION_EXPIRED` | Renewable subscription expired | ❌ No | ✅ Yes |
+| `SUBSCRIPTION_EXPIRED` | Renewable subscription expired (yearly only) | ❌ No | ✅ Yes |
 | `NONE` | Fresh install, no trial started | ❌ No | ✅ Yes |
+
+**Important:** `SUBSCRIBED` state includes both:
+- **Renewable subscriptions** (yearly) - can expire if not renewed
+- **One-time purchases** - **never expire**, lifetime access
+
+### Purchase Types
+
+The system distinguishes between two purchase types:
+
+| Purchase Type | Description | Expiration |
+|---------------|-------------|------------|
+| `YEARLY_SUBSCRIPTION` | Renewable yearly subscription | Checks expiration date |
+| `ONE_TIME_PURCHASE` | One-time payment, lifetime access | **Never expires** |
+
+**Key Logic:**
+```kotlin
+// One-time purchases never expire
+if (purchaseType == PurchaseType.ONE_TIME_PURCHASE) {
+    return EntitlementState.SUBSCRIBED  // Always
+}
+
+// Renewable subscriptions check expiration
+expirationDate?.let { expiration ->
+    if (currentTime > expiration) {
+        return EntitlementState.SUBSCRIPTION_EXPIRED
+    }
+}
+```
 
 ## Implementation Details
 

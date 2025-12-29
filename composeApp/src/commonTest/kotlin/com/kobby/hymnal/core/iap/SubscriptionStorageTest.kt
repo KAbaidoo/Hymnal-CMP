@@ -216,6 +216,40 @@ class SubscriptionStorageTest {
     }
 
     @Test
+    fun `getEntitlementState returns SUBSCRIBED for one-time purchase even with past expiration date`() = runTest {
+        // Given
+        val storage = createTestStorage()
+        val yesterday = System.currentTimeMillis() - SubscriptionStorage.MILLIS_PER_DAY
+        storage.recordPurchase(
+            productId = "test_onetime",
+            purchaseType = PurchaseType.ONE_TIME_PURCHASE,
+            expirationTimestamp = yesterday  // Should be ignored for one-time purchases
+        )
+        
+        // When
+        val state = storage.getEntitlementState()
+        
+        // Then
+        assertEquals(EntitlementState.SUBSCRIBED, state)
+    }
+
+    @Test
+    fun `getEntitlementState returns SUBSCRIBED for one-time purchase without expiration date`() = runTest {
+        // Given
+        val storage = createTestStorage()
+        storage.recordPurchase(
+            productId = "test_onetime",
+            purchaseType = PurchaseType.ONE_TIME_PURCHASE
+        )
+        
+        // When
+        val state = storage.getEntitlementState()
+        
+        // Then
+        assertEquals(EntitlementState.SUBSCRIBED, state)
+    }
+
+    @Test
     fun `getEntitlementState returns NONE for fresh install`() = runTest {
         // Given
         val storage = createTestStorage()

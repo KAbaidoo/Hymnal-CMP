@@ -11,6 +11,7 @@ enum class EntitlementState {
     
     /**
      * User has an active subscription or one-time purchase.
+     * Note: One-time purchases (PurchaseType.ONE_TIME_PURCHASE) remain in this state forever.
      */
     SUBSCRIBED,
     
@@ -20,7 +21,9 @@ enum class EntitlementState {
     TRIAL_EXPIRED,
     
     /**
-     * User's subscription has expired (for renewable subscriptions).
+     * User's renewable subscription has expired.
+     * Note: This only applies to renewable subscriptions (PurchaseType.YEARLY_SUBSCRIPTION),
+     * not one-time purchases which never expire.
      */
     SUBSCRIPTION_EXPIRED,
     

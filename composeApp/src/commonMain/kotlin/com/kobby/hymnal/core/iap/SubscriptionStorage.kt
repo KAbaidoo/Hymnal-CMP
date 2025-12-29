@@ -174,9 +174,14 @@ class SubscriptionStorage(private val settings: Settings) {
     fun getEntitlementState(): EntitlementState {
         val currentTime = System.currentTimeMillis()
         
-        // Check if user has active subscription
+        // Check if user has active subscription or one-time purchase
         if (isSubscribed) {
-            // Check if subscription has expired (for renewable subscriptions)
+            // One-time purchases never expire
+            if (purchaseType == PurchaseType.ONE_TIME_PURCHASE) {
+                return EntitlementState.SUBSCRIBED
+            }
+            
+            // For renewable subscriptions, check if expired
             expirationDate?.let { expiration ->
                 if (currentTime > expiration) {
                     return EntitlementState.SUBSCRIPTION_EXPIRED
