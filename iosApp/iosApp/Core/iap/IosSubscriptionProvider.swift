@@ -12,8 +12,8 @@ import StoreKit
 import UIKit
 
 class IosSubscriptionProvider: NSObject, NativeSubscriptionProvider, SKProductsRequestDelegate, SKPaymentTransactionObserver {
-    let YEARLY_SUBSCRIPTION_ID = "ios_yearly_subscription"
-    let ONETIME_PURCHASE_ID = "ios_onetime_purchase"
+    let YEARLY_SUBSCRIPTION_ID = "yearly_subscription"
+    let ONETIME_PURCHASE_ID = "onetime_purchase"
 
     var products: [SKProduct] = []
     

@@ -11,8 +11,8 @@ class IosSubscriptionManager(
 ) : SubscriptionManager {
 
     companion object {
-        const val YEARLY_SUBSCRIPTION_ID = "ios_yearly_subscription"
-        const val ONETIME_PURCHASE_ID = "ios_onetime_purchase"
+        const val YEARLY_SUBSCRIPTION_ID = "yearly_subscription"
+        const val ONETIME_PURCHASE_ID = "onetime_purchase"
     }
     
     private val _entitlementState = MutableStateFlow(storage.getEntitlementInfo())

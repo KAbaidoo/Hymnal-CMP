@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import com.android.billingclient.api.BillingClient
 import com.kobby.hymnal.presentation.screens.settings.PayPlan
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,7 +29,11 @@ class AndroidSubscriptionManager(
 
     override fun purchaseSubscription(plan: PayPlan, callback: (Boolean) -> Unit) {
         (context as? Activity)?.let { activity ->
-            billingHelper.purchaseSubscription(activity) { success ->
+            val (productId, productType) = when (plan) {
+                PayPlan.Yearly -> billingHelper.YEARLY_SUBSCRIPTION to BillingClient.ProductType.SUBS
+                PayPlan.OneTime -> billingHelper.ONETIME_PURCHASE to BillingClient.ProductType.INAPP
+            }
+            billingHelper.purchaseProduct(productId, productType, activity) { success ->
                 if (success) {
                     // Record purchase in storage
                     val purchaseType = when (plan) {
@@ -36,7 +41,7 @@ class AndroidSubscriptionManager(
                         PayPlan.OneTime -> PurchaseType.ONE_TIME_PURCHASE
                     }
                     storage.recordPurchase(
-                        productId = billingHelper.PREMIUM,
+                        productId = productId,
                         purchaseType = purchaseType
                     )
                     refreshEntitlementState()

@@ -25,7 +25,7 @@
           "locale" : "en_US"
         }
       ],
-      "productID" : "ios_onetime_purchase",
+      "productID" : "onetime_purchase",
       "referenceName" : "One-time Payment",
       "type" : "NonConsumable"
     }
@@ -71,7 +71,7 @@
               "locale" : "en_US"
             }
           ],
-          "productID" : "ios_yearly_subscription",
+          "productID" : "yearly_subscription",
           "recurringSubscriptionPeriod" : "P1Y",
           "referenceName" : "Annual Subscription",
           "subscriptionGroupID" : "115609E8",
