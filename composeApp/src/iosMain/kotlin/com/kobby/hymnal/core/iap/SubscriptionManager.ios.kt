@@ -1,10 +1,10 @@
-
 package com.kobby.hymnal.core.iap
 
 import com.kobby.hymnal.presentation.screens.settings.PayPlan
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.datetime.Clock
 
 class IosSubscriptionManager(
     private val storage: SubscriptionStorage
@@ -60,8 +60,8 @@ class IosSubscriptionManager(
         nativeSubscriptionProvider?.isUserSubscribed { isSubscribed ->
             // Update storage with current state
             storage.isSubscribed = isSubscribed
-            storage.lastVerificationTime = System.currentTimeMillis()
-            
+            storage.lastVerificationTime = Clock.System.now().toEpochMilliseconds()
+
             // Check if user has access (either subscribed or in trial)
             val hasAccess = isSubscribed || storage.isTrialActive()
             refreshEntitlementState()

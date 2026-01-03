@@ -9,6 +9,7 @@ import com.kobby.hymnal.presentation.screens.settings.PayPlan
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.datetime.Clock
 
 class AndroidSubscriptionManager(
     private val context: Context,
@@ -55,8 +56,8 @@ class AndroidSubscriptionManager(
         billingHelper.checkSubscriptionStatus { isSubscribed ->
             // Update storage with current state
             storage.isSubscribed = isSubscribed
-            storage.lastVerificationTime = System.currentTimeMillis()
-            
+            storage.lastVerificationTime = Clock.System.now().toEpochMilliseconds()
+
             // Check if user has access (either subscribed or in trial)
             val hasAccess = isSubscribed || storage.isTrialActive()
             refreshEntitlementState()
@@ -78,7 +79,7 @@ class AndroidSubscriptionManager(
             if (isSubscribed) {
                 // User has active subscription, update storage
                 storage.isSubscribed = true
-                storage.lastVerificationTime = System.currentTimeMillis()
+                storage.lastVerificationTime = Clock.System.now().toEpochMilliseconds()
                 refreshEntitlementState()
                 callback(true)
             } else {
