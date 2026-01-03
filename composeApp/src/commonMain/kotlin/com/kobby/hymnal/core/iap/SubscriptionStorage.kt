@@ -1,8 +1,7 @@
 package com.kobby.hymnal.core.iap
 
 import com.russhwolf.settings.Settings
-import com.russhwolf.settings.get
-import com.russhwolf.settings.set
+import kotlinx.datetime.Clock
 
 /**
  * Manages persistent storage of subscription and trial data.
@@ -61,7 +60,7 @@ class SubscriptionStorage(private val settings: Settings) {
      * Get or set the product ID of the active purchase.
      */
     var productId: String?
-        get() = settings.getString(KEY_PRODUCT_ID, null)
+        get() = settings.getString(KEY_PRODUCT_ID, "")
         set(value) {
             if (value != null) {
                 settings.putString(KEY_PRODUCT_ID, value)
@@ -100,7 +99,7 @@ class SubscriptionStorage(private val settings: Settings) {
      */
     fun initializeFirstInstallIfNeeded() {
         if (firstInstallDate == 0L) {
-            firstInstallDate = System.currentTimeMillis()
+            firstInstallDate = Clock.System.now().toEpochMilliseconds()
         }
     }
     
@@ -112,7 +111,7 @@ class SubscriptionStorage(private val settings: Settings) {
         if (isSubscribed) return null
         if (firstInstallDate == 0L) return null
         
-        val currentTime = System.currentTimeMillis()
+        val currentTime = Clock.System.now().toEpochMilliseconds()
         val daysSinceInstall = (currentTime - firstInstallDate) / MILLIS_PER_DAY
         val daysRemaining = TRIAL_DURATION_DAYS - daysSinceInstall.toInt()
         
@@ -133,7 +132,7 @@ class SubscriptionStorage(private val settings: Settings) {
     fun recordPurchase(
         productId: String,
         purchaseType: PurchaseType,
-        purchaseTimestamp: Long = System.currentTimeMillis(),
+        purchaseTimestamp: Long = Clock.System.now().toEpochMilliseconds(),
         expirationTimestamp: Long? = null
     ) {
         this.productId = productId
@@ -141,7 +140,7 @@ class SubscriptionStorage(private val settings: Settings) {
         this.purchaseDate = purchaseTimestamp
         this.expirationDate = expirationTimestamp
         this.isSubscribed = true
-        this.lastVerificationTime = System.currentTimeMillis()
+        this.lastVerificationTime = Clock.System.now().toEpochMilliseconds()
     }
     
     /**
@@ -172,8 +171,8 @@ class SubscriptionStorage(private val settings: Settings) {
      * Get current entitlement state based on stored data and current time.
      */
     fun getEntitlementState(): EntitlementState {
-        val currentTime = System.currentTimeMillis()
-        
+        val currentTime = Clock.System.now().toEpochMilliseconds()
+
         // Check if user has active subscription or one-time purchase
         if (isSubscribed) {
             // One-time purchases never expire

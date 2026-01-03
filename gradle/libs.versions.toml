@@ -17,6 +17,7 @@ coreSplashscreen = "1.0.1"
 voyager = "1.1.0-beta02"
 junit = "4.13.2"
 kotlin = "2.2.21"
+kotlinx-datetime = "0.6.1"
 multiplatform-settings = "1.1.1"
 uiTooling = "1.7.3"
 tool-chain-resolver = "0.9.0"
@@ -62,6 +63,7 @@ sqldelight-android = { module = "app.cash.sqldelight:android-driver", version.re
 sqldelight-ios = { module = "app.cash.sqldelight:native-driver", version.ref = "sqldelight" }
 sqldelight-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
 sqldelight-jvm = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

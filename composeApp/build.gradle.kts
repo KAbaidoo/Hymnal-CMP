@@ -63,6 +63,7 @@ kotlin {
             implementation(libs.multiplatform.settings)
             implementation(libs.multiplatform.settings.noargs)
             implementation(libs.sqldelight.coroutines)
+            implementation(libs.kotlinx.datetime)
 
             implementation(project.dependencies.platform(libs.koin.bom))
             api(libs.koin.core)
