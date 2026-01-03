@@ -3,6 +3,11 @@ package com.kobby.hymnal.presentation.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowForward
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Minimize
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -12,14 +17,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kobby.hymnal.presentation.screens.settings.PayWallContent
+import com.kobby.hymnal.theme.HymnalAppTheme
 import com.kobby.hymnal.theme.Shapes
 import hymnal_cmp.composeapp.generated.resources.Res
+import hymnal_cmp.composeapp.generated.resources.arrow_left_s_line
+import hymnal_cmp.composeapp.generated.resources.cd_back
+import hymnal_cmp.composeapp.generated.resources.cd_get_started
+import hymnal_cmp.composeapp.generated.resources.cd_home
 import hymnal_cmp.composeapp.generated.resources.fonts_settings
 import hymnal_cmp.composeapp.generated.resources.close
 import hymnal_cmp.composeapp.generated.resources.font_decrease
 import hymnal_cmp.composeapp.generated.resources.font_increase
 import hymnal_cmp.composeapp.generated.resources.font
+import hymnal_cmp.composeapp.generated.resources.home_3_line
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,11 +78,10 @@ fun FontSettingsBottomSheet(
                     .background(containerColor), 
                 onClick = onDismiss 
             ) {
-                Text(
-                    text = stringResource(Res.string.close),
-                    fontSize = 16.sp,
-                    color = fontColor,
-                    fontWeight = FontWeight.Normal
+                Icon(
+                    imageVector = Icons.Outlined.Close,
+                    contentDescription = stringResource(Res.string.close),
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
@@ -91,11 +104,13 @@ fun FontSettingsBottomSheet(
                     containerColor = containerColor
                 )
             ) {
-                Text(
-                    text = stringResource(Res.string.font_decrease),
-                    color = fontColor,
-                    fontWeight = FontWeight.Medium
-                )
+                    Text(
+                        text = "A-",
+                        color = fontColor,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 12.sp
+                    )
+
             }
             
             // Increase font size button
@@ -110,9 +125,10 @@ fun FontSettingsBottomSheet(
                 )
             ) {
                 Text(
-                    text = stringResource(Res.string.font_increase),
+                    text = "A+",
                     color = fontColor,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 16.sp
                 )
             }
         }
@@ -194,4 +210,17 @@ fun FontSettingsModal(
             )
         }
     }
+}
+
+@Composable
+@Preview
+fun FontSettingsBottomSheetPreview() {
+    HymnalAppTheme {
+        FontSettingsBottomSheet(
+            onDismiss = {},
+            onFontSizeChange = {},
+            onFontChange = {}
+        )
+    }
+    // This function is just a placeholder to avoid errors in preview tools.
 }
