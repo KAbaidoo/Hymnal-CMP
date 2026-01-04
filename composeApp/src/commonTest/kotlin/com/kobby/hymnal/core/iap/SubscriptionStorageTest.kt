@@ -53,31 +53,33 @@ class SubscriptionStorageTest {
         
         // Then
         assertNotNull(daysRemaining)
-        assertEquals(30, daysRemaining)
+        assertEquals(SubscriptionStorage.TRIAL_DURATION_DAYS, daysRemaining)
     }
 
     @Test
-    fun `getTrialDaysRemaining returns correct value for install 15 days ago`() = runTest {
+    fun `getTrialDaysRemaining returns correct value for mid-trial install`() = runTest {
         // Given
         val storage = createTestStorage()
-        val fifteenDaysAgo = Clock.System.now().toEpochMilliseconds() - (15 * SubscriptionStorage.MILLIS_PER_DAY)
-        storage.firstInstallDate = fifteenDaysAgo
-        
+        // Use half of trial duration (rounded down) to verify remaining calculation
+        val half = SubscriptionStorage.TRIAL_DURATION_DAYS / 2
+        val daysAgo = Clock.System.now().toEpochMilliseconds() - (half * SubscriptionStorage.MILLIS_PER_DAY)
+        storage.firstInstallDate = daysAgo
+
         // When
         val daysRemaining = storage.getTrialDaysRemaining()
         
         // Then
         assertNotNull(daysRemaining)
-        assertEquals(15, daysRemaining)
+        assertEquals(SubscriptionStorage.TRIAL_DURATION_DAYS - half, daysRemaining)
     }
 
     @Test
     fun `getTrialDaysRemaining returns 0 for expired trial`() = runTest {
         // Given
         val storage = createTestStorage()
-        val fortyDaysAgo = Clock.System.now().toEpochMilliseconds() - (40 * SubscriptionStorage.MILLIS_PER_DAY)
-        storage.firstInstallDate = fortyDaysAgo
-        
+        val expiredAgo = Clock.System.now().toEpochMilliseconds() - ((SubscriptionStorage.TRIAL_DURATION_DAYS + 10) * SubscriptionStorage.MILLIS_PER_DAY)
+        storage.firstInstallDate = expiredAgo
+
         // When
         val daysRemaining = storage.getTrialDaysRemaining()
         
@@ -114,9 +116,9 @@ class SubscriptionStorageTest {
     fun `isTrialActive returns false for expired trial`() = runTest {
         // Given
         val storage = createTestStorage()
-        val fortyDaysAgo = Clock.System.now().toEpochMilliseconds() - (40 * SubscriptionStorage.MILLIS_PER_DAY)
-        storage.firstInstallDate = fortyDaysAgo
-        
+        val expiredAgo = Clock.System.now().toEpochMilliseconds() - ((SubscriptionStorage.TRIAL_DURATION_DAYS + 10) * SubscriptionStorage.MILLIS_PER_DAY)
+        storage.firstInstallDate = expiredAgo
+
         // When & Then
         assertFalse(storage.isTrialActive())
     }
@@ -175,9 +177,9 @@ class SubscriptionStorageTest {
     fun `getEntitlementState returns TRIAL_EXPIRED for expired trial`() = runTest {
         // Given
         val storage = createTestStorage()
-        val fortyDaysAgo = Clock.System.now().toEpochMilliseconds() - (40 * SubscriptionStorage.MILLIS_PER_DAY)
-        storage.firstInstallDate = fortyDaysAgo
-        
+        val expiredAgo = Clock.System.now().toEpochMilliseconds() - ((SubscriptionStorage.TRIAL_DURATION_DAYS + 10) * SubscriptionStorage.MILLIS_PER_DAY)
+        storage.firstInstallDate = expiredAgo
+
         // When
         val state = storage.getEntitlementState()
         
@@ -276,7 +278,7 @@ class SubscriptionStorageTest {
         assertTrue(info.hasAccess)
         assertTrue(info.isInTrial)
         assertFalse(info.needsPaywall)
-        assertEquals(30, info.trialDaysRemaining)
+        assertEquals(SubscriptionStorage.TRIAL_DURATION_DAYS, info.trialDaysRemaining)
     }
 
     @Test
@@ -309,9 +311,9 @@ class SubscriptionStorageTest {
     fun `hasAccess is false for expired trial`() = runTest {
         // Given
         val storage = createTestStorage()
-        val fortyDaysAgo = Clock.System.now().toEpochMilliseconds() - (40 * SubscriptionStorage.MILLIS_PER_DAY)
-        storage.firstInstallDate = fortyDaysAgo
-        
+        val expiredAgo = Clock.System.now().toEpochMilliseconds() - ((SubscriptionStorage.TRIAL_DURATION_DAYS + 10) * SubscriptionStorage.MILLIS_PER_DAY)
+        storage.firstInstallDate = expiredAgo
+
         // When
         val info = storage.getEntitlementInfo()
         
@@ -442,16 +444,17 @@ class SubscriptionStorageTest {
     fun `getTrialDaysRemaining accounts for partial days correctly`() = runTest {
         // Given
         val storage = createTestStorage()
-        // Set to 14.5 days ago
-        val timeAgo = Clock.System.now().toEpochMilliseconds() - (14 * SubscriptionStorage.MILLIS_PER_DAY + SubscriptionStorage.MILLIS_PER_DAY / 2)
+        // For partial-day behavior test use half of trial duration plus half a day
+        val half = SubscriptionStorage.TRIAL_DURATION_DAYS / 2
+        val timeAgo = Clock.System.now().toEpochMilliseconds() - (half * SubscriptionStorage.MILLIS_PER_DAY + SubscriptionStorage.MILLIS_PER_DAY / 2)
         storage.firstInstallDate = timeAgo
 
         // When
         val daysRemaining = storage.getTrialDaysRemaining()
 
-        // Then - should round down to 15 days remaining
+        // Then - should round down appropriately
         assertNotNull(daysRemaining)
-        assertEquals(15, daysRemaining)
+        assertEquals(SubscriptionStorage.TRIAL_DURATION_DAYS - half, daysRemaining)
     }
 
     @Test

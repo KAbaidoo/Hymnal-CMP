@@ -1,7 +1,7 @@
 # Subscription Module Architecture (Updated)
 
 **Latest Changes:**
-- ✅ Trial period tracking (30-day window)
+- ✅ Trial period tracking (7-day window)
 - ✅ Entitlement state management
 - ✅ Restore purchases functionality
 - ✅ Persistent storage for trial and purchase data
@@ -244,4 +244,3 @@ enum class PurchaseType {
 - Checked on app launch
 - Cached in platform-specific storage
 - Can be refreshed anytime via `isUserSubscribed()`
-

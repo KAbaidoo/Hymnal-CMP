@@ -3,7 +3,7 @@
 ## Overview
 
 The Hymnal app now includes a comprehensive subscription and paywall system with:
-- **30-day free trial** for all new users
+- **7-day free trial** for all new users
 - **Entitlement management** with 5 distinct states
 - **Restore purchases** functionality for reinstalls
 - **Feature gating** composables for easy integration
@@ -15,7 +15,7 @@ The Hymnal app now includes a comprehensive subscription and paywall system with
 - **[PAYWALL_IMPLEMENTATION_SUMMARY.md](./PAYWALL_IMPLEMENTATION_SUMMARY.md)** - Start here! Executive summary with quick examples
 
 ### Implementation Guides
-- **[TRIAL_PERIOD_GUIDE.md](./TRIAL_PERIOD_GUIDE.md)** - How the 30-day trial works, edge cases, testing
+- **[TRIAL_PERIOD_GUIDE.md](./TRIAL_PERIOD_GUIDE.md)** - How the 7-day trial works, edge cases, testing
 - **[FEATURE_GATING_USAGE_GUIDE.md](./FEATURE_GATING_USAGE_GUIDE.md)** - Code examples for developers
 
 ### Technical Reference
@@ -93,11 +93,11 @@ fun MyFeature() {
 ## 📱 For End Users
 
 ### New Install Experience
-1. **Install app** → Automatically starts 30-day free trial
+1. **Install app** → Automatically starts 7-day free trial
 2. **Access all features** during trial period
 3. **See countdown** in paywall showing days remaining
 4. **Purchase anytime** to convert to paid subscription
-5. **After 30 days** → Paywall appears when accessing premium features
+5. **After 7 days** → Paywall appears when accessing premium features
 
 ### Reinstall Experience
 1. **Reinstall app** → Trial period preserved from original install
@@ -144,7 +144,7 @@ fun MyFeature() {
 
 | State | Has Access | Shows Paywall | Description |
 |-------|-----------|---------------|-------------|
-| `TRIAL` | ✅ | ❌ | Within 30 days of first install |
+| `TRIAL` | ✅ | ❌ | Within 7 days of first install |
 | `SUBSCRIBED` | ✅ | ❌ | Active purchase |
 | `TRIAL_EXPIRED` | ❌ | ✅ | Trial period ended |
 | `SUBSCRIPTION_EXPIRED` | ❌ | ✅ | Renewable subscription lapsed (yearly only) |
@@ -220,7 +220,7 @@ CheckPremiumAccess(
 See [TRIAL_PERIOD_GUIDE.md](./TRIAL_PERIOD_GUIDE.md) for complete testing guide.
 
 **Quick scenarios:**
-1. Fresh install → Verify 30-day trial
+1. Fresh install → Verify 7-day trial
 2. Reinstall during trial → Verify trial continues
 3. Reinstall after trial → Verify trial expired
 4. Purchase → Verify features unlock
@@ -256,7 +256,7 @@ See [TRIAL_PERIOD_GUIDE.md](./TRIAL_PERIOD_GUIDE.md) for complete testing guide.
 
 Once in production, monitor:
 - **Trial adoption rate** - % of installs that start trial
-- **Trial completion rate** - % that use all 30 days
+- **Trial completion rate** - % that use all 7 days
 - **Trial conversion rate** - % that purchase during/after trial
 - **Days to purchase** - How long users wait before buying
 - **Restore success rate** - % of restore attempts that succeed
@@ -273,7 +273,7 @@ Once in production, monitor:
 5. User accesses premium feature
 6. PremiumFeatureGate checks hasAccess = true
 7. Premium feature shown
-8. (After 30 days)
+8. (After 7 days)
 9. EntitlementState = TRIAL_EXPIRED
 10. PremiumFeatureGate navigates to PayWallScreen
 11. User purchases

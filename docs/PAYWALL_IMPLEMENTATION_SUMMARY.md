@@ -3,7 +3,7 @@
 ## What Was Delivered
 
 A **complete enhancement** of the subscription and paywall system with:
-- ✅ **30-day trial period** tracking
+- ✅ **7-day trial period** tracking
 - ✅ **Entitlement state management** system
 - ✅ **Restore purchases** functionality (iOS & Android)
 - ✅ **Feature gating** composables for easy integration
@@ -15,10 +15,10 @@ A **complete enhancement** of the subscription and paywall system with:
 ### For Users
 
 **New User Experience:**
-1. User installs app → Gets 30-day free trial automatically
+1. User installs app → Gets 7-day free trial automatically
 2. Premium features are unlocked during trial
 3. Trial countdown shown in paywall header
-4. After 30 days, paywall appears when accessing premium features
+4. After 7 days, paywall appears when accessing premium features
 
 **Reinstall Experience:**
 1. User reinstalls app → Trial period preserved from original install
@@ -58,7 +58,7 @@ User Installs App
     ↓
 initialize() called
     ↓
-firstInstallDate stored → Trial begins (30 days)
+firstInstallDate stored → Trial begins (7 days)
     ↓
 User accesses premium feature
     ↓
@@ -84,7 +84,7 @@ All data persists in platform-native storage:
 
 | State | Has Access | Description |
 |-------|-----------|-------------|
-| `TRIAL` | ✅ | Within 30 days of first install |
+| `TRIAL` | ✅ | Within 7 days of first install |
 | `SUBSCRIBED` | ✅ | Active purchase |
 | `TRIAL_EXPIRED` | ❌ | Trial ended, no purchase |
 | `SUBSCRIPTION_EXPIRED` | ❌ | Subscription lapsed |
@@ -96,7 +96,7 @@ All data persists in platform-native storage:
 
 **How it works:**
 - Stored: `firstInstallDate` timestamp
-- Calculated: `daysRemaining = 30 - (now - firstInstallDate) / MILLIS_PER_DAY`
+- Calculated: `daysRemaining = 7 - (now - firstInstallDate) / MILLIS_PER_DAY`
 - Persistent: Survives app reinstalls
 
 **Edge Cases Handled:**
@@ -191,20 +191,20 @@ CheckPremiumAccess(
 
 **1. Fresh Install**
 ```
-Expected: 30-day trial starts automatically
-Test: Check entitlementInfo.trialDaysRemaining == 30
+Expected: 7-day trial starts automatically
+Test: Check entitlementInfo.trialDaysRemaining == 7
 ```
 
 **2. Mid-Trial**
 ```
 Expected: Trial countdown decreases daily
-Test: Set firstInstallDate to 15 days ago, verify shows 15 days
+Test: Set firstInstallDate to 3 days ago, verify shows 4 days
 ```
 
 **3. Trial Expiry**
 ```
 Expected: Paywall appears, features locked
-Test: Set firstInstallDate to 40 days ago
+Test: Set firstInstallDate to 20 days ago
 ```
 
 **4. Purchase**
@@ -320,7 +320,7 @@ For questions or issues:
 
 Once in production, track:
 - Trial start rate (% of installs that start trial)
-- Trial completion rate (% that use all 30 days)
+- Trial completion rate (% that use all 7 days)
 - Trial conversion rate (% that purchase)
 - Restore success rate
 - Days to purchase (how long into trial users buy)

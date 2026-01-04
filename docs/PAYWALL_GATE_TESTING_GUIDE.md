@@ -10,7 +10,7 @@ The PayWall gate has been successfully implemented. Here's how to test it:
 **Expected Behavior:**
 - ✅ App launches → StartScreen appears (splash with random hymn)
 - ✅ After 6 seconds → Auto-navigate to HomeScreen
-- ✅ Trial banner visible at top: "30 days left in trial | Upgrade Now"
+- ✅ Trial banner visible at top: "7 days left in trial | Upgrade Now"
 - ✅ All features accessible (hymns, favorites, search, etc.)
 - ✅ Click trial banner → Navigate to PayWall
 
@@ -32,15 +32,15 @@ adb shell pm clear com.kobby.hymnal
 **How to Test:**
 You can't easily simulate this without modifying the trial duration. Options:
 1. **Change trial duration** (for testing only):
-   - Edit `SubscriptionStorage.kt` → Change `TRIAL_DURATION_DAYS = 30` to `0`
+   - Edit `SubscriptionStorage.kt` → Change `TRIAL_DURATION_DAYS = 7` to `0`
    - Rebuild app
    - Clear app data and launch
 
 2. **Modify device date** (may not work due to validation):
-   - Set device date forward by 31+ days
+   - Set device date forward by 8+ days
    - Launch app (may be detected as invalid)
 
-3. **Wait 30 days** (production testing)
+3. **Wait 7 days** (production testing)
 
 ### 3. After Purchase
 **Expected Behavior:**
@@ -114,7 +114,7 @@ if (entitlementInfo.isInTrial) {
 ┌─────────────────────────────────────┐
 │  HomeScreen                         │
 │  ┌─────────────────────────────┐   │
-│  │ 25 days left | Upgrade Now  │ ← TRIAL BANNER
+│  │ 2 days left | Upgrade Now   │ ← TRIAL BANNER
 │  └─────────────────────────────┘   │
 │  Find your hymns card               │
 │  - Ancient & Modern                 │
@@ -169,7 +169,7 @@ adb logcat | grep -i "subscription\|entitlement\|trial"
 ### Issue: Trial banner doesn't show
 **Check:**
 - Is `entitlementInfo.isInTrial` true?
-- Is trial period active (< 30 days since install)?
+- Is trial period active (< 7 days since install)?
 - Is `firstInstallDate` set in storage?
 
 ### Issue: PayWall doesn't appear after trial
@@ -204,4 +204,3 @@ For more details, see:
 
 **Status**: ✅ Ready for testing  
 **Last Updated**: January 4, 2026
-

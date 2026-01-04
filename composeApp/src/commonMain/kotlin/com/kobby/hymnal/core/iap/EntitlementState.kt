@@ -5,7 +5,7 @@ package com.kobby.hymnal.core.iap
  */
 enum class EntitlementState {
     /**
-     * User is within the 30-day trial period and has not purchased.
+     * User is within the 7-day trial period and has not purchased.
      */
     TRIAL,
     

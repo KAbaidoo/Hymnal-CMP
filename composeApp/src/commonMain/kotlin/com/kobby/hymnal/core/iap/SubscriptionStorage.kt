@@ -20,7 +20,7 @@ class SubscriptionStorage(private val settings: Settings) {
         private const val KEY_LAST_VERIFICATION_TIME = "subscription_last_verification_time"
         
         // Trial period constants
-        const val TRIAL_DURATION_DAYS = 30
+        const val TRIAL_DURATION_DAYS = 7
         const val MILLIS_PER_DAY = 24 * 60 * 60 * 1000L
     }
     
@@ -50,7 +50,7 @@ class SubscriptionStorage(private val settings: Settings) {
             val value = settings.getString(KEY_PURCHASE_TYPE, PurchaseType.NONE.name)
             return try {
                 PurchaseType.valueOf(value)
-            } catch (e: IllegalArgumentException) {
+            } catch (_: IllegalArgumentException) {
                 PurchaseType.NONE
             }
         }
