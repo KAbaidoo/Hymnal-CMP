@@ -21,6 +21,10 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import com.kobby.hymnal.core.iap.CheckPremiumAccess
+import com.kobby.hymnal.core.iap.SubscriptionManager
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowForward
 import androidx.compose.material.icons.outlined.Search
@@ -50,12 +54,15 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.presentation.components.CategoryButtons
 import com.kobby.hymnal.presentation.components.ScreenBackground
 import com.kobby.hymnal.presentation.components.SemiTransparentCard
+import com.kobby.hymnal.presentation.components.TrialBanner
 import com.kobby.hymnal.presentation.screens.hymns.HymnListScreen
 import com.kobby.hymnal.core.database.HymnRepository
 import com.kobby.hymnal.presentation.screens.more.FavoritesScreen
 import com.kobby.hymnal.presentation.screens.more.MoreScreen
 import com.kobby.hymnal.presentation.screens.search.GlobalSearchScreen
+import com.kobby.hymnal.presentation.screens.settings.PayWallScreen
 import com.kobby.hymnal.test.TestHymnScreen
+import org.koin.compose.koinInject
 import com.kobby.hymnal.theme.Shapes
 import hymnal_cmp.composeapp.generated.resources.Res
 import hymnal_cmp.composeapp.generated.resources.book_open
@@ -79,9 +86,12 @@ class HomeScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val subscriptionManager: SubscriptionManager = koinInject()
         var isDeveloperMode by remember { mutableStateOf(false) }
-        
+        val entitlementInfo by subscriptionManager.entitlementState.collectAsState()
+
         HomeScreenContent(
+            entitlementInfo = entitlementInfo,
             onSearchClick = { navigator.push(GlobalSearchScreen()) },
             onAncientModernClick = { 
                 navigator.push(HymnListScreen(
@@ -115,6 +125,7 @@ class HomeScreen : Screen {
             onMoreClick = { navigator.push(MoreScreen()) },
             onMoreLongClick = { isDeveloperMode = !isDeveloperMode },
             onTestDatabaseClick = { navigator.push(TestHymnScreen()) },
+            onUpgradeClick = { navigator.push(PayWallScreen()) },
             isDeveloperMode = isDeveloperMode
         )
     }
@@ -123,6 +134,7 @@ class HomeScreen : Screen {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeScreenContent(
+    entitlementInfo: com.kobby.hymnal.core.iap.EntitlementInfo,
     onSearchClick: () -> Unit = {},
     onAncientModernClick: () -> Unit = {},
     onSupplementaryClick: () -> Unit = {},
@@ -132,6 +144,7 @@ private fun HomeScreenContent(
     onMoreClick: () -> Unit = {},
     onMoreLongClick: () -> Unit = {},
     onTestDatabaseClick: () -> Unit = {},
+    onUpgradeClick: () -> Unit = {},
     isDeveloperMode: Boolean = false
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -171,6 +184,15 @@ private fun HomeScreenContent(
                             .padding(vertical = 34.dp)
                             .fillMaxWidth()
                     ) {
+                        // Show trial banner if user is in trial period
+                        if (entitlementInfo.isInTrial) {
+                            TrialBanner(
+                                daysRemaining = entitlementInfo.trialDaysRemaining ?: 0,
+                                onUpgradeClick = onUpgradeClick
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+
                         SemiTransparentCard {
                             Text(
                                 text = stringResource(Res.string.find_your_hymns),

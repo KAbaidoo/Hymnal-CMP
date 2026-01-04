@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,22 +41,14 @@ import com.kobby.hymnal.theme.DarkTextColor
 import com.kobby.hymnal.theme.HymnalAppTheme
 import com.kobby.hymnal.theme.YellowAccent
 import hymnal_cmp.composeapp.generated.resources.Res
-import hymnal_cmp.composeapp.generated.resources.ai_generate
-import hymnal_cmp.composeapp.generated.resources.arrow_left_s_line
 import hymnal_cmp.composeapp.generated.resources.book_leaf
 import hymnal_cmp.composeapp.generated.resources.bookmark_line
 import hymnal_cmp.composeapp.generated.resources.close_circle_line
-import hymnal_cmp.composeapp.generated.resources.home_3_line
 import hymnal_cmp.composeapp.generated.resources.music_2_line
-import hymnal_cmp.composeapp.generated.resources.settings_action_continue
-import hymnal_cmp.composeapp.generated.resources.settings_action_maybe_later
 import hymnal_cmp.composeapp.generated.resources.settings_action_privacy
-import hymnal_cmp.composeapp.generated.resources.settings_action_processing
-import hymnal_cmp.composeapp.generated.resources.settings_action_restore
 import hymnal_cmp.composeapp.generated.resources.settings_action_terms
 import hymnal_cmp.composeapp.generated.resources.settings_feature_bookmarks
 import hymnal_cmp.composeapp.generated.resources.settings_feature_full_library
-import hymnal_cmp.composeapp.generated.resources.settings_feature_future_updates
 import hymnal_cmp.composeapp.generated.resources.settings_feature_no_ads
 import hymnal_cmp.composeapp.generated.resources.settings_feature_offline_access
 import hymnal_cmp.composeapp.generated.resources.settings_option_onetime_badge
@@ -69,6 +63,7 @@ import hymnal_cmp.composeapp.generated.resources.settings_section_shared_ministr
 import hymnal_cmp.composeapp.generated.resources.settings_separator_bullet
 import hymnal_cmp.composeapp.generated.resources.settings_subtitle_paywall
 import hymnal_cmp.composeapp.generated.resources.settings_title_paywall
+import hymnal_cmp.composeapp.generated.resources.trial_expired
 import hymnal_cmp.composeapp.generated.resources.wifi_off_line
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -87,42 +82,41 @@ fun PayWallContent(
     errorMsg: String? = null,
     successMsg: String? = null,
     trialDaysRemaining: Int? = null,
+    isDismissible: Boolean = true,
     onPurchase: (PayPlan) -> Unit = {},
     onRestore: () -> Unit = {},
-    onBackClick: () -> Unit = {},
-    onHomeClick: () -> Unit = {},
+    onCloseClick: () -> Unit = {},
     onPrivacy: () -> Unit = {},
     onTerms: () -> Unit = {}
 ) {
     var selectedPlan by remember { mutableStateOf(PayPlan.OneTime) }
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val topAppBarElementColor = MaterialTheme.colorScheme.secondary
+    // Add a content scroll state for the main content so bottom content can scroll when space is limited
+    val contentScrollState = rememberScrollState()
 
 
     Scaffold(
         topBar = {
-            Box {
+            Box(modifier = Modifier.height(220.dp)) {
                 TopAppBar(
                     title = {
 
 
                     },
                     navigationIcon = {
-                        IconButton(onClick = onBackClick) {
-                            Icon(
-                                modifier = Modifier.size(30.dp),
-                                imageVector = vectorResource(Res.drawable.arrow_left_s_line),
-                                contentDescription = null,
-                            )
-                        }
+
                     },
                     actions = {
-                        IconButton(onClick = onHomeClick) {
-                            Icon(
-                                modifier = Modifier.size(30.dp),
-                                imageVector = vectorResource(Res.drawable.home_3_line),
-                                contentDescription = null
-                            )
+                        // Only show close button when the paywall is dismissible
+                        if (isDismissible) {
+                            IconButton(onClick = onCloseClick) {
+                                Icon(
+                                    modifier = Modifier.size(30.dp),
+                                    imageVector = Icons.Outlined.Close,
+                                    contentDescription = null
+                                )
+                            }
                         }
                     },
                     colors = TopAppBarDefaults.largeTopAppBarColors(
@@ -134,14 +128,15 @@ fun PayWallContent(
                     )
                 )
                 Image(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .size(250.dp),
                     painter = painterResource(Res.drawable.book_leaf),
                     contentDescription = null,
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(250.dp)
+                        .align(Alignment.TopEnd)
                 )
-                PaywallHeader(trialDaysRemaining = trialDaysRemaining)
+                // pass isDismissible into header so it can show expired state
+                PaywallHeader(trialDaysRemaining = trialDaysRemaining, isDismissible = isDismissible)
 
             }
 
@@ -157,7 +152,6 @@ fun PayWallContent(
                 .background(MaterialTheme.colorScheme.primary)
         ) {
 
-//            PaywallHeader()
             // Content card
             Box(
                 modifier = Modifier
@@ -171,8 +165,10 @@ fun PayWallContent(
                         .background(MaterialTheme.colorScheme.background)
                 ) {
                     Column(
+                        // Make the inner column vertically scrollable and avoid fillMaxSize so it can scroll when content exceeds available space
                         modifier = Modifier
-                            .fillMaxSize()
+                            .verticalScroll(contentScrollState)
+                            .fillMaxWidth()
                             .padding(horizontal = 20.dp, vertical = 16.dp)
                     ) {
 
@@ -191,7 +187,7 @@ fun PayWallContent(
                                 color = MaterialTheme.colorScheme.error
                             )
                         }
-                        
+
                         if (successMsg != null) {
                             Spacer(Modifier.height(8.dp))
                             Text(
@@ -200,7 +196,7 @@ fun PayWallContent(
                                 color = Color(0xFF4CAF50) // Green for success
                             )
                         }
-                        
+
                         // Features card
                         FeaturesCard()
                         // Shared ministry card just beneath FeaturesCard
@@ -212,9 +208,9 @@ fun PayWallContent(
                             enabled = !isLoading && !isRestoring,
                             onClick = { onPurchase(selectedPlan) }
                         )
-                        
+
                         Spacer(Modifier.height(8.dp))
-                        
+
                         // Restore purchases button
                         OutlinedButton(
                             modifier = Modifier.fillMaxWidth().height(48.dp),
@@ -236,12 +232,14 @@ fun PayWallContent(
         }
 
 
+
+
     }
 
 }
 
 @Composable
-private fun PaywallHeader(trialDaysRemaining: Int? = null) {
+private fun PaywallHeader(trialDaysRemaining: Int? = null, isDismissible: Boolean) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -250,7 +248,7 @@ private fun PaywallHeader(trialDaysRemaining: Int? = null) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Spacer(Modifier.height(80.dp))
+        Spacer(Modifier.height(50.dp))
         Text(
             text = stringResource(Res.string.settings_title_paywall),
             style =  MaterialTheme.typography.headlineLarge,
@@ -266,6 +264,15 @@ private fun PaywallHeader(trialDaysRemaining: Int? = null) {
                 style = MaterialTheme.typography.bodyMedium,
                 color = YellowAccent,
                 fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+            Spacer(Modifier.height(4.dp))
+        } else if (!isDismissible) {
+            // Show explicit expired message when paywall is non-dismissible
+            Text(
+                text = stringResource(Res.string.trial_expired),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error,
                 textAlign = TextAlign.Center
             )
             Spacer(Modifier.height(4.dp))
@@ -447,7 +454,7 @@ private fun FeaturesCard() {
         FeatureRow(vectorResource(Res.drawable.wifi_off_line), stringResource(Res.string.settings_feature_offline_access))
         FeatureRow(vectorResource(Res.drawable.bookmark_line), stringResource(Res.string.settings_feature_bookmarks))
         FeatureRow(vectorResource(Res.drawable.close_circle_line), stringResource(Res.string.settings_feature_no_ads))
-        FeatureRow(vectorResource(Res.drawable.ai_generate), stringResource(Res.string.settings_feature_future_updates))
+//        FeatureRow(vectorResource(Res.drawable.ai_generate), stringResource(Res.string.settings_feature_future_updates))
     }
 }
 

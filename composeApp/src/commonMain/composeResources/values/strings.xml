@@ -10,6 +10,10 @@
     <string name="settings_option_onetime_subtitle">Pay once. Own it forever.</string>
     <string name="settings_option_onetime_badge">Best Value</string>
 
+    <!-- Trial banner -->
+    <string name="trial_upgrade_cta">Upgrade Now</string>
+    <string name="trial_expired">Trial expired</string>
+
     <!-- CTA -->
     <string name="settings_action_continue">Continue</string>
     <string name="settings_action_processing">Processing…</string>
@@ -32,7 +36,7 @@
 
     <!-- Shared ministry card -->
     <string name="settings_section_shared_ministry_title">A shared ministry</string>
-    <string name="settings_section_shared_ministry_body">This contribution supports hosting, updates, and improvements to keep the Hymnal app accessible and ad-free.</string>
+    <string name="settings_section_shared_ministry_body">This contribution supports hosting, updates to keep the Hymnal app accessible and ad-free.</string>
 
     <!-- Accessibility / content descriptions -->
     <string name="cd_back">Back</string>

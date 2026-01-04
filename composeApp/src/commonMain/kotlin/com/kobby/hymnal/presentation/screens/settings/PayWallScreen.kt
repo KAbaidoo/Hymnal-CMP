@@ -1,6 +1,7 @@
 package com.kobby.hymnal.presentation.screens.settings
 
 import androidx.compose.runtime.*
+import androidx.compose.ui.ExperimentalComposeUiApi
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -10,16 +11,21 @@ import org.koin.compose.koinInject
 
 class PayWallScreen : Screen {
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val subscriptionManager: SubscriptionManager = koinInject()
+        val coroutineScope = rememberCoroutineScope()
         var isProcessing by remember { mutableStateOf(false) }
         var isRestoring by remember { mutableStateOf(false) }
         var purchaseError by remember { mutableStateOf<String?>(null) }
         var successMessage by remember { mutableStateOf<String?>(null) }
-        
+
         val entitlementInfo by subscriptionManager.entitlementState.collectAsState()
+
+        // Paywall should be non-dismissible when user needs the paywall (trial expired / subscription expired / none)
+        val isDismissible = !entitlementInfo.needsPaywall
 
         PayWallContent(
             isLoading = isProcessing,
@@ -27,6 +33,7 @@ class PayWallScreen : Screen {
             errorMsg = purchaseError,
             successMsg = successMessage,
             trialDaysRemaining = entitlementInfo.trialDaysRemaining,
+            isDismissible = isDismissible,
             onPurchase = { plan ->
                 if (!isProcessing && !isRestoring) {
                     isProcessing = true
@@ -51,13 +58,13 @@ class PayWallScreen : Screen {
                     isRestoring = true
                     purchaseError = null
                     successMessage = null
-                    
+
                     subscriptionManager.restorePurchases { success ->
                         isRestoring = false
                         if (success) {
                             successMessage = "Purchases restored successfully!"
                             // Navigate back after a short delay
-                            kotlinx.coroutines.GlobalScope.launch {
+                            coroutineScope.launch {
                                 kotlinx.coroutines.delay(1500)
                                 navigator.pop()
                             }
@@ -67,15 +74,11 @@ class PayWallScreen : Screen {
                     }
                 }
             },
-            onBackClick = {
-                if (!isProcessing && !isRestoring) {
+
+            onCloseClick = {
+                // Only allow closing the paywall when it is dismissible
+                if (!isProcessing && !isRestoring && isDismissible) {
                     navigator.pop()
-                }
-            },
-            onHomeClick = {
-                if (!isProcessing && !isRestoring) {
-                    // Pop all screens to go back to home
-                    navigator.popAll()
                 }
             },
             onPrivacy = {
@@ -87,4 +90,3 @@ class PayWallScreen : Screen {
         )
     }
 }
-

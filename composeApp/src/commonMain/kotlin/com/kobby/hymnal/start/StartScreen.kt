@@ -44,17 +44,15 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.composeApp.database.Hymn
 import com.kobby.hymnal.core.database.HymnRepository
+import com.kobby.hymnal.core.iap.PremiumFeatureGate
 import com.kobby.hymnal.presentation.components.ScreenBackground
 import com.kobby.hymnal.presentation.screens.home.HomeScreen
 import com.kobby.hymnal.presentation.screens.hymns.HymnDetailScreen
-import com.kobby.hymnal.presentation.screens.settings.PayWallContent
-import com.kobby.hymnal.theme.HymnalAppTheme
 import com.kobby.hymnal.theme.Shapes
 import org.koin.compose.koinInject
 import hymnal_cmp.composeapp.generated.resources.Res
@@ -68,7 +66,6 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import com.kobby.hymnal.theme.DarkTextColor
 import com.kobby.hymnal.theme.LightTextColor
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 private const val AUTO_NAVIGATION_DELAY_MS = 6000L
 
@@ -77,7 +74,6 @@ class StartScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val scope = rememberCoroutineScope()
         val repository: HymnRepository = koinInject()
         var randomHymn by remember { mutableStateOf<Hymn?>(null) }
         var hasNavigated by remember { mutableStateOf(false) }
@@ -86,34 +82,43 @@ class StartScreen : Screen {
         LaunchedEffect(Unit) {
             try {
                 randomHymn = repository.getRandomHymn()
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // Silently handle any database errors
                 randomHymn = null
             }
         }
 
-        LaunchedEffect(Unit) {
-            delay(AUTO_NAVIGATION_DELAY_MS)
-            if (!hasNavigated) {
-                hasNavigated = true
-                navigator.push(HomeScreen())
-            }
-        }
+        // Gate the entire app with PremiumFeatureGate
+        // During trial or with active subscription, users see StartScreen content
+        // After trial expires, they navigate directly to PayWall
+        PremiumFeatureGate(
+            premiumContent = {
+                // Auto-navigate to HomeScreen after delay
+                LaunchedEffect(Unit) {
+                    delay(AUTO_NAVIGATION_DELAY_MS)
+                    if (!hasNavigated) {
+                        hasNavigated = true
+                        navigator.push(HomeScreen())
+                    }
+                }
 
-        StartScreenContent(
-            randomHymn = randomHymn,
-            onStartButtonClicked = {
-                if (!hasNavigated) {
-                    hasNavigated = true
-                    navigator.push(HomeScreen())
-                }
+                StartScreenContent(
+                    randomHymn = randomHymn,
+                    onStartButtonClicked = {
+                        if (!hasNavigated) {
+                            hasNavigated = true
+                            navigator.push(HomeScreen())
+                        }
+                    },
+                    onRandomHymnClicked = { hymn ->
+                        if (!hasNavigated) {
+                            hasNavigated = true
+                            navigator.push(HymnDetailScreen(hymnId = hymn.id, fromStartScreen = true))
+                        }
+                    }
+                )
             },
-            onRandomHymnClicked = { hymn ->
-                if (!hasNavigated) {
-                    hasNavigated = true
-                    navigator.push(HymnDetailScreen(hymnId = hymn.id, fromStartScreen = true))
-                }
-            }
+            showPaywallOnDenied = true
         )
     }
 
