@@ -161,12 +161,14 @@ CheckPremiumAccess(
 **Problem**: User changes device time to extend trial
 
 **Solution**:
-- All calculations use `System.currentTimeMillis()`
+- All calculations use `Clock.System.now().toEpochMilliseconds()` from kotlinx.datetime
 - Future timestamps are validated against `lastVerificationTime`
 - Platform verification (Google/Apple) provides authoritative state
+- Cross-platform consistent time handling
 
 ```kotlin
 // The system validates that current time is reasonable
+val currentTime = Clock.System.now().toEpochMilliseconds()
 if (currentTime < firstInstallDate) {
     // Clock was moved backward - use last known good state
     // Or re-verify with platform
@@ -297,6 +299,9 @@ See `SubscriptionStorageTest.kt` for comprehensive unit tests covering:
 ```kotlin
 TRIAL_DURATION_DAYS = 30              // Trial length
 MILLIS_PER_DAY = 24 * 60 * 60 * 1000L // Time conversion
+
+// Time handling using kotlinx.datetime
+Clock.System.now().toEpochMilliseconds() // Current time in epoch milliseconds
 ```
 
 To modify trial length, change `TRIAL_DURATION_DAYS` in `SubscriptionStorage.kt`.
@@ -321,7 +326,7 @@ storage.initializeFirstInstallIfNeeded()
 
 **Check**:
 ```kotlin
-val currentTime = System.currentTimeMillis()
+val currentTime = Clock.System.now().toEpochMilliseconds()
 val daysSince = (currentTime - storage.firstInstallDate) / MILLIS_PER_DAY
 println("Days since install: $daysSince")
 ```

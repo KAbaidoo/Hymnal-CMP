@@ -150,23 +150,35 @@ fun MyFeature() {
 | `SUBSCRIPTION_EXPIRED` | ❌ | ✅ | Renewable subscription lapsed (yearly only) |
 | `NONE` | ❌ | ✅ | No trial or purchase |
 
-**Important Note:** One-time purchases (`ios_onetime_purchase`) **never expire** and remain in `SUBSCRIBED` state forever.
+**Important Note:** One-time purchases (`onetime_purchase`) **never expire** and remain in `SUBSCRIBED` state forever.
 
 ## 💳 Product IDs
 
 ### Android (Google Play Console)
-- `premium_subscription` - Subscription product (used for all plans)
+- `yearly_subscription` - Subscription product (ProductType.SUBS)
+- `onetime_purchase` - In-app product (ProductType.INAPP) - **lifetime access**
 
 ### iOS (App Store Connect)
-- `ios_yearly_subscription` - Yearly renewable subscription
-- `ios_onetime_purchase` - **One-time purchase (non-consumable) - lifetime access**
+- `yearly_subscription` - Yearly renewable subscription (auto-renewable)
+- `onetime_purchase` - **One-time purchase (non-consumable) - lifetime access**
 
 **One-Time Purchase Details:**
-- Configure as **non-consumable** in App Store Connect
+- Configure as **non-consumable** in App Store Connect (iOS)
+- Configure as **in-app product** in Google Play Console (Android)
 - User pays once and owns it forever
 - Never expires, no renewal needed
 - Treated as `PurchaseType.ONE_TIME_PURCHASE` in code
 - Remains in `SUBSCRIBED` state indefinitely
+
+**Universal Constants:**
+Both platforms use consistent product IDs and a shared `PurchaseType` enum:
+```kotlin
+enum class PurchaseType {
+    NONE,
+    YEARLY_SUBSCRIPTION,
+    ONE_TIME_PURCHASE
+}
+```
 
 ## 🔒 Feature Gating
 
@@ -273,17 +285,23 @@ Once in production, monitor:
 ## 💾 Storage Details
 
 ### Data Persisted
-- `firstInstallDate` - Trial start (Long timestamp)
-- `purchaseDate` - When user purchased (Long timestamp)
+- `firstInstallDate` - Trial start (Long timestamp in epoch milliseconds)
+- `purchaseDate` - When user purchased (Long timestamp in epoch milliseconds)
 - `purchaseType` - YEARLY_SUBSCRIPTION, ONE_TIME_PURCHASE, or NONE
 - `productId` - Platform product identifier
-- `expirationDate` - For renewable subscriptions (Long timestamp)
+- `expirationDate` - For renewable subscriptions (Long timestamp in epoch milliseconds)
 - `isSubscribed` - Current subscription status (Boolean)
-- `lastVerificationTime` - Last platform check (Long timestamp)
+- `lastVerificationTime` - Last platform check (Long timestamp in epoch milliseconds)
 
 ### Platform Storage
 - **Android**: `SharedPreferences` (survives app reinstall)
 - **iOS**: `UserDefaults` (survives app reinstall)
+
+### Time Handling
+All timestamps use `Clock.System.now().toEpochMilliseconds()` from kotlinx.datetime for:
+- Cross-platform consistency
+- Reliable time calculations
+- Support for time zone independent operations
 
 ## 🔐 Security Considerations
 
@@ -319,7 +337,7 @@ Once in production, monitor:
 
 ---
 
-**Last Updated:** December 29, 2025
+**Last Updated:** January 3, 2026
 **Implementation Status:** ✅ Complete
-**Build Status:** ⚠️ Requires AGP version fix
-**Ready for:** Production deployment after build fix
+**Build Status:** ✅ Production ready
+**Documentation Status:** ✅ Updated with latest implementation details

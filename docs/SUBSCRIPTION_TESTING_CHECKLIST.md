@@ -5,8 +5,8 @@
 ### iOS (App Store Connect)
 - [ ] Create App Store Connect account and app listing
 - [ ] Configure In-App Purchases:
-  - [ ] Product ID: `ios_yearly_subscription` (Auto-renewable subscription)
-  - [ ] Product ID: `ios_onetime_purchase` (Non-consumable or consumable)
+  - [ ] Product ID: `yearly_subscription` (Auto-renewable subscription)
+  - [ ] Product ID: `onetime_purchase` (Non-consumable or consumable)
 - [ ] Set up pricing for both products
 - [ ] Create sandbox test user accounts
 - [ ] Enable StoreKit Configuration file for local testing (optional)

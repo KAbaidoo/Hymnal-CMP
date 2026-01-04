@@ -23,16 +23,17 @@ var firstInstallDate: Long
 // Initialization (called on app startup)
 fun initializeFirstInstallIfNeeded() {
     if (firstInstallDate == 0L) {
-        firstInstallDate = System.currentTimeMillis()
+        firstInstallDate = Clock.System.now().toEpochMilliseconds()
     }
 }
 ```
 
 **Key Points:**
-- Stored in platform-specific persistent storage
-- Set once on first app launch
+- Stored in platform-specific persistent storage (SharedPreferences/UserDefaults)
+- Set once on first app launch using kotlinx.datetime
 - Persists across app restarts and reinstalls
 - Used as baseline for trial period calculation
+- Cross-platform consistent time handling
 
 #### 30-Day Window Calculation
 ```kotlin
@@ -40,7 +41,7 @@ fun getTrialDaysRemaining(): Int? {
     if (isSubscribed) return null
     if (firstInstallDate == 0L) return null
     
-    val currentTime = System.currentTimeMillis()
+    val currentTime = Clock.System.now().toEpochMilliseconds()
     val daysSinceInstall = (currentTime - firstInstallDate) / MILLIS_PER_DAY
     val daysRemaining = TRIAL_DURATION_DAYS - daysSinceInstall.toInt()
     
@@ -49,7 +50,7 @@ fun getTrialDaysRemaining(): Int? {
 ```
 
 **Algorithm:**
-1. Get current time
+1. Get current time using kotlinx.datetime (cross-platform)
 2. Calculate days elapsed since first install
 3. Subtract from 30-day trial period
 4. Return remaining days (min 0)
@@ -70,10 +71,16 @@ enum class EntitlementState {
 #### State Determination Logic
 ```kotlin
 fun getEntitlementState(): EntitlementState {
-    val currentTime = System.currentTimeMillis()
+    val currentTime = Clock.System.now().toEpochMilliseconds()
     
     // Check subscription first
     if (isSubscribed) {
+        // One-time purchases never expire
+        if (purchaseType == PurchaseType.ONE_TIME_PURCHASE) {
+            return EntitlementState.SUBSCRIBED
+        }
+        
+        // For renewable subscriptions, check expiration
         expirationDate?.let { expiration ->
             if (currentTime > expiration) {
                 return EntitlementState.SUBSCRIPTION_EXPIRED
@@ -98,6 +105,7 @@ fun getEntitlementState(): EntitlementState {
 
 **Decision Tree:**
 1. Is user subscribed? 
+   - Yes → Is it ONE_TIME_PURCHASE? → Always SUBSCRIBED (never expires)
    - Yes → Check expiration → SUBSCRIBED or SUBSCRIPTION_EXPIRED
    - No → Continue
 2. Has first install date?
@@ -114,7 +122,7 @@ override fun restorePurchases(callback: (Boolean) -> Unit) {
     billingHelper.checkSubscriptionStatus { isSubscribed ->
         if (isSubscribed) {
             storage.isSubscribed = true
-            storage.lastVerificationTime = System.currentTimeMillis()
+            storage.lastVerificationTime = Clock.System.now().toEpochMilliseconds()
             refreshEntitlementState()
             callback(true)
         } else {
@@ -133,13 +141,17 @@ public func restorePurchases(callback: @escaping (KotlinBoolean) -> Void) {
 
 public func paymentQueueRestoreCompletedTransactionsFinished(_ queue: SKPaymentQueue) {
     let yearlySubscribed = UserDefaults.standard.bool(forKey: YEARLY_SUBSCRIPTION_ID)
-    let onetimeSubscribed = UserDefaults.standard.bool(forKey: ONETIME_SUBSCRIPTION_ID)
+    let onetimePurchased = UserDefaults.standard.bool(forKey: ONETIME_PURCHASE_ID)
     
-    let hasRestoredPurchases = yearlySubscribed || onetimeSubscribed
+    let hasRestoredPurchases = yearlySubscribed || onetimePurchased
     restoreCallBack?(KotlinBoolean(value: hasRestoredPurchases))
     restoreCallBack = nil
 }
 ```
+
+**Constants:**
+- `YEARLY_SUBSCRIPTION_ID = "yearly_subscription"`
+- `ONETIME_PURCHASE_ID = "onetime_purchase"`
 
 **Process:**
 1. User clicks "Restore Purchases" button
@@ -168,7 +180,7 @@ class SubscriptionStorage(private val settings: Settings) {
 fun recordPurchase(
     productId: String,
     purchaseType: PurchaseType,
-    purchaseTimestamp: Long = System.currentTimeMillis(),
+    purchaseTimestamp: Long = Clock.System.now().toEpochMilliseconds(),
     expirationTimestamp: Long? = null
 ) {
     this.productId = productId
@@ -176,7 +188,7 @@ fun recordPurchase(
     this.purchaseDate = purchaseTimestamp
     this.expirationDate = expirationTimestamp
     this.isSubscribed = true
-    this.lastVerificationTime = System.currentTimeMillis()
+    this.lastVerificationTime = Clock.System.now().toEpochMilliseconds()
 }
 ```
 
@@ -346,20 +358,42 @@ if (successMsg != null) {
 
 ### Product IDs
 
-#### Subscription Products
-```kotlin
-// Android
-const val PREMIUM = "premium_subscription"  // Used for both yearly and one-time
+#### Universal Product IDs (Cross-Platform)
+Both platforms use the same product ID strings for consistency:
 
-// iOS
-const val YEARLY_SUBSCRIPTION_ID = "ios_yearly_subscription"
-const val ONETIME_SUBSCRIPTION_ID = "ios_onetime_purchase"
+```kotlin
+// iOS Constants (IosSubscriptionManager.kt)
+const val YEARLY_SUBSCRIPTION_ID = "yearly_subscription"
+const val ONETIME_PURCHASE_ID = "onetime_purchase"
+
+// Android Constants (BillingHelper.kt)
+val YEARLY_SUBSCRIPTION = "yearly_subscription"
+val ONETIME_PURCHASE = "onetime_purchase"
 ```
 
-#### One-Time Purchase Products
-The `ios_onetime_purchase` product represents a **non-consumable one-time purchase** - users pay once and own it forever:
+#### Platform-Specific Product Types
+
+**Android (Google Play):**
+- `yearly_subscription` → Uses `BillingClient.ProductType.SUBS` (subscription)
+- `onetime_purchase` → Uses `BillingClient.ProductType.INAPP` (in-app product/one-time)
+
+**iOS (App Store):**
+- `yearly_subscription` → Auto-renewable subscription
+- `onetime_purchase` → Non-consumable purchase
+
+#### Common Purchase Type Enum
+```kotlin
+enum class PurchaseType {
+    NONE,
+    YEARLY_SUBSCRIPTION,   // Renewable, can expire
+    ONE_TIME_PURCHASE      // Never expires, lifetime access
+}
+```
+
+#### One-Time Purchase Handling
+The `onetime_purchase` product represents a **non-consumable one-time purchase** - users pay once and own it forever:
 - iOS: Configure as **non-consumable** in App Store Connect
-- Android: Currently uses same subscription product ID, but should ideally be configured as a separate one-time purchase product
+- Android: Configure as **in-app product** in Google Play Console (ProductType.INAPP)
 - **Important**: One-time purchases never expire and grant lifetime access
 
 The system correctly handles one-time purchases:
@@ -371,36 +405,65 @@ The system correctly handles one-time purchases:
 
 #### Android (Google Play Billing)
 ```kotlin
-fun purchaseSubscription(activity: Activity, callback: (Boolean) -> Unit) {
+// From SubscriptionManager.android.kt
+override fun purchaseSubscription(plan: PayPlan, callback: (Boolean) -> Unit) {
+    val activity = this.activity ?: return
+    
+    val (productId, productType) = when (plan) {
+        PayPlan.Yearly -> billingHelper.YEARLY_SUBSCRIPTION to BillingClient.ProductType.SUBS
+        PayPlan.OneTime -> billingHelper.ONETIME_PURCHASE to BillingClient.ProductType.INAPP
+    }
+    
+    billingHelper.purchaseProduct(productId, productType, activity) { success ->
+        if (success) {
+            val purchaseType = when (plan) {
+                PayPlan.Yearly -> PurchaseType.YEARLY_SUBSCRIPTION
+                PayPlan.OneTime -> PurchaseType.ONE_TIME_PURCHASE
+            }
+            storage.recordPurchase(
+                productId = productId,
+                purchaseType = purchaseType
+            )
+            refreshEntitlementState()
+        }
+        callback(success)
+    }
+}
+
+// From BillingHelper.kt
+fun purchaseProduct(productId: String, productType: String, activity: Activity, callback: (Boolean) -> Unit) {
     // 1. Connect to Play Store
     connectPlayStore { isConnected ->
         if (!isConnected) {
             callback(false)
-            return
+            return@connectPlayStore
         }
         
         // 2. Query product details
         val params = QueryProductDetailsParams.newBuilder()
             .setProductList(listOf(
                 QueryProductDetailsParams.Product.newBuilder()
-                    .setProductId(PREMIUM)
-                    .setProductType(BillingClient.ProductType.SUBS)
+                    .setProductId(productId)
+                    .setProductType(productType)  // SUBS or INAPP
                     .build()
             ))
             .build()
         
         billingClient.queryProductDetailsAsync(params) { result, products ->
-            // 3. Launch billing flow
+            // 3. Launch billing flow based on product type
             val productDetails = products.first()
-            val offerToken = productDetails.subscriptionOfferDetails?.first()?.offerToken
+            
+            val productDetailsParamsBuilder = BillingFlowParams.ProductDetailsParams.newBuilder()
+                .setProductDetails(productDetails)
+            
+            // For subscriptions, need offer token
+            if (productType == BillingClient.ProductType.SUBS) {
+                val offerToken = productDetails.subscriptionOfferDetails?.first()?.offerToken
+                productDetailsParamsBuilder.setOfferToken(offerToken!!)
+            }
             
             val billingParams = BillingFlowParams.newBuilder()
-                .setProductDetailsParamsList(listOf(
-                    BillingFlowParams.ProductDetailsParams.newBuilder()
-                        .setProductDetails(productDetails)
-                        .setOfferToken(offerToken!!)
-                        .build()
-                ))
+                .setProductDetailsParamsList(listOf(productDetailsParamsBuilder.build()))
                 .build()
             
             purchaseCallback = callback
@@ -410,13 +473,21 @@ fun purchaseSubscription(activity: Activity, callback: (Boolean) -> Unit) {
 }
 ```
 
+**Key Points:**
+- Supports both subscription (SUBS) and one-time (INAPP) products
+- Product type determines billing flow parameters
+- Subscriptions require offer token, one-time purchases don't
+- Maps PayPlan to both productId and productType correctly
+
 **Lifecycle:**
 1. Connect to billing client
-2. Query available products
-3. Launch platform purchase UI
-4. Handle purchase result in listener
-5. Acknowledge purchase
-6. Invoke callback
+2. Query product details with correct product type
+3. Build billing flow params (add offer token for SUBS)
+4. Launch platform purchase UI
+5. Handle purchase result in listener
+6. Acknowledge purchase
+7. Record purchase in storage
+8. Invoke callback
 
 #### iOS (StoreKit)
 ```swift
@@ -578,7 +649,7 @@ data class EntitlementInfo(
 | Aspect | Android | iOS |
 |--------|---------|-----|
 | **Storage** | SharedPreferences | UserDefaults |
-| **Product IDs** | `premium_subscription` | `ios_yearly_subscription`, `ios_onetime_purchase` |
+| **Product IDs** | `premium_subscription` | `yearly_subscription`, `onetime_purchase` |
 | **Restore** | Automatic via query | Manual via restore API |
 | **Verification** | Google Play verifies | StoreKit verifies |
 | **Pending Purchases** | Supported | Not applicable |

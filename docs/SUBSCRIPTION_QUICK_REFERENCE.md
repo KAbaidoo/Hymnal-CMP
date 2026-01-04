@@ -23,11 +23,12 @@ subscriptionManager.manageSubscription()
 ## 📦 Product IDs
 
 ### iOS (App Store Connect)
-- `ios_yearly_subscription`
-- `ios_onetime_purchase`
+- `yearly_subscription` - Auto-renewable subscription
+- `onetime_purchase` - Non-consumable purchase
 
 ### Android (Google Play Console)
-- `premium_subscription`
+- `yearly_subscription` - Subscription product
+- `onetime_purchase` - In-app product (one-time)
 
 ## 🏗️ Architecture
 

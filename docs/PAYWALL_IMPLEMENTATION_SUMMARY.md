@@ -154,8 +154,8 @@ CheckPremiumAccess(
 - `premium_subscription` - Used for all plans
 
 ### iOS (App Store)
-- `ios_yearly_subscription` - Yearly plan
-- `ios_onetime_purchase` - One-time purchase
+- `yearly_subscription` - Yearly plan
+- `onetime_purchase` - One-time purchase
 
 ## Files Modified/Created
 

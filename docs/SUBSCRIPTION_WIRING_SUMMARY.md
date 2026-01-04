@@ -9,8 +9,8 @@ The subscription module has been successfully wired up for both iOS and Android 
 ### ✅ iOS Integration
 1. **Updated IosSubscriptionManager** to support plan selection (Yearly/OneTime)
 2. **Updated IosSubscriptionProvider.swift** to handle multiple product IDs:
-   - `ios_yearly_subscription` - Annual subscription
-   - `ios_onetime_purchase` - One-time purchase
+   - `yearly_subscription` - Annual subscription
+   - `onetime_purchase` - One-time purchase
 3. **Initialized subscription provider** in `iOSApp.swift`
 4. **Added subscription module** to Koin initialization in `MainViewController.kt`
 5. **Created NativeSubscriptionProvider bridge** between Kotlin and Swift
@@ -41,12 +41,13 @@ The subscription module has been successfully wired up for both iOS and Android 
 
 ### iOS (App Store Connect)
 Configure these In-App Purchases:
-- `ios_yearly_subscription` - Auto-renewable subscription (yearly)
-- `ios_onetime_purchase` - Non-consumable or consumable
+- `yearly_subscription` - Auto-renewable subscription (yearly)
+- `onetime_purchase` - Non-consumable purchase
 
 ### Android (Google Play Console)
-Configure this subscription:
-- `premium_subscription` - Subscription product
+Configure these products:
+- `yearly_subscription` - Subscription product (ProductType.SUBS)
+- `onetime_purchase` - In-app product (ProductType.INAPP)
 
 ## Files Created/Modified
 

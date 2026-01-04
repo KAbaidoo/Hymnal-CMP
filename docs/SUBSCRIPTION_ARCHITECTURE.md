@@ -212,10 +212,25 @@
 
 | PayPlan  | iOS Product ID              | Android Product ID    |
 |----------|-----------------------------|-----------------------|
-| Yearly   | ios_yearly_subscription     | premium_subscription  |
-| OneTime  | ios_onetime_purchase        | premium_subscription  |
+| Yearly   | yearly_subscription         | yearly_subscription   |
+| OneTime  | onetime_purchase            | onetime_purchase      |
 
-*Note: Android currently uses same product ID for both plans. This can be changed in BillingHelper to support multiple products.*
+**Platform Constants:**
+- **iOS**: `YEARLY_SUBSCRIPTION_ID = "yearly_subscription"`, `ONETIME_PURCHASE_ID = "onetime_purchase"`
+- **Android**: `YEARLY_SUBSCRIPTION = "yearly_subscription"`, `ONETIME_PURCHASE = "onetime_purchase"`
+
+**Android Purchase Types:**
+- Yearly subscription: Uses `BillingClient.ProductType.SUBS`
+- One-time purchase: Uses `BillingClient.ProductType.INAPP`
+
+**Universal PurchaseType Enum (Common):**
+```kotlin
+enum class PurchaseType {
+    NONE,
+    YEARLY_SUBSCRIPTION,
+    ONE_TIME_PURCHASE
+}
+```
 
 ## State Management
 
