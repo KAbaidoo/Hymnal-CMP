@@ -44,3 +44,6 @@
 
 0.8.0
 - Release for closed testing.
+
+0.8.1
+- Removed AD_ID permission from AndroidManifest.xml
