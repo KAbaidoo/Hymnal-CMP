@@ -25,7 +25,7 @@ class MoreScreen : Screen {
                     "Favorites" -> navigator.push(FavoritesScreen())
                     "History" -> navigator.push(HistoryScreen())
                     "Highlights" -> navigator.push(HighlightsScreen())
-                    "Test Subscription" -> navigator.push(PayWallScreen())
+//                    "Test Subscription" -> navigator.push(PayWallScreen())
                 }
             },
             onBackClick = { navigator.pop() },
