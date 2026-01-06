@@ -1,8 +1,6 @@
 package com.kobby.hymnal.presentation.screens.home
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,12 +21,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import com.kobby.hymnal.core.iap.CheckPremiumAccess
-import com.kobby.hymnal.core.iap.SubscriptionManager
+import com.kobby.hymnal.core.iap.PurchaseManager
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowForward
-import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -40,7 +35,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,20 +48,17 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.presentation.components.CategoryButtons
 import com.kobby.hymnal.presentation.components.ScreenBackground
 import com.kobby.hymnal.presentation.components.SemiTransparentCard
-import com.kobby.hymnal.presentation.components.TrialBanner
 import com.kobby.hymnal.presentation.screens.hymns.HymnListScreen
 import com.kobby.hymnal.core.database.HymnRepository
 import com.kobby.hymnal.presentation.screens.more.FavoritesScreen
 import com.kobby.hymnal.presentation.screens.more.MoreScreen
 import com.kobby.hymnal.presentation.screens.search.GlobalSearchScreen
-import com.kobby.hymnal.presentation.screens.settings.PayWallScreen
 import com.kobby.hymnal.test.TestHymnScreen
 import org.koin.compose.koinInject
 import com.kobby.hymnal.theme.Shapes
 import hymnal_cmp.composeapp.generated.resources.Res
 import hymnal_cmp.composeapp.generated.resources.book_open
 import hymnal_cmp.composeapp.generated.resources.cathedral
-import hymnal_cmp.composeapp.generated.resources.heart_2_line
 import hymnal_cmp.composeapp.generated.resources.find_your_hymns
 import hymnal_cmp.composeapp.generated.resources.explore_collection
 import hymnal_cmp.composeapp.generated.resources.my_hymns
@@ -86,9 +77,9 @@ class HomeScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val subscriptionManager: SubscriptionManager = koinInject()
+        val purchaseManager: PurchaseManager = koinInject()
         var isDeveloperMode by remember { mutableStateOf(false) }
-        val entitlementInfo by subscriptionManager.entitlementState.collectAsState()
+        val entitlementInfo by purchaseManager.entitlementState.collectAsState()
 
         HomeScreenContent(
             entitlementInfo = entitlementInfo,
@@ -125,7 +116,6 @@ class HomeScreen : Screen {
             onMoreClick = { navigator.push(MoreScreen()) },
             onMoreLongClick = { isDeveloperMode = !isDeveloperMode },
             onTestDatabaseClick = { navigator.push(TestHymnScreen()) },
-            onUpgradeClick = { navigator.push(PayWallScreen()) },
             isDeveloperMode = isDeveloperMode
         )
     }
@@ -144,7 +134,6 @@ private fun HomeScreenContent(
     onMoreClick: () -> Unit = {},
     onMoreLongClick: () -> Unit = {},
     onTestDatabaseClick: () -> Unit = {},
-    onUpgradeClick: () -> Unit = {},
     isDeveloperMode: Boolean = false
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -184,14 +173,6 @@ private fun HomeScreenContent(
                             .padding(vertical = 34.dp)
                             .fillMaxWidth()
                     ) {
-                        // Show trial banner if user is in trial period
-                        if (entitlementInfo.isInTrial) {
-                            TrialBanner(
-                                daysRemaining = entitlementInfo.trialDaysRemaining ?: 0,
-                                onUpgradeClick = onUpgradeClick
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
 
                         SemiTransparentCard {
                             Text(

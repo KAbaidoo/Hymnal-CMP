@@ -15,18 +15,33 @@
   ],
   "products" : [
     {
-      "displayPrice" : "2.50",
+      "displayPrice" : "0.99",
       "familyShareable" : false,
-      "internalID" : "F8666B4F",
+      "internalID" : "BASIC001",
       "localizations" : [
         {
-          "description" : "",
-          "displayName" : "",
+          "description" : "Unlock all premium features - Support this ministry",
+          "displayName" : "Basic Support",
           "locale" : "en_US"
         }
       ],
-      "productID" : "onetime_purchase",
-      "referenceName" : "One-time Payment",
+      "productID" : "support_basic",
+      "referenceName" : "Basic Support (GH₵ 10)",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "1.99",
+      "familyShareable" : false,
+      "internalID" : "GENEROUS001",
+      "localizations" : [
+        {
+          "description" : "Generous support - Same features, extra contribution",
+          "displayName" : "Generous Support",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "support_generous",
+      "referenceName" : "Generous Support (GH₵ 20)",
       "type" : "NonConsumable"
     }
   ],
@@ -45,43 +60,7 @@
     "_timeRate" : 0
   },
   "subscriptionGroups" : [
-    {
-      "id" : "115609E8",
-      "localizations" : [
 
-      ],
-      "name" : "Annual",
-      "subscriptions" : [
-        {
-          "adHocOffers" : [
-
-          ],
-          "codeOffers" : [
-
-          ],
-          "displayPrice" : "0.99",
-          "familyShareable" : false,
-          "groupNumber" : 1,
-          "internalID" : "2C119BC5",
-          "introductoryOffer" : null,
-          "localizations" : [
-            {
-              "description" : "",
-              "displayName" : "",
-              "locale" : "en_US"
-            }
-          ],
-          "productID" : "yearly_subscription",
-          "recurringSubscriptionPeriod" : "P1Y",
-          "referenceName" : "Annual Subscription",
-          "subscriptionGroupID" : "115609E8",
-          "type" : "RecurringSubscription",
-          "winbackOffers" : [
-
-          ]
-        }
-      ]
-    }
   ],
   "version" : {
     "major" : 4,

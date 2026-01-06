@@ -10,7 +10,7 @@
 		058557BB273AAA24004C7B11 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058557BA273AAA24004C7B11 /* Assets.xcassets */; };
 		058557D9273AAEEB004C7B11 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058557D8273AAEEB004C7B11 /* Preview Assets.xcassets */; };
 		2152FB042600AC8F00CF470E /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2152FB032600AC8F00CF470E /* iOSApp.swift */; };
-		617C45D24CDCD459D052F71A /* IosSubscriptionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 617C43368FF6A74ABE0B6DBD /* IosSubscriptionProvider.swift */; };
+		617C45D24CDCD459D052F71A /* IosPurchaseProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 617C43368FF6A74ABE0B6DBD /* IosPurchaseProvider.swift */; };
 		7555FF83242A565900829871 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7555FF82242A565900829871 /* ContentView.swift */; };
 		CE1E25342EFE302C00CF55D2 /* MyProducts.storekit in Resources */ = {isa = PBXBuildFile; fileRef = CE1E25332EFE302C00CF55D2 /* MyProducts.storekit */; };
 		CE1E253A2EFEA21F00CF55D2 /* StoreKitTestCertificate.cer in Resources */ = {isa = PBXBuildFile; fileRef = CE1E25392EFEA21F00CF55D2 /* StoreKitTestCertificate.cer */; };
@@ -27,7 +27,7 @@
 		058557BA273AAA24004C7B11 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		058557D8273AAEEB004C7B11 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		2152FB032600AC8F00CF470E /* iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp.swift; sourceTree = "<group>"; };
-		617C43368FF6A74ABE0B6DBD /* IosSubscriptionProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IosSubscriptionProvider.swift; sourceTree = "<group>"; };
+		617C43368FF6A74ABE0B6DBD /* IosPurchaseProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IosPurchaseProvider.swift; sourceTree = "<group>"; };
 		7555FF7B242A565900829871 /* Anglican Hymnal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Anglican Hymnal.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7555FF82242A565900829871 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		7555FF8C242A565B00829871 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -115,7 +115,7 @@
 		CE41E3CD2EFCE59F0093BCC2 /* iap */ = {
 			isa = PBXGroup;
 			children = (
-				617C43368FF6A74ABE0B6DBD /* IosSubscriptionProvider.swift */,
+				617C43368FF6A74ABE0B6DBD /* IosPurchaseProvider.swift */,
 				CE1E25332EFE302C00CF55D2 /* MyProducts.storekit */,
 				CE1E25392EFEA21F00CF55D2 /* StoreKitTestCertificate.cer */,
 			);
@@ -261,7 +261,7 @@
 				2152FB042600AC8F00CF470E /* iOSApp.swift in Sources */,
 				CE559BFB2ED9B3B50019BBAE /* IosCrashlyticsProvider.swift in Sources */,
 				7555FF83242A565900829871 /* ContentView.swift in Sources */,
-				617C45D24CDCD459D052F71A /* IosSubscriptionProvider.swift in Sources */,
+				617C45D24CDCD459D052F71A /* IosPurchaseProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

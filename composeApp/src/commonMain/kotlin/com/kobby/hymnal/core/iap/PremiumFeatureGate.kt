@@ -22,13 +22,13 @@ fun PremiumFeatureGate(
     showPaywallOnDenied: Boolean = true,
     fallbackContent: @Composable (() -> Unit)? = null
 ) {
-    val subscriptionManager: SubscriptionManager = koinInject()
+    val purchaseManager: PurchaseManager = koinInject()
     val navigator = LocalNavigator.currentOrThrow
-    val entitlementInfo by subscriptionManager.entitlementState.collectAsState()
+    val entitlementInfo by purchaseManager.entitlementState.collectAsState()
     
     LaunchedEffect(Unit) {
         // Initialize subscription manager to ensure we have latest state
-        subscriptionManager.initialize()
+        purchaseManager.initialize()
     }
     
     if (entitlementInfo.hasAccess) {
@@ -60,11 +60,11 @@ fun CheckPremiumAccess(
     onHasAccess: @Composable (EntitlementInfo) -> Unit,
     onNoAccess: @Composable (EntitlementInfo) -> Unit
 ) {
-    val subscriptionManager: SubscriptionManager = koinInject()
-    val entitlementInfo by subscriptionManager.entitlementState.collectAsState()
+    val purchaseManager: PurchaseManager = koinInject()
+    val entitlementInfo by purchaseManager.entitlementState.collectAsState()
     
     LaunchedEffect(Unit) {
-        subscriptionManager.initialize()
+        purchaseManager.initialize()
     }
     
     if (entitlementInfo.hasAccess) {

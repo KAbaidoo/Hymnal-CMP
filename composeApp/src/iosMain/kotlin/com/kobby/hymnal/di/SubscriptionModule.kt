@@ -1,12 +1,12 @@
 package com.kobby.hymnal.di
 
-import com.kobby.hymnal.core.iap.IosSubscriptionManager
-import com.kobby.hymnal.core.iap.SubscriptionManager
-import com.kobby.hymnal.core.iap.SubscriptionStorage
+import com.kobby.hymnal.core.iap.IosPurchaseManager
+import com.kobby.hymnal.core.iap.PurchaseManager
+import com.kobby.hymnal.core.iap.PurchaseStorage
 import org.koin.dsl.module
 
 val subscriptionModule = module {
-    single { SubscriptionStorage(get()) }
-    single<SubscriptionManager> { IosSubscriptionManager(get()) }
+    single { PurchaseStorage(get()) }
+    single<PurchaseManager> { IosPurchaseManager(get()) }
 }
 

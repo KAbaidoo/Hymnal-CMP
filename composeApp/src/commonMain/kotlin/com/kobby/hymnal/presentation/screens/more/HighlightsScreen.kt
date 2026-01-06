@@ -10,6 +10,8 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.core.database.HymnRepository
+import com.kobby.hymnal.core.iap.PremiumFeature
+import com.kobby.hymnal.core.iap.PremiumFeatureAccess
 import com.kobby.hymnal.presentation.screens.hymns.HymnDetailScreen
 import com.kobby.hymnal.presentation.screens.more.components.HighlightsContent
 import org.koin.compose.koinInject
@@ -21,40 +23,45 @@ class HighlightsScreen : Screen {
         val repository: HymnRepository = koinInject()
         var searchText by remember { mutableStateOf("") }
         
-        // Get hymns with highlights from repository
-        val hymnsWithHighlights by repository.getHymnsWithHighlights().collectAsState(initial = emptyList())
-        
-        val filteredHymns = remember(hymnsWithHighlights, searchText) {
-            if (searchText.isBlank()) {
-                hymnsWithHighlights
-            } else {
-                hymnsWithHighlights.filter { hymn ->
-                    hymn.title?.contains(searchText, ignoreCase = true) == true ||
-                    hymn.number.toString().contains(searchText) ||
-                    hymn.content?.contains(searchText, ignoreCase = true) == true
-                }
-            }
-        }
-        
-        HighlightsContent(
-            hymns = filteredHymns,
-            searchText = searchText,
-            isLoading = false,
-            error = null,
-            onSearchTextChanged = { searchText = it },
-            onItemClick = { hymn ->
-                navigator.push(HymnDetailScreen(hymnId = hymn.id))
-            },
-            onBackClick = { navigator.pop() },
-            onHomeClick = { 
-                // Navigate to home by popping until we reach HomeScreen or we can't pop anymore
-                while (navigator.canPop) {
-                    navigator.pop()
-                    // Check if current screen is HomeScreen by trying to find it in the stack
-                    if (navigator.lastItem is com.kobby.hymnal.presentation.screens.home.HomeScreen) {
-                        break
+        // Gate highlights feature - show support sheet if not supported
+        PremiumFeatureAccess(
+            feature = PremiumFeature.HIGHLIGHTS,
+            onAccessGranted = {
+                // Get hymns with highlights from repository
+                val hymnsWithHighlights by repository.getHymnsWithHighlights().collectAsState(initial = emptyList())
+
+                val filteredHymns = remember(hymnsWithHighlights, searchText) {
+                    if (searchText.isBlank()) {
+                        hymnsWithHighlights
+                    } else {
+                        hymnsWithHighlights.filter { hymn ->
+                            hymn.title?.contains(searchText, ignoreCase = true) == true ||
+                            hymn.number.toString().contains(searchText) ||
+                            hymn.content?.contains(searchText, ignoreCase = true) == true
+                        }
                     }
                 }
+
+                HighlightsContent(
+                    hymns = filteredHymns,
+                    searchText = searchText,
+                    isLoading = false,
+                    error = null,
+                    onSearchTextChanged = { searchText = it },
+                    onItemClick = { hymn ->
+                        navigator.push(HymnDetailScreen(hymnId = hymn.id))
+                    },
+                    onBackClick = { navigator.pop() },
+                    onHomeClick = {
+                        // Navigate to home by popping until we reach HomeScreen or we can't pop anymore
+                        while (navigator.canPop) {
+                            navigator.pop()
+                            if (navigator.lastItem is com.kobby.hymnal.presentation.screens.home.HomeScreen) {
+                                break
+                            }
+                        }
+                    }
+                )
             }
         )
     }

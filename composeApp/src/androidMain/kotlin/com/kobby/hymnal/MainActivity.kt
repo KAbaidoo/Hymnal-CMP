@@ -7,7 +7,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.google.firebase.Firebase
@@ -15,7 +14,7 @@ import androidx.compose.runtime.Composable
 import com.google.firebase.initialize
 import com.kobby.hymnal.core.crashlytics.CrashlyticsManager
 import com.kobby.hymnal.core.iap.BillingHelper
-import com.kobby.hymnal.core.iap.SubscriptionManager
+import com.kobby.hymnal.core.iap.PurchaseManager
 import com.kobby.hymnal.di.androidModule
 import com.kobby.hymnal.di.crashlyticsModule
 import com.kobby.hymnal.di.databaseModule
@@ -41,8 +40,8 @@ class MainActivity : ComponentActivity() {
         Firebase.initialize(this)
         
         // Initialize subscription manager for trial tracking and entitlement state
-        val subscriptionManager: SubscriptionManager by inject()
-        subscriptionManager.initialize()
+        val purchaseManager: PurchaseManager by inject()
+        purchaseManager.initialize()
 
         // Set custom keys for Crashlytics context (release builds only)
         setupCrashlyticsKeys()

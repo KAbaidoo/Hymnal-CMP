@@ -4,14 +4,13 @@ import com.russhwolf.settings.Settings
 import kotlinx.datetime.Clock
 
 /**
- * Manages persistent storage of subscription and trial data.
+ * Manages persistent storage of subscription data.
  * Uses multiplatform-settings for cross-platform persistence.
  */
-class SubscriptionStorage(private val settings: Settings) {
+class PurchaseStorage(private val settings: Settings) {
     
-    companion object {
+    companion object Companion {
         // Keys for persistent storage
-        private const val KEY_FIRST_INSTALL_DATE = "subscription_first_install_date"
         private const val KEY_PURCHASE_DATE = "subscription_purchase_date"
         private const val KEY_PURCHASE_TYPE = "subscription_purchase_type"
         private const val KEY_PRODUCT_ID = "subscription_product_id"
@@ -19,19 +18,11 @@ class SubscriptionStorage(private val settings: Settings) {
         private const val KEY_IS_SUBSCRIBED = "subscription_is_subscribed"
         private const val KEY_LAST_VERIFICATION_TIME = "subscription_last_verification_time"
         
-        // Trial period constants
-        const val TRIAL_DURATION_DAYS = 7
-        const val MILLIS_PER_DAY = 24 * 60 * 60 * 1000L
+        // Usage tracking keys
+        private const val KEY_HYMNS_READ_COUNT = "usage_hymns_read_count"
+        private const val KEY_FEATURE_ACCESS_PREFIX = "usage_feature_access_"
     }
-    
-    /**
-     * Get or set the first install date (timestamp in milliseconds).
-     * This is used to track the start of the trial period.
-     */
-    var firstInstallDate: Long
-        get() = settings.getLong(KEY_FIRST_INSTALL_DATE, 0L)
-        set(value) = settings.putLong(KEY_FIRST_INSTALL_DATE, value)
-    
+
     /**
      * Get or set the purchase date (timestamp in milliseconds).
      */
@@ -94,39 +85,6 @@ class SubscriptionStorage(private val settings: Settings) {
         set(value) = settings.putLong(KEY_LAST_VERIFICATION_TIME, value)
     
     /**
-     * Initialize first install date if not already set.
-     * Should be called on app startup.
-     */
-    fun initializeFirstInstallIfNeeded() {
-        if (firstInstallDate == 0L) {
-            firstInstallDate = Clock.System.now().toEpochMilliseconds()
-        }
-    }
-    
-    /**
-     * Calculate days remaining in trial period.
-     * Returns null if trial has expired or user has purchased.
-     */
-    fun getTrialDaysRemaining(): Int? {
-        if (isSubscribed) return null
-        if (firstInstallDate == 0L) return null
-        
-        val currentTime = Clock.System.now().toEpochMilliseconds()
-        val daysSinceInstall = (currentTime - firstInstallDate) / MILLIS_PER_DAY
-        val daysRemaining = TRIAL_DURATION_DAYS - daysSinceInstall.toInt()
-        
-        return if (daysRemaining > 0) daysRemaining else 0
-    }
-    
-    /**
-     * Check if the trial period is active.
-     */
-    fun isTrialActive(): Boolean {
-        val daysRemaining = getTrialDaysRemaining()
-        return daysRemaining != null && daysRemaining > 0
-    }
-    
-    /**
      * Record a successful purchase.
      */
     fun recordPurchase(
@@ -155,10 +113,9 @@ class SubscriptionStorage(private val settings: Settings) {
     }
     
     /**
-     * Clear all subscription and trial data (for testing purposes).
+     * Clear all subscription data (for testing purposes).
      */
     fun clearAll() {
-        settings.remove(KEY_FIRST_INSTALL_DATE)
         settings.remove(KEY_PURCHASE_DATE)
         settings.remove(KEY_PURCHASE_TYPE)
         settings.remove(KEY_PRODUCT_ID)
@@ -171,34 +128,12 @@ class SubscriptionStorage(private val settings: Settings) {
      * Get current entitlement state based on stored data and current time.
      */
     fun getEntitlementState(): EntitlementState {
-        val currentTime = Clock.System.now().toEpochMilliseconds()
-
-        // Check if user has active subscription or one-time purchase
-        if (isSubscribed) {
-            // One-time purchases never expire
-            if (purchaseType == PurchaseType.ONE_TIME_PURCHASE) {
-                return EntitlementState.SUBSCRIBED
-            }
-            
-            // For renewable subscriptions, check if expired
-            expirationDate?.let { expiration ->
-                if (currentTime > expiration) {
-                    return EntitlementState.SUBSCRIPTION_EXPIRED
-                }
-            }
+        // Check if user has active one-time purchase
+        if (isSubscribed && purchaseType == PurchaseType.ONE_TIME_PURCHASE) {
             return EntitlementState.SUBSCRIBED
         }
         
-        // Check trial status
-        if (firstInstallDate > 0) {
-            val daysSinceInstall = (currentTime - firstInstallDate) / MILLIS_PER_DAY
-            if (daysSinceInstall < TRIAL_DURATION_DAYS) {
-                return EntitlementState.TRIAL
-            } else {
-                return EntitlementState.TRIAL_EXPIRED
-            }
-        }
-        
+        // No purchase = no access (freemium model)
         return EntitlementState.NONE
     }
     
@@ -209,10 +144,42 @@ class SubscriptionStorage(private val settings: Settings) {
         return EntitlementInfo(
             state = getEntitlementState(),
             purchaseType = purchaseType,
-            trialDaysRemaining = getTrialDaysRemaining(),
-            firstInstallDate = if (firstInstallDate > 0) firstInstallDate else null,
+            trialDaysRemaining = null, // No trial in freemium model
+            firstInstallDate = null, // Not used in freemium model
             purchaseDate = purchaseDate,
             expirationDate = expirationDate
         )
+    }
+
+    // Usage tracking methods
+
+    /**
+     * Get or set the number of hymns read by the user.
+     */
+    var hymnsReadCount: Int
+        get() = settings.getInt(KEY_HYMNS_READ_COUNT, 0)
+        set(value) = settings.putInt(KEY_HYMNS_READ_COUNT, value)
+
+    /**
+     * Get the number of access attempts for a specific premium feature.
+     */
+    fun getFeatureAccessAttempts(feature: PremiumFeature): Int {
+        return settings.getInt("$KEY_FEATURE_ACCESS_PREFIX${feature.name}", 0)
+    }
+
+    /**
+     * Set the number of access attempts for a specific premium feature.
+     */
+    fun setFeatureAccessAttempts(feature: PremiumFeature, count: Int) {
+        settings.putInt("$KEY_FEATURE_ACCESS_PREFIX${feature.name}", count)
+    }
+
+    /**
+     * Get all feature access attempts as a map.
+     */
+    fun getAllFeatureAccessAttempts(): Map<PremiumFeature, Int> {
+        return PremiumFeature.entries.associateWith { feature ->
+            getFeatureAccessAttempts(feature)
+        }
     }
 }

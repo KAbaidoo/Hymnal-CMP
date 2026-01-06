@@ -1,5 +1,5 @@
 //
-//  IosSubscriptionProvider.swift
+//  IosPurchaseProvider.swift
 //  iosApp
 //
 //  Created by kobby on 25/12/2025.
@@ -11,9 +11,9 @@ import FirebaseCrashlytics
 import StoreKit
 import UIKit
 
-class IosSubscriptionProvider: NSObject, NativeSubscriptionProvider, SKProductsRequestDelegate, SKPaymentTransactionObserver {
-    let YEARLY_SUBSCRIPTION_ID = "yearly_subscription"
-    let ONETIME_PURCHASE_ID = "onetime_purchase"
+class IosPurchaseProvider: NSObject, NativePurchaseProvider, SKProductsRequestDelegate, SKPaymentTransactionObserver {
+    let SUPPORT_BASIC_ID = "support_basic"
+    let SUPPORT_GENEROUS_ID = "support_generous"
 
     var products: [SKProduct] = []
     
@@ -25,8 +25,8 @@ class IosSubscriptionProvider: NSObject, NativeSubscriptionProvider, SKProductsR
         SKPaymentQueue.default().add(self)
     }
     
-    public func fetchSubscriptions() {
-        let productIds: Set<String> = [YEARLY_SUBSCRIPTION_ID, ONETIME_PURCHASE_ID]
+    public func fetchPurchases() {
+        let productIds: Set<String> = [SUPPORT_BASIC_ID, SUPPORT_GENEROUS_ID]
         let request = SKProductsRequest(productIdentifiers: productIds)
         request.delegate = self
         request.start()
@@ -40,7 +40,7 @@ class IosSubscriptionProvider: NSObject, NativeSubscriptionProvider, SKProductsR
         }
     }
     
-    public func purchaseSubscription(productId: String, callback: @escaping (KotlinBoolean) -> Void) -> Bool {
+    public func purchasePurchase(productId: String, callback: @escaping (KotlinBoolean) -> Void) -> Bool {
         guard let product = products.first(where: { $0.productIdentifier == productId }) else {
             callback(KotlinBoolean(value: false))
             return false
@@ -76,10 +76,10 @@ class IosSubscriptionProvider: NSObject, NativeSubscriptionProvider, SKProductsR
     
     public func paymentQueueRestoreCompletedTransactionsFinished(_ queue: SKPaymentQueue) {
         // Check if any purchases were restored
-        let yearlySubscribed = UserDefaults.standard.bool(forKey: YEARLY_SUBSCRIPTION_ID)
-        let onetimePurchased = UserDefaults.standard.bool(forKey: ONETIME_PURCHASE_ID)
-        
-        let hasRestoredPurchases = yearlySubscribed || onetimePurchased
+        let basicPurchased = UserDefaults.standard.bool(forKey: SUPPORT_BASIC_ID)
+        let generousPurchased = UserDefaults.standard.bool(forKey: SUPPORT_GENEROUS_ID)
+
+        let hasRestoredPurchases = basicPurchased || generousPurchased
         restoreCallBack?(KotlinBoolean(value: hasRestoredPurchases))
         restoreCallBack = nil
     }
@@ -95,13 +95,13 @@ class IosSubscriptionProvider: NSObject, NativeSubscriptionProvider, SKProductsR
         UserDefaults.standard.set(true, forKey: productId)
     }
     
-    public func isUserSubscribed(callback: @escaping (KotlinBoolean) -> Void) {
-        let yearlySubscribed = UserDefaults.standard.bool(forKey: YEARLY_SUBSCRIPTION_ID)
-        let onetimePurchased = UserDefaults.standard.bool(forKey: ONETIME_PURCHASE_ID)
-        callback(KotlinBoolean(value: yearlySubscribed || onetimePurchased))
+    public func isUserPurchased(callback: @escaping (KotlinBoolean) -> Void) {
+        let basicPurchased = UserDefaults.standard.bool(forKey: SUPPORT_BASIC_ID)
+        let generousPurchased = UserDefaults.standard.bool(forKey: SUPPORT_GENEROUS_ID)
+        callback(KotlinBoolean(value: basicPurchased || generousPurchased))
     }
 
-    public func manageSubscription() {
+    public func managePurchase() {
         if let url = URL(string: "https://apps.apple.com/account/subscriptions") {
             UIApplication.shared.open(url)
         }

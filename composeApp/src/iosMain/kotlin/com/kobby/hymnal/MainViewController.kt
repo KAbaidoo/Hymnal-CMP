@@ -1,7 +1,7 @@
 package com.kobby.hymnal
 
 import androidx.compose.ui.window.ComposeUIViewController
-import com.kobby.hymnal.core.iap.SubscriptionManager
+import com.kobby.hymnal.core.iap.PurchaseManager
 import com.kobby.hymnal.di.crashlyticsModule
 import com.kobby.hymnal.di.databaseModule
 import com.kobby.hymnal.di.iosModule
@@ -27,8 +27,8 @@ fun MainViewController() = ComposeUIViewController {
     // Initialize subscription manager for trial tracking and entitlement state
     object : KoinComponent {
         init {
-            val subscriptionManager: SubscriptionManager by inject()
-            subscriptionManager.initialize()
+            val purchaseManager: PurchaseManager by inject()
+            purchaseManager.initialize()
         }
     }
 

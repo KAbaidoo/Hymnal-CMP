@@ -13,12 +13,14 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.composeApp.database.Hymn
 import com.kobby.hymnal.core.database.HymnRepository
+import com.kobby.hymnal.core.iap.PurchaseManager
 import com.kobby.hymnal.core.settings.FontSettingsManager
 import com.kobby.hymnal.core.sharing.ShareManager
 import org.koin.compose.koinInject
 import com.kobby.hymnal.presentation.components.DetailScreen
 import com.kobby.hymnal.presentation.components.FontSettingsModal
 import com.kobby.hymnal.presentation.screens.home.HomeScreen
+import com.kobby.hymnal.presentation.screens.settings.PayWallScreen
 import kotlinx.coroutines.launch
 
 // Accept only primitive/serializable arguments to keep Screen serializable
@@ -32,6 +34,9 @@ data class HymnDetailScreen(
         val scope = rememberCoroutineScope()
         val repository: HymnRepository = koinInject()
         val shareManager: ShareManager = koinInject()
+        val purchaseManager: PurchaseManager = koinInject()
+        val entitlementInfo by purchaseManager.entitlementState.collectAsState()
+
         var isFavorite by remember { mutableStateOf(false) }
         var showFontSettings by remember { mutableStateOf(false) }
         var hymn by remember { mutableStateOf<Hymn?>(null) }
@@ -46,6 +51,15 @@ data class HymnDetailScreen(
             isFavorite = repository.isFavorite(hymnId)
             // Add to history once we navigate here
             repository.addToHistory(hymnId)
+
+            // Track hymn read for usage tracking (only if not already supported)
+            if (!entitlementInfo.hasSupported) {
+                val shouldShowSupport = purchaseManager.usageTracker.recordHymnRead()
+                if (shouldShowSupport) {
+                    // Show support sheet after 10th hymn
+                    navigator.push(PayWallScreen())
+                }
+            }
         }
         
         hymn?.let { loadedHymn ->
@@ -72,19 +86,39 @@ data class HymnDetailScreen(
                     }
                 },
                 onFavoriteClick = {
-                    scope.launch {
-                        repository.let { repo ->
-                            if (isFavorite) {
-                                repo.removeFromFavorites(hymnId)
-                            } else {
-                                repo.addToFavorites(hymnId)
+                    // Check if user has access to favorites feature
+                    if (entitlementInfo.canAccessFeature(com.kobby.hymnal.core.iap.PremiumFeature.FAVORITES)) {
+                        scope.launch {
+                            repository.let { repo ->
+                                if (isFavorite) {
+                                    repo.removeFromFavorites(hymnId)
+                                } else {
+                                    repo.addToFavorites(hymnId)
+                                }
+                                isFavorite = !isFavorite
                             }
-                            isFavorite = !isFavorite
                         }
+                    } else {
+                        // Track access attempt and show support sheet
+                        purchaseManager.usageTracker.recordFeatureAccessAttempt(
+                            com.kobby.hymnal.core.iap.PremiumFeature.FAVORITES
+                        )
+                        // User is already viewing content, just show paywall (don't pop back twice)
+                        navigator.push(PayWallScreen(fromGatedScreen = false))
                     }
                 },
                 onFontSettingsClick = {
-                    showFontSettings = true
+                    // Check if user has access to font customization feature
+                    if (entitlementInfo.canAccessFeature(com.kobby.hymnal.core.iap.PremiumFeature.FONT_CUSTOMIZATION)) {
+                        showFontSettings = true
+                    } else {
+                        // Track access attempt and show support sheet
+                        purchaseManager.usageTracker.recordFeatureAccessAttempt(
+                            com.kobby.hymnal.core.iap.PremiumFeature.FONT_CUSTOMIZATION
+                        )
+                        // User is already viewing content, just show paywall (don't pop back twice)
+                        navigator.push(PayWallScreen(fromGatedScreen = false))
+                    }
                 },
                 onShareClick = {
                     shareManager.shareHymn(loadedHymn)

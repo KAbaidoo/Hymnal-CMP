@@ -49,7 +49,6 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.composeApp.database.Hymn
 import com.kobby.hymnal.core.database.HymnRepository
-import com.kobby.hymnal.core.iap.PremiumFeatureGate
 import com.kobby.hymnal.presentation.components.ScreenBackground
 import com.kobby.hymnal.presentation.screens.home.HomeScreen
 import com.kobby.hymnal.presentation.screens.hymns.HymnDetailScreen
@@ -88,37 +87,29 @@ class StartScreen : Screen {
             }
         }
 
-        // Gate the entire app with PremiumFeatureGate
-        // During trial or with active subscription, users see StartScreen content
-        // After trial expires, they navigate directly to PayWall
-        PremiumFeatureGate(
-            premiumContent = {
-                // Auto-navigate to HomeScreen after delay
-                LaunchedEffect(Unit) {
-                    delay(AUTO_NAVIGATION_DELAY_MS)
-                    if (!hasNavigated) {
-                        hasNavigated = true
-                        navigator.push(HomeScreen())
-                    }
-                }
+        // Auto-navigate to HomeScreen after delay
+        LaunchedEffect(Unit) {
+            delay(AUTO_NAVIGATION_DELAY_MS)
+            if (!hasNavigated) {
+                hasNavigated = true
+                navigator.push(HomeScreen())
+            }
+        }
 
-                StartScreenContent(
-                    randomHymn = randomHymn,
-                    onStartButtonClicked = {
-                        if (!hasNavigated) {
-                            hasNavigated = true
-                            navigator.push(HomeScreen())
-                        }
-                    },
-                    onRandomHymnClicked = { hymn ->
-                        if (!hasNavigated) {
-                            hasNavigated = true
-                            navigator.push(HymnDetailScreen(hymnId = hymn.id, fromStartScreen = true))
-                        }
-                    }
-                )
+        StartScreenContent(
+            randomHymn = randomHymn,
+            onStartButtonClicked = {
+                if (!hasNavigated) {
+                    hasNavigated = true
+                    navigator.push(HomeScreen())
+                }
             },
-            showPaywallOnDenied = true
+            onRandomHymnClicked = { hymn ->
+                if (!hasNavigated) {
+                    hasNavigated = true
+                    navigator.push(HymnDetailScreen(hymnId = hymn.id, fromStartScreen = true))
+                }
+            }
         )
     }
 

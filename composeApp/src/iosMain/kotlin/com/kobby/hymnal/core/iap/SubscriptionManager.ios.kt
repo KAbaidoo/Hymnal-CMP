@@ -6,49 +6,49 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.datetime.Clock
 
-class IosSubscriptionManager(
-    private val storage: SubscriptionStorage
-) : SubscriptionManager {
+class IosPurchaseManager(
+    private val storage: PurchaseStorage
+) : PurchaseManager {
 
     companion object {
-        const val YEARLY_SUBSCRIPTION_ID = "yearly_subscription"
-        const val ONETIME_PURCHASE_ID = "onetime_purchase"
+        const val SUPPORT_BASIC_ID = "support_basic"
+        const val SUPPORT_GENEROUS_ID = "support_generous"
     }
     
     private val _entitlementState = MutableStateFlow(storage.getEntitlementInfo())
     override val entitlementState: StateFlow<EntitlementInfo> = _entitlementState.asStateFlow()
 
+    override val usageTracker: UsageTrackingManager = UsageTrackingManager(storage)
+
     init {
-        nativeSubscriptionProvider?.fetchSubscriptions()
+        nativePurchaseProvider?.fetchPurchases()
     }
     
     override fun initialize() {
-        // Initialize first install date if needed
-        storage.initializeFirstInstallIfNeeded()
-        
-        // Check current subscription status from platform
+        // Initialize usage tracker
+        usageTracker.initialize()
+
+        // Check current purchase status from platform
         refreshEntitlementState()
     }
 
     override fun purchaseSubscription(plan: PayPlan, callback: (Boolean) -> Unit) {
         val productId = when (plan) {
-            PayPlan.Yearly -> YEARLY_SUBSCRIPTION_ID
-            PayPlan.OneTime -> ONETIME_PURCHASE_ID
+            PayPlan.SupportBasic -> SUPPORT_BASIC_ID
+            PayPlan.SupportGenerous -> SUPPORT_GENEROUS_ID
         }
 
-        nativeSubscriptionProvider?.purchaseSubscription(
+        nativePurchaseProvider?.purchasePurchase(
             productId = productId,
             callback = { success ->
                 if (success) {
-                    // Record purchase in storage
-                    val purchaseType = when (plan) {
-                        PayPlan.Yearly -> PurchaseType.YEARLY_SUBSCRIPTION
-                        PayPlan.OneTime -> PurchaseType.ONE_TIME_PURCHASE
-                    }
+                    // Record purchase in storage - both are one-time purchases
                     storage.recordPurchase(
                         productId = productId,
-                        purchaseType = purchaseType
+                        purchaseType = PurchaseType.ONE_TIME_PURCHASE
                     )
+                    // Reset hymn read count after support
+                    usageTracker.resetHymnReadCount()
                     refreshEntitlementState()
                 }
                 callback(success)
@@ -57,26 +57,25 @@ class IosSubscriptionManager(
     }
 
     override fun isUserSubscribed(callback: (Boolean) -> Unit) {
-        nativeSubscriptionProvider?.isUserSubscribed { isSubscribed ->
+        nativePurchaseProvider?.isUserPurchased { isPurchased ->
             // Update storage with current state
-            storage.isSubscribed = isSubscribed
+            storage.isSubscribed = isPurchased
             storage.lastVerificationTime = Clock.System.now().toEpochMilliseconds()
 
-            // Check if user has access (either subscribed or in trial)
-            val hasAccess = isSubscribed || storage.isTrialActive()
+            // In freemium model, only users with purchases have access
             refreshEntitlementState()
-            callback(hasAccess)
+            callback(isPurchased)
         }
     }
 
     override fun manageSubscription() {
-        nativeSubscriptionProvider?.manageSubscription()
+        nativePurchaseProvider?.managePurchase()
     }
     
     override fun restorePurchases(callback: (Boolean) -> Unit) {
-        nativeSubscriptionProvider?.restorePurchases { success ->
+        nativePurchaseProvider?.restorePurchases { success ->
             if (success) {
-                // Refresh subscription status after restoration
+                // Refresh purchase status after restoration
                 isUserSubscribed { _ ->
                     callback(true)
                 }
@@ -95,20 +94,20 @@ class IosSubscriptionManager(
     }
 }
 
-actual fun createSubscriptionManager(): SubscriptionManager {
+actual fun createSubscriptionManager(): PurchaseManager {
     throw IllegalStateException("Use Koin for dependency injection on iOS")
 }
 
-interface NativeSubscriptionProvider {
-    fun isUserSubscribed(callback: (Boolean) -> Unit)
-    fun fetchSubscriptions()
-    fun manageSubscription()
-    fun purchaseSubscription(productId: String, callback: (Boolean) -> Unit): Boolean
+interface NativePurchaseProvider {
+    fun isUserPurchased(callback: (Boolean) -> Unit)
+    fun fetchPurchases()
+    fun managePurchase()
+    fun purchasePurchase(productId: String, callback: (Boolean) -> Unit): Boolean
     fun restorePurchases(callback: (Boolean) -> Unit)
 }
 
-private var nativeSubscriptionProvider: NativeSubscriptionProvider? = null
+private var nativePurchaseProvider: NativePurchaseProvider? = null
 
-fun initializeNativeSubscriptionProvider(provider: NativeSubscriptionProvider) {
-    nativeSubscriptionProvider = provider
+fun initializeNativePurchaseProvider(provider: NativePurchaseProvider) {
+    nativePurchaseProvider = provider
 }

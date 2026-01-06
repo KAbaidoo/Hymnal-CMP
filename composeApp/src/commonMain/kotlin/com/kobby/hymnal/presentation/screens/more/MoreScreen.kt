@@ -9,6 +9,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.presentation.screens.more.components.MoreScreenContent
+import com.kobby.hymnal.presentation.screens.settings.PayWallScreen
 
 class MoreScreen : Screen {
     @Composable
@@ -24,6 +25,7 @@ class MoreScreen : Screen {
                     "Favorites" -> navigator.push(FavoritesScreen())
                     "History" -> navigator.push(HistoryScreen())
                     "Highlights" -> navigator.push(HighlightsScreen())
+                    "Support Development" -> navigator.push(PayWallScreen())
                 }
             },
             onBackClick = { navigator.pop() },

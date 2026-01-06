@@ -41,21 +41,23 @@ import com.kobby.hymnal.theme.DarkTextColor
 import com.kobby.hymnal.theme.HymnalAppTheme
 import com.kobby.hymnal.theme.YellowAccent
 import hymnal_cmp.composeapp.generated.resources.Res
+import hymnal_cmp.composeapp.generated.resources.arrow_left_s_line
 import hymnal_cmp.composeapp.generated.resources.book_leaf
 import hymnal_cmp.composeapp.generated.resources.bookmark_line
 import hymnal_cmp.composeapp.generated.resources.close_circle_line
+import hymnal_cmp.composeapp.generated.resources.heart_2_line
+import hymnal_cmp.composeapp.generated.resources.home_3_line
 import hymnal_cmp.composeapp.generated.resources.music_2_line
 import hymnal_cmp.composeapp.generated.resources.settings_action_privacy
 import hymnal_cmp.composeapp.generated.resources.settings_action_terms
-import hymnal_cmp.composeapp.generated.resources.settings_feature_bookmarks
-import hymnal_cmp.composeapp.generated.resources.settings_feature_full_library
-import hymnal_cmp.composeapp.generated.resources.settings_feature_no_ads
-import hymnal_cmp.composeapp.generated.resources.settings_feature_offline_access
-import hymnal_cmp.composeapp.generated.resources.settings_option_onetime_badge
-import hymnal_cmp.composeapp.generated.resources.settings_option_onetime_subtitle
-import hymnal_cmp.composeapp.generated.resources.settings_option_onetime_title
-import hymnal_cmp.composeapp.generated.resources.settings_option_yearly_subtitle
-import hymnal_cmp.composeapp.generated.resources.settings_option_yearly_title
+import hymnal_cmp.composeapp.generated.resources.settings_feature_favorites
+import hymnal_cmp.composeapp.generated.resources.settings_feature_font_customization
+import hymnal_cmp.composeapp.generated.resources.settings_feature_highlighting
+import hymnal_cmp.composeapp.generated.resources.settings_option_basic_subtitle
+import hymnal_cmp.composeapp.generated.resources.settings_option_basic_title
+import hymnal_cmp.composeapp.generated.resources.settings_option_generous_badge
+import hymnal_cmp.composeapp.generated.resources.settings_option_generous_subtitle
+import hymnal_cmp.composeapp.generated.resources.settings_option_generous_title
 import hymnal_cmp.composeapp.generated.resources.settings_section_features_subtitle
 import hymnal_cmp.composeapp.generated.resources.settings_section_features_title
 import hymnal_cmp.composeapp.generated.resources.settings_section_shared_ministry_body
@@ -63,15 +65,17 @@ import hymnal_cmp.composeapp.generated.resources.settings_section_shared_ministr
 import hymnal_cmp.composeapp.generated.resources.settings_separator_bullet
 import hymnal_cmp.composeapp.generated.resources.settings_subtitle_paywall
 import hymnal_cmp.composeapp.generated.resources.settings_title_paywall
-import hymnal_cmp.composeapp.generated.resources.trial_expired
 import hymnal_cmp.composeapp.generated.resources.wifi_off_line
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-// Simple plan model
-enum class PayPlan { Yearly, OneTime }
+// Support tier model - both tiers unlock the same features
+enum class PayPlan {
+    SupportBasic,   // GH₵ 15 / $0.99 - accessible tier
+    SupportGenerous // GH₵ 20 / $1.99 - generous supporter tier
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,15 +85,15 @@ fun PayWallContent(
     isRestoring: Boolean = false,
     errorMsg: String? = null,
     successMsg: String? = null,
-    trialDaysRemaining: Int? = null,
-    isDismissible: Boolean = true,
+    trialDaysRemaining: Int? = null, // Deprecated - kept for API compatibility
+    isDismissible: Boolean = true, // Deprecated - always true in freemium
     onPurchase: (PayPlan) -> Unit = {},
     onRestore: () -> Unit = {},
     onCloseClick: () -> Unit = {},
     onPrivacy: () -> Unit = {},
     onTerms: () -> Unit = {}
 ) {
-    var selectedPlan by remember { mutableStateOf(PayPlan.OneTime) }
+    var selectedPlan by remember { mutableStateOf(PayPlan.SupportBasic) }
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val topAppBarElementColor = MaterialTheme.colorScheme.secondary
     // Add a content scroll state for the main content so bottom content can scroll when space is limited
@@ -108,15 +112,13 @@ fun PayWallContent(
 
                     },
                     actions = {
-                        // Only show close button when the paywall is dismissible
-                        if (isDismissible) {
-                            IconButton(onClick = onCloseClick) {
-                                Icon(
-                                    modifier = Modifier.size(30.dp),
-                                    imageVector = Icons.Outlined.Close,
-                                    contentDescription = null
-                                )
-                            }
+                        // Close button (X) - always visible in freemium
+                        IconButton(onClick = onCloseClick) {
+                            Icon(
+                                modifier = Modifier.size(30.dp),
+                                imageVector = Icons.Outlined.Close,
+                                contentDescription = null
+                            )
                         }
                     },
                     colors = TopAppBarDefaults.largeTopAppBarColors(
@@ -257,27 +259,7 @@ private fun PaywallHeader(trialDaysRemaining: Int? = null, isDismissible: Boolea
         )
         Spacer(Modifier.height(8.dp))
         
-        // Show trial info if user is in trial period
-        if (trialDaysRemaining != null && trialDaysRemaining > 0) {
-            Text(
-                text = "$trialDaysRemaining day${if (trialDaysRemaining != 1) "s" else ""} left in trial",
-                style = MaterialTheme.typography.bodyMedium,
-                color = YellowAccent,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
-            )
-            Spacer(Modifier.height(4.dp))
-        } else if (!isDismissible) {
-            // Show explicit expired message when paywall is non-dismissible
-            Text(
-                text = stringResource(Res.string.trial_expired),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.error,
-                textAlign = TextAlign.Center
-            )
-            Spacer(Modifier.height(4.dp))
-        }
-        
+
         Text(
             text = stringResource(Res.string.settings_subtitle_paywall),
             style = MaterialTheme.typography.bodySmall,
@@ -291,18 +273,18 @@ private fun PaywallHeader(trialDaysRemaining: Int? = null, isDismissible: Boolea
 private fun PurchaseOptions(selected: PayPlan, onSelected: (PayPlan) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         RadioPlanCard(
-            title = stringResource(Res.string.settings_option_yearly_title),
-            subtitle = stringResource(Res.string.settings_option_yearly_subtitle),
+            title = stringResource(Res.string.settings_option_basic_title),
+            subtitle = stringResource(Res.string.settings_option_basic_subtitle),
             badge = null,
-            selected = selected == PayPlan.Yearly,
-            onClick = { onSelected(PayPlan.Yearly) }
+            selected = selected == PayPlan.SupportBasic,
+            onClick = { onSelected(PayPlan.SupportBasic) }
         )
         RadioPlanCard(
-            title = stringResource(Res.string.settings_option_onetime_title),
-            subtitle = stringResource(Res.string.settings_option_onetime_subtitle),
-            badge = stringResource(Res.string.settings_option_onetime_badge),
-            selected = selected == PayPlan.OneTime,
-            onClick = { onSelected(PayPlan.OneTime) }
+            title = stringResource(Res.string.settings_option_generous_title),
+            subtitle = stringResource(Res.string.settings_option_generous_subtitle),
+            badge = stringResource(Res.string.settings_option_generous_badge),
+            selected = selected == PayPlan.SupportGenerous,
+            onClick = { onSelected(PayPlan.SupportGenerous) }
         )
     }
 }
@@ -450,11 +432,9 @@ private fun FeaturesCard() {
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
         )
-        FeatureRow(vectorResource(Res.drawable.music_2_line), stringResource(Res.string.settings_feature_full_library))
-        FeatureRow(vectorResource(Res.drawable.wifi_off_line), stringResource(Res.string.settings_feature_offline_access))
-        FeatureRow(vectorResource(Res.drawable.bookmark_line), stringResource(Res.string.settings_feature_bookmarks))
-        FeatureRow(vectorResource(Res.drawable.close_circle_line), stringResource(Res.string.settings_feature_no_ads))
-//        FeatureRow(vectorResource(Res.drawable.ai_generate), stringResource(Res.string.settings_feature_future_updates))
+        FeatureRow(vectorResource(Res.drawable.heart_2_line), stringResource(Res.string.settings_feature_favorites))
+        FeatureRow(vectorResource(Res.drawable.bookmark_line), stringResource(Res.string.settings_feature_highlighting))
+        FeatureRow(vectorResource(Res.drawable.music_2_line), stringResource(Res.string.settings_feature_font_customization))
     }
 }
 

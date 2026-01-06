@@ -11,40 +11,41 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.datetime.Clock
 
-class AndroidSubscriptionManager(
+class AndroidPurchaseManager(
     private val context: Context,
     private val billingHelper: BillingHelper,
-    private val storage: SubscriptionStorage
-) : SubscriptionManager {
+    private val storage: PurchaseStorage
+) : PurchaseManager {
     
     private val _entitlementState = MutableStateFlow(storage.getEntitlementInfo())
     override val entitlementState: StateFlow<EntitlementInfo> = _entitlementState.asStateFlow()
 
+    override val usageTracker: UsageTrackingManager = UsageTrackingManager(storage)
+
     override fun initialize() {
-        // Initialize first install date if needed
-        storage.initializeFirstInstallIfNeeded()
-        
+        // Initialize usage tracker
+        usageTracker.initialize()
+
         // Check current subscription status from platform
         refreshEntitlementState()
     }
 
     override fun purchaseSubscription(plan: PayPlan, callback: (Boolean) -> Unit) {
         (context as? Activity)?.let { activity ->
-            val (productId, productType) = when (plan) {
-                PayPlan.Yearly -> billingHelper.YEARLY_SUBSCRIPTION to BillingClient.ProductType.SUBS
-                PayPlan.OneTime -> billingHelper.ONETIME_PURCHASE to BillingClient.ProductType.INAPP
+            // Both tiers are one-time purchases (non-consumable in-app products)
+            val productId = when (plan) {
+                PayPlan.SupportBasic -> billingHelper.SUPPORT_BASIC
+                PayPlan.SupportGenerous -> billingHelper.SUPPORT_GENEROUS
             }
-            billingHelper.purchaseProduct(productId, productType, activity) { success ->
+            billingHelper.purchaseProduct(productId, BillingClient.ProductType.INAPP, activity) { success ->
                 if (success) {
-                    // Record purchase in storage
-                    val purchaseType = when (plan) {
-                        PayPlan.Yearly -> PurchaseType.YEARLY_SUBSCRIPTION
-                        PayPlan.OneTime -> PurchaseType.ONE_TIME_PURCHASE
-                    }
+                    // Record purchase in storage - both are one-time purchases
                     storage.recordPurchase(
                         productId = productId,
-                        purchaseType = purchaseType
+                        purchaseType = PurchaseType.ONE_TIME_PURCHASE
                     )
+                    // Reset hymn read count after support
+                    usageTracker.resetHymnReadCount()
                     refreshEntitlementState()
                 }
                 callback(success)
@@ -58,10 +59,9 @@ class AndroidSubscriptionManager(
             storage.isSubscribed = isSubscribed
             storage.lastVerificationTime = Clock.System.now().toEpochMilliseconds()
 
-            // Check if user has access (either subscribed or in trial)
-            val hasAccess = isSubscribed || storage.isTrialActive()
+            // In freemium model, only actual subscribers have access
             refreshEntitlementState()
-            callback(hasAccess)
+            callback(isSubscribed)
         }
     }
 
@@ -97,6 +97,6 @@ class AndroidSubscriptionManager(
     }
 }
 
-actual fun createSubscriptionManager(): SubscriptionManager {
+actual fun createSubscriptionManager(): PurchaseManager {
     throw IllegalStateException("Use Koin for dependency injection on Android")
 }

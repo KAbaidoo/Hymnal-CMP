@@ -1,14 +1,14 @@
 <resources>
     <!-- Header -->
-    <string name="settings_title_paywall">Unlock the Full\nAnglican Hymnal</string>
-    <string name="settings_subtitle_paywall">One small payment. A lifetime\nof worship.</string>
+    <string name="settings_title_paywall">Enjoying the\nHymnal?</string>
+    <string name="settings_subtitle_paywall">This app is a passion project built to keep our hymns alive. Support development to unlock premium features forever.</string>
 
     <!-- Purchase options -->
-    <string name="settings_option_yearly_title">USD 0.99 / year</string>
-    <string name="settings_option_yearly_subtitle">Renews automatically</string>
-    <string name="settings_option_onetime_title">USD 2.50 / One-time payment</string>
-    <string name="settings_option_onetime_subtitle">Pay once. Own it forever.</string>
-    <string name="settings_option_onetime_badge">Best Value</string>
+    <string name="settings_option_basic_title">GH₵ 10 / One-time</string>
+    <string name="settings_option_basic_subtitle">Unlock all premium features</string>
+    <string name="settings_option_generous_title">GH₵ 20 / One-time</string>
+    <string name="settings_option_generous_subtitle">Support what you can. Same features.</string>
+    <string name="settings_option_generous_badge">Generous</string>
 
     <!-- Trial banner -->
     <string name="trial_upgrade_cta">Upgrade Now</string>
@@ -26,17 +26,16 @@
     <string name="settings_separator_bullet">  •  </string>
 
     <!-- Features card -->
-    <string name="settings_section_features_title">Includes</string>
-    <string name="settings_section_features_subtitle">Everything you need for worship</string>
-    <string name="settings_feature_full_library">Full hymn library</string>
-    <string name="settings_feature_offline_access">Offline access</string>
-    <string name="settings_feature_bookmarks">Bookmarks &amp; favorites</string>
-    <string name="settings_feature_no_ads">No ads</string>
+    <string name="settings_section_features_title">Premium Features</string>
+    <string name="settings_section_features_subtitle">Support unlocks these convenience tools</string>
+    <string name="settings_feature_favorites">Favorites &amp; bookmarks</string>
+    <string name="settings_feature_highlighting">Text highlighting</string>
+    <string name="settings_feature_font_customization">Font customization</string>
     <string name="settings_feature_future_updates">Future updates included</string>
 
     <!-- Shared ministry card -->
-    <string name="settings_section_shared_ministry_title">A shared ministry</string>
-    <string name="settings_section_shared_ministry_body">This contribution supports hosting, updates to keep the Hymnal app accessible and ad-free.</string>
+    <string name="settings_section_shared_ministry_title">Support this Ministry</string>
+    <string name="settings_section_shared_ministry_body">Your contribution supports hosting, updates, and keeps the Hymnal app accessible and ad-free for everyone. Payment via MTN MoMo or Telecel Cash accepted.</string>
 
     <!-- Accessibility / content descriptions -->
     <string name="cd_back">Back</string>

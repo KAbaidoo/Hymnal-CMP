@@ -3,7 +3,7 @@ package com.kobby.hymnal.core.iap
 import com.kobby.hymnal.presentation.screens.settings.PayPlan
 import kotlinx.coroutines.flow.StateFlow
 
-interface SubscriptionManager {
+interface PurchaseManager {
     /**
      * Purchase a subscription plan.
      */
@@ -35,11 +35,16 @@ interface SubscriptionManager {
     val entitlementState: StateFlow<EntitlementInfo>
     
     /**
+     * Usage tracker for monitoring app usage and showing support prompts.
+     */
+    val usageTracker: UsageTrackingManager
+
+    /**
      * Initialize the subscription manager (check trial, verify purchases).
      * Should be called on app startup.
      */
     fun initialize()
 }
 
-expect fun createSubscriptionManager(): SubscriptionManager
+expect fun createSubscriptionManager(): PurchaseManager
 
