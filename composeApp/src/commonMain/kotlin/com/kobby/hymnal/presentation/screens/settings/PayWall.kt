@@ -93,7 +93,7 @@ fun PayWallContent(
     onPrivacy: () -> Unit = {},
     onTerms: () -> Unit = {}
 ) {
-    var selectedPlan by remember { mutableStateOf(PayPlan.SupportBasic) }
+    var selectedPlan by remember { mutableStateOf(PayPlan.SupportGenerous) }
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val topAppBarElementColor = MaterialTheme.colorScheme.secondary
     // Add a content scroll state for the main content so bottom content can scroll when space is limited
@@ -257,12 +257,12 @@ private fun PaywallHeader(trialDaysRemaining: Int? = null, isDismissible: Boolea
             color = DarkTextColor,
             textAlign = TextAlign.Center
         )
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(10.dp))
         
 
         Text(
             text = stringResource(Res.string.settings_subtitle_paywall),
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodyMedium,
             color = YellowAccent.copy(alpha = 0.85f),
             textAlign = TextAlign.Center
         )
@@ -343,7 +343,7 @@ private fun RadioPlanCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
                 if (badge != null) {
-                    Spacer(Modifier.width(48.dp))
+                    Spacer(Modifier.width(20.dp))
                     BadgePill(badge)
                 }
             }

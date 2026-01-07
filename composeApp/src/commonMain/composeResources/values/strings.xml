@@ -1,13 +1,13 @@
 <resources>
     <!-- Header -->
     <string name="settings_title_paywall">Enjoying the\nHymnal?</string>
-    <string name="settings_subtitle_paywall">This app is a passion project built to keep our hymns alive. Support development to unlock premium features forever.</string>
+    <string name="settings_subtitle_paywall">Support development to keep our hymns alive.</string>
 
     <!-- Purchase options -->
-    <string name="settings_option_basic_title">GH₵ 10 / One-time</string>
-    <string name="settings_option_basic_subtitle">Unlock all premium features</string>
-    <string name="settings_option_generous_title">GH₵ 20 / One-time</string>
-    <string name="settings_option_generous_subtitle">Support what you can. Same features.</string>
+    <string name="settings_option_basic_title">GH₵ 10</string>
+    <string name="settings_option_basic_subtitle">Basic support.</string>
+    <string name="settings_option_generous_title">GH₵ 20</string>
+    <string name="settings_option_generous_subtitle">More support. You earn a badge.</string>
     <string name="settings_option_generous_badge">Generous</string>
 
     <!-- Trial banner -->
@@ -35,7 +35,7 @@
 
     <!-- Shared ministry card -->
     <string name="settings_section_shared_ministry_title">Support this Ministry</string>
-    <string name="settings_section_shared_ministry_body">Your contribution supports hosting, updates, and keeps the Hymnal app accessible and ad-free for everyone. Payment via MTN MoMo or Telecel Cash accepted.</string>
+    <string name="settings_section_shared_ministry_body">Your your contribution supports hosting, updates, and keeps the Hymnal app ad-free for everyone.</string>
 
     <!-- Accessibility / content descriptions -->
     <string name="cd_back">Back</string>
