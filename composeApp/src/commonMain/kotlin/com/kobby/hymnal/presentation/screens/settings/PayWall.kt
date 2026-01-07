@@ -137,8 +137,7 @@ fun PayWallContent(
                         .size(250.dp)
                         .align(Alignment.TopEnd)
                 )
-                // pass isDismissible into header so it can show expired state
-                PaywallHeader(trialDaysRemaining = trialDaysRemaining, isDismissible = isDismissible)
+                PaywallHeader()
 
             }
 
@@ -241,7 +240,7 @@ fun PayWallContent(
 }
 
 @Composable
-private fun PaywallHeader(trialDaysRemaining: Int? = null, isDismissible: Boolean) {
+private fun PaywallHeader() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
