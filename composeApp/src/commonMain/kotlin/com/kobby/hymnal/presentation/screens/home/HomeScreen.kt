@@ -12,11 +12,12 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.collectAsState
@@ -72,6 +73,8 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.resources.stringResource
 import com.kobby.hymnal.theme.DarkTextColor
+import com.kobby.hymnal.theme.HymnalAppTheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 class HomeScreen : Screen {
     @Composable
@@ -82,7 +85,6 @@ class HomeScreen : Screen {
         val entitlementInfo by purchaseManager.entitlementState.collectAsState()
 
         HomeScreenContent(
-            entitlementInfo = entitlementInfo,
             onSearchClick = { navigator.push(GlobalSearchScreen()) },
             onAncientModernClick = { 
                 navigator.push(HymnListScreen(
@@ -124,7 +126,6 @@ class HomeScreen : Screen {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeScreenContent(
-    entitlementInfo: com.kobby.hymnal.core.iap.EntitlementInfo,
     onSearchClick: () -> Unit = {},
     onAncientModernClick: () -> Unit = {},
     onSupplementaryClick: () -> Unit = {},
@@ -155,91 +156,92 @@ private fun HomeScreenContent(
                 )
             }
         ) { paddingValues ->
-            Box(
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .offset(y = (100).dp)
+            Column(modifier = Modifier.fillMaxWidth()
+                .padding( paddingValues)
+                .offset(y = (80).dp)
+                .verticalScroll(rememberScrollState())
+
             ) {
-                ScreenBackground(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(32.dp, 32.dp, 0.dp, 0.dp))
-                ) {
-                    val scrollState = rememberScrollState()
-                    Column(
+
+                    ScreenBackground(
                         modifier = Modifier
-                            .verticalScroll(scrollState)
-                            .padding(16.dp)
-                            .padding(vertical = 34.dp)
-                            .fillMaxWidth()
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(32.dp, 32.dp, 0.dp, 0.dp))
                     ) {
+                        Column(
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .padding(vertical = 20.dp)
+                                .fillMaxWidth()
+                        ) {
 
-                        SemiTransparentCard {
-                            Text(
-                                text = stringResource(Res.string.find_your_hymns),
-                                style = MaterialTheme.typography.headlineMedium,
-                                color = DarkTextColor,
-                                modifier = Modifier.padding(bottom = 8.dp)
-                            )
-                            Text(
-                                text = stringResource(Res.string.explore_collection),
-                                color = DarkTextColor.copy(alpha = 0.7f),
-                                style = MaterialTheme.typography.bodySmall,
-                                modifier = Modifier.padding(top = 4.dp, bottom = 24.dp)
-                            )
-
-                            Button(
-                                onClick = onFavoritesClick,
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.secondary
-                                ),
-                                shape = Shapes.medium,
-                                modifier = Modifier.height(40.dp)
-                            ) {
+                            SemiTransparentCard {
                                 Text(
-                                    text = stringResource(Res.string.my_hymns),
-                                    color = MaterialTheme.colorScheme.primary,
-                                    style = MaterialTheme.typography.bodyLarge,
+                                    text = stringResource(Res.string.find_your_hymns),
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    color = DarkTextColor,
+                                    modifier = Modifier.padding(bottom = 8.dp)
                                 )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Icon(
-                                    imageVector = Icons.Outlined.ArrowForward,
-                                    contentDescription = stringResource(Res.string.cd_open),
-                                    tint = MaterialTheme.colorScheme.primary
+                                Text(
+                                    text = stringResource(Res.string.explore_collection),
+                                    color = DarkTextColor.copy(alpha = 0.7f),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    modifier = Modifier.padding(top = 4.dp, bottom = 24.dp)
+                                )
+
+                                Button(
+                                    onClick = onFavoritesClick,
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.secondary
+                                    ),
+                                    shape = Shapes.medium,
+                                    modifier = Modifier.height(40.dp)
+                                ) {
+                                    Text(
+                                        text = stringResource(Res.string.my_hymns),
+                                        color = MaterialTheme.colorScheme.primary,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Icon(
+                                        imageVector = Icons.Outlined.ArrowForward,
+                                        contentDescription = stringResource(Res.string.cd_open),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(24.dp))
+                            CategoryButtons(
+                                title = "Ancient & Modern",
+                                onClick = onAncientModernClick
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            CategoryButtons(
+                                title = "Supplementary",
+                                onClick = onSupplementaryClick
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            CategoryButtons(
+                                title = "Canticles",
+                                onClick = onCanticleClick
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            CategoryButtons(
+                                title = "The Psalms",
+                                onClick = onPsalmsClick
+                            )
+                            if (isDeveloperMode) {
+                                Spacer(modifier = Modifier.height(12.dp))
+                                CategoryButtons(
+                                    title = "Test Database",
+                                    onClick = onTestDatabaseClick
                                 )
                             }
                         }
-                        
-                        Spacer(modifier = Modifier.height(24.dp))
-                        CategoryButtons(
-                            title = "Ancient & Modern",
-                            onClick = onAncientModernClick
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        CategoryButtons(
-                            title = "Supplementary",
-                            onClick = onSupplementaryClick
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        CategoryButtons(
-                            title = "Canticles",
-                            onClick = onCanticleClick
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        CategoryButtons(
-                            title = "The Psalms",
-                            onClick = onPsalmsClick
-                        )
-                        if (isDeveloperMode) {
-                            Spacer(modifier = Modifier.height(12.dp))
-                            CategoryButtons(
-                                title = "Test Database",
-                                onClick = onTestDatabaseClick
-                            )
-                        }
                     }
-                }
             }
+
         }
     }
 }
@@ -304,4 +306,12 @@ private fun AppBar(
 
         }
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomeScreenContentPreview(){
+    HymnalAppTheme {
+        HomeScreenContent()
+    }
 }
