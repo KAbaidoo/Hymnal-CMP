@@ -3,62 +3,101 @@ package com.kobby.hymnal.core.iap
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.datetime.Clock
 
 /**
- * Tracks app usage to determine when to show support prompts.
- * In the generous freemium model, we track hymn reads to show support sheet
- * at natural interruption points (e.g., after 10th hymn).
+ * Tracks app usage to determine when to show donation prompts.
+ * Uses exponential backoff to show prompts less frequently over time.
+ *
+ * Non-supporters: 10, 25, 50, 100, 200, 400 (capped) hymns
+ * Supporters (yearly reminders): 50, 100, 200 (less aggressive) hymns
  */
 class UsageTrackingManager(private val storage: PurchaseStorage) {
-
-    companion object {
-        private const val HYMNS_READ_THRESHOLD = 10
-    }
 
     private val _usageStats = MutableStateFlow(UsageStats())
     val usageStats: StateFlow<UsageStats> = _usageStats.asStateFlow()
 
     /**
      * Record that a hymn was read.
-     * Returns true if we should show the support prompt.
+     * Returns true if we should show the donation prompt.
      */
-    fun recordHymnRead(): Boolean {
+    fun recordHymnRead(isSupporter: Boolean): Boolean {
         val currentCount = storage.hymnsReadCount
         val newCount = currentCount + 1
         storage.hymnsReadCount = newCount
 
+        // Track hymns since donation for supporters
+        if (isSupporter) {
+            storage.hymnsSinceDonation = storage.hymnsSinceDonation + 1
+        }
+
         _usageStats.value = _usageStats.value.copy(hymnsRead = newCount)
 
-        // Show support prompt on exactly the threshold hymn
-        return newCount == HYMNS_READ_THRESHOLD
+        // Check if we should show donation prompt
+        return shouldShowDonationPrompt(isSupporter)
     }
 
     /**
-     * Record that a premium feature was accessed (for analytics).
+     * Check if donation prompt should be shown based on exponential backoff logic.
      */
-    fun recordFeatureAccessAttempt(feature: PremiumFeature) {
-        val attempts = storage.getFeatureAccessAttempts(feature)
-        storage.setFeatureAccessAttempts(feature, attempts + 1)
+    fun shouldShowDonationPrompt(isSupporter: Boolean): Boolean {
+        // For supporters, check if yearly reminder is due
+        if (isSupporter) {
+            if (!storage.shouldShowYearlyReminder()) {
+                return false // Within 365-day grace period
+            }
+            // After 365 days, use hymns since donation for reminder interval
+            val hymnsSinceDonation = storage.hymnsSinceDonation
+            val nextThreshold = storage.nextPromptThreshold
+            return hymnsSinceDonation >= nextThreshold
+        }
+
+        // For non-supporters, use regular exponential backoff
+        val hymnsRead = storage.hymnsReadCount
+        val nextThreshold = storage.nextPromptThreshold
+        return hymnsRead >= nextThreshold
+    }
+
+    /**
+     * Record that the donation prompt was shown.
+     * Increments prompt counter and calculates next threshold.
+     */
+    fun recordPromptShown(isSupporter: Boolean) {
+        storage.lastDonationPromptTimestamp = Clock.System.now().toEpochMilliseconds()
+        storage.donationPromptCount += 1
+
+        // Calculate and store next threshold based on new prompt count
+        val nextThreshold = storage.calculateNextThreshold(isSupporter)
+        storage.nextPromptThreshold = nextThreshold
+    }
+
+    /**
+     * Record that a donation was made.
+     * Resets counters and sets up yearly reminder schedule.
+     */
+    fun recordDonationMade() {
+        storage.recordDonation()
+        // Reset hymn count for fresh start
+        storage.hymnsReadCount = 0
 
         _usageStats.value = _usageStats.value.copy(
-            featureAccessAttempts = storage.getAllFeatureAccessAttempts()
+            hymnsRead = 0,
+            promptCount = 0
         )
     }
 
     /**
-     * Reset the hymn read counter (e.g., after user supports).
+     * Get the next prompt threshold for display purposes.
      */
-    fun resetHymnReadCount() {
-        storage.hymnsReadCount = 0
-        _usageStats.value = _usageStats.value.copy(hymnsRead = 0)
+    fun getNextPromptThreshold(): Int {
+        return storage.nextPromptThreshold
     }
 
     /**
-     * Check if we should show the support prompt based on usage.
+     * Check if this is a yearly reminder (for supporters).
      */
-    fun shouldShowSupportPrompt(): Boolean {
-        val hymnsRead = storage.hymnsReadCount
-        return hymnsRead >= HYMNS_READ_THRESHOLD
+    fun isYearlyReminder(isSupporter: Boolean): Boolean {
+        return isSupporter && storage.shouldShowYearlyReminder()
     }
 
     /**
@@ -67,7 +106,8 @@ class UsageTrackingManager(private val storage: PurchaseStorage) {
     fun initialize() {
         _usageStats.value = UsageStats(
             hymnsRead = storage.hymnsReadCount,
-            featureAccessAttempts = storage.getAllFeatureAccessAttempts()
+            promptCount = storage.donationPromptCount,
+            lastDonationDate = storage.lastDonationDate
         )
     }
 }
@@ -77,6 +117,7 @@ class UsageTrackingManager(private val storage: PurchaseStorage) {
  */
 data class UsageStats(
     val hymnsRead: Int = 0,
-    val featureAccessAttempts: Map<PremiumFeature, Int> = emptyMap()
+    val promptCount: Int = 0,
+    val lastDonationDate: Long? = null
 )
 

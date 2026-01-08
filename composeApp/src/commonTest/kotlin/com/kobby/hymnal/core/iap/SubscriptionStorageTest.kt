@@ -38,7 +38,7 @@ class SubscriptionStorageTest {
     }
 
     @Test
-    fun `getEntitlementState returns SUBSCRIBED for one-time purchase`() = runTest {
+    fun `getEntitlementState returns SUPPORTED for one-time purchase`() = runTest {
         // Given
         val storage = createTestStorage()
         storage.recordPurchase(
@@ -50,7 +50,7 @@ class SubscriptionStorageTest {
         val state = storage.getEntitlementState()
         
         // Then
-        assertEquals(EntitlementState.SUBSCRIBED, state)
+        assertEquals(EntitlementState.SUPPORTED, state)
     }
 
     @Test
@@ -75,8 +75,8 @@ class SubscriptionStorageTest {
         val info = storage.getEntitlementInfo()
         
         // Then
-        assertEquals(EntitlementState.SUBSCRIBED, info.state)
-        assertTrue(info.hasAccess)
+        assertEquals(EntitlementState.SUPPORTED, info.state)
+        assertTrue(info.hasSupported) // Changed from hasAccess
         assertEquals(PurchaseType.ONE_TIME_PURCHASE, info.purchaseType)
     }
 
@@ -131,9 +131,9 @@ class SubscriptionStorageTest {
             purchaseType = PurchaseType.ONE_TIME_PURCHASE
         )
 
-        // Then - should always be SUBSCRIBED (never expires)
-        assertEquals(EntitlementState.SUBSCRIBED, storage.getEntitlementState())
-        assertTrue(storage.getEntitlementInfo().hasAccess)
+        // Then - should always be SUPPORTED (never expires)
+        assertEquals(EntitlementState.SUPPORTED, storage.getEntitlementState())
+        assertTrue(storage.getEntitlementInfo().hasSupported)
     }
 
     @Test
@@ -198,6 +198,8 @@ class SubscriptionStorageTest {
         assertEquals(5, storage.hymnsReadCount)
     }
 
+    // DEPRECATED TESTS - Feature access tracking removed in favor of donation prompts
+    /*
     @Test
     fun `feature access attempts start at zero`() = runTest {
         // Given
@@ -236,4 +238,12 @@ class SubscriptionStorageTest {
         assertEquals(5, attempts[PremiumFeature.HIGHLIGHTS])
         assertEquals(0, attempts[PremiumFeature.FONT_CUSTOMIZATION])
     }
+    */
+
+    // TODO: Add new tests for donation tracking
+    // - Test donationPromptCount starts at 0
+    // - Test nextPromptThreshold defaults to 10
+    // - Test recordDonation() resets counters
+    // - Test shouldShowYearlyReminder() after 365 days
+    // - Test calculateNextThreshold() exponential backoff
 }

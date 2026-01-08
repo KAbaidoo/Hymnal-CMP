@@ -21,6 +21,13 @@ class PurchaseStorage(private val settings: Settings) {
         // Usage tracking keys
         private const val KEY_HYMNS_READ_COUNT = "usage_hymns_read_count"
         private const val KEY_FEATURE_ACCESS_PREFIX = "usage_feature_access_"
+
+        // Donation prompt tracking keys (new model)
+        private const val KEY_DONATION_PROMPT_COUNT = "donation_prompt_count"
+        private const val KEY_LAST_DONATION_PROMPT_TIMESTAMP = "last_donation_prompt_timestamp"
+        private const val KEY_LAST_DONATION_DATE = "last_donation_date"
+        private const val KEY_NEXT_PROMPT_THRESHOLD = "next_prompt_threshold"
+        private const val KEY_HYMNS_SINCE_DONATION = "hymns_since_donation"
     }
 
     /**
@@ -128,12 +135,12 @@ class PurchaseStorage(private val settings: Settings) {
      * Get current entitlement state based on stored data and current time.
      */
     fun getEntitlementState(): EntitlementState {
-        // Check if user has active one-time purchase
+        // Check if user has active one-time purchase (donation)
         if (isSubscribed && purchaseType == PurchaseType.ONE_TIME_PURCHASE) {
-            return EntitlementState.SUBSCRIBED
+            return EntitlementState.SUPPORTED
         }
         
-        // No purchase = no access (freemium model)
+        // No purchase = no support (but all features still accessible)
         return EntitlementState.NONE
     }
     
@@ -144,11 +151,97 @@ class PurchaseStorage(private val settings: Settings) {
         return EntitlementInfo(
             state = getEntitlementState(),
             purchaseType = purchaseType,
-            trialDaysRemaining = null, // No trial in freemium model
-            firstInstallDate = null, // Not used in freemium model
             purchaseDate = purchaseDate,
             expirationDate = expirationDate
         )
+    }
+
+    // Donation prompt tracking methods
+
+    /**
+     * Get or set the number of times donation prompt has been shown.
+     */
+    var donationPromptCount: Int
+        get() = settings.getInt(KEY_DONATION_PROMPT_COUNT, 0)
+        set(value) = settings.putInt(KEY_DONATION_PROMPT_COUNT, value)
+
+    /**
+     * Get or set the timestamp of the last donation prompt shown.
+     */
+    var lastDonationPromptTimestamp: Long?
+        get() {
+            val value = settings.getLong(KEY_LAST_DONATION_PROMPT_TIMESTAMP, 0L)
+            return if (value > 0) value else null
+        }
+        set(value) = settings.putLong(KEY_LAST_DONATION_PROMPT_TIMESTAMP, value ?: 0L)
+
+    /**
+     * Get or set the timestamp of the last donation made.
+     */
+    var lastDonationDate: Long?
+        get() {
+            val value = settings.getLong(KEY_LAST_DONATION_DATE, 0L)
+            return if (value > 0) value else null
+        }
+        set(value) = settings.putLong(KEY_LAST_DONATION_DATE, value ?: 0L)
+
+    /**
+     * Get or set the next hymn count threshold for showing donation prompt.
+     */
+    var nextPromptThreshold: Int
+        get() = settings.getInt(KEY_NEXT_PROMPT_THRESHOLD, 10) // Default to 10
+        set(value) = settings.putInt(KEY_NEXT_PROMPT_THRESHOLD, value)
+
+    /**
+     * Get or set hymns read since last donation (for supporters).
+     */
+    var hymnsSinceDonation: Int
+        get() = settings.getInt(KEY_HYMNS_SINCE_DONATION, 0)
+        set(value) = settings.putInt(KEY_HYMNS_SINCE_DONATION, value)
+
+    /**
+     * Check if yearly reminder should be shown to supporters.
+     * Returns true if 365 days have passed since last donation.
+     */
+    fun shouldShowYearlyReminder(): Boolean {
+        val lastDonation = lastDonationDate ?: return false
+        val oneYearInMillis = 365L * 24 * 60 * 60 * 1000
+        val currentTime = Clock.System.now().toEpochMilliseconds()
+        return (currentTime - lastDonation) >= oneYearInMillis
+    }
+
+    /**
+     * Record that a donation was made.
+     */
+    fun recordDonation() {
+        lastDonationDate = Clock.System.now().toEpochMilliseconds()
+        donationPromptCount = 0
+        hymnsSinceDonation = 0
+        nextPromptThreshold = 50 // First reminder after 365 days starts at 50 hymns
+    }
+
+    /**
+     * Calculate the next prompt threshold based on prompt count and supporter status.
+     */
+    fun calculateNextThreshold(isSupporter: Boolean): Int {
+        return if (isSupporter) {
+            // Supporters (yearly reminders): 50, 100, 200 (less aggressive)
+            when (donationPromptCount) {
+                0 -> 50
+                1 -> 100
+                else -> 200
+            }
+        } else {
+            // Non-supporters: 10, 25, 50, 100, 200, 400 (capped)
+            when (donationPromptCount) {
+                0 -> 10
+                1 -> 25
+                2 -> 50
+                3 -> 100
+                4 -> 200
+                else -> 400 // Cap at 400
+            }
+        }
     }
 
     // Usage tracking methods
@@ -159,27 +252,4 @@ class PurchaseStorage(private val settings: Settings) {
     var hymnsReadCount: Int
         get() = settings.getInt(KEY_HYMNS_READ_COUNT, 0)
         set(value) = settings.putInt(KEY_HYMNS_READ_COUNT, value)
-
-    /**
-     * Get the number of access attempts for a specific premium feature.
-     */
-    fun getFeatureAccessAttempts(feature: PremiumFeature): Int {
-        return settings.getInt("$KEY_FEATURE_ACCESS_PREFIX${feature.name}", 0)
-    }
-
-    /**
-     * Set the number of access attempts for a specific premium feature.
-     */
-    fun setFeatureAccessAttempts(feature: PremiumFeature, count: Int) {
-        settings.putInt("$KEY_FEATURE_ACCESS_PREFIX${feature.name}", count)
-    }
-
-    /**
-     * Get all feature access attempts as a map.
-     */
-    fun getAllFeatureAccessAttempts(): Map<PremiumFeature, Int> {
-        return PremiumFeature.entries.associateWith { feature ->
-            getFeatureAccessAttempts(feature)
-        }
-    }
 }

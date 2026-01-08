@@ -10,7 +10,8 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 class PayWallScreen(
-    private val fromGatedScreen: Boolean = false
+    private val fromGatedScreen: Boolean = false,
+    private val isYearlyReminder: Boolean = false
 ) : Screen {
 
     @OptIn(ExperimentalComposeUiApi::class)
@@ -32,18 +33,17 @@ class PayWallScreen(
             isRestoring = isRestoring,
             errorMsg = purchaseError,
             successMsg = successMessage,
-            trialDaysRemaining = null, // No trial in freemium
-            isDismissible = true, // Always dismissible
+            isYearlyReminder = isYearlyReminder,
             onPurchase = { plan ->
                 if (!isProcessing && !isRestoring) {
-                    isProcessing = true
-                    purchaseError = null
-                    successMessage = null
+
 
                     // Handle purchase with the selected plan
                     purchaseManager.purchaseSubscription(plan) { success ->
-                        isProcessing = false
                         if (success) {
+                            // Record donation to reset prompt counters
+                            purchaseManager.usageTracker.recordDonationMade()
+
                             // Purchase successful, navigate back
                             if (fromGatedScreen && navigator.canPop) {
                                 // Pop both PayWall and the gated screen
@@ -63,12 +63,8 @@ class PayWallScreen(
             },
             onRestore = {
                 if (!isProcessing && !isRestoring) {
-                    isRestoring = true
-                    purchaseError = null
-                    successMessage = null
 
                     purchaseManager.restorePurchases { success ->
-                        isRestoring = false
                         if (success) {
                             successMessage = "Purchases restored successfully!"
                             // Navigate back after a short delay

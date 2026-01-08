@@ -85,8 +85,7 @@ fun PayWallContent(
     isRestoring: Boolean = false,
     errorMsg: String? = null,
     successMsg: String? = null,
-    trialDaysRemaining: Int? = null, // Deprecated - kept for API compatibility
-    isDismissible: Boolean = true, // Deprecated - always true in freemium
+    isYearlyReminder: Boolean = false,
     onPurchase: (PayPlan) -> Unit = {},
     onRestore: () -> Unit = {},
     onCloseClick: () -> Unit = {},
@@ -137,7 +136,7 @@ fun PayWallContent(
                         .size(250.dp)
                         .align(Alignment.TopEnd)
                 )
-                PaywallHeader()
+                PaywallHeader(isYearlyReminder = isYearlyReminder)
 
             }
 
@@ -205,7 +204,13 @@ fun PayWallContent(
 
 
                         PrimaryCTA(
-                            text = if (isLoading) "Processing..." else "Continue",
+                            text = if (isLoading) {
+                                "Processing..."
+                            } else if (isYearlyReminder) {
+                                "Support Again"
+                            } else {
+                                "Support Development"
+                            },
                             enabled = !isLoading && !isRestoring,
                             onClick = { onPurchase(selectedPlan) }
                         )
@@ -240,7 +245,7 @@ fun PayWallContent(
 }
 
 @Composable
-private fun PaywallHeader() {
+private fun PaywallHeader(isYearlyReminder: Boolean = false) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -251,7 +256,11 @@ private fun PaywallHeader() {
 
         Spacer(Modifier.height(50.dp))
         Text(
-            text = stringResource(Res.string.settings_title_paywall),
+            text = if (isYearlyReminder) {
+                "Still enjoying the hymnal?"
+            } else {
+                "Thank you for using our app!"
+            },
             style =  MaterialTheme.typography.headlineLarge,
             color = DarkTextColor,
             textAlign = TextAlign.Center
@@ -260,7 +269,11 @@ private fun PaywallHeader() {
         
 
         Text(
-            text = stringResource(Res.string.settings_subtitle_paywall),
+            text = if (isYearlyReminder) {
+                "Thanks for your past support! If you're still finding value, another small contribution helps us continue."
+            } else {
+                "All features are free forever. If you find this app helpful, consider supporting development."
+            },
             style = MaterialTheme.typography.bodyMedium,
             color = YellowAccent.copy(alpha = 0.85f),
             textAlign = TextAlign.Center
@@ -422,18 +435,18 @@ private fun FeaturesCard() {
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Text(
-            text = stringResource(Res.string.settings_section_features_title),
+            text = "What Your Support Enables",
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurface
         )
         Text(
-            text = stringResource(Res.string.settings_section_features_subtitle),
+            text = "Help us keep this app free for everyone",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
         )
-        FeatureRow(vectorResource(Res.drawable.heart_2_line), stringResource(Res.string.settings_feature_favorites))
-        FeatureRow(vectorResource(Res.drawable.bookmark_line), stringResource(Res.string.settings_feature_highlighting))
-        FeatureRow(vectorResource(Res.drawable.music_2_line), stringResource(Res.string.settings_feature_font_customization))
+        FeatureRow(vectorResource(Res.drawable.heart_2_line), "Keep the app free for everyone")
+        FeatureRow(vectorResource(Res.drawable.bookmark_line), "Add more hymns and features")
+        FeatureRow(vectorResource(Res.drawable.music_2_line), "Maintain and improve the app")
     }
 }
 

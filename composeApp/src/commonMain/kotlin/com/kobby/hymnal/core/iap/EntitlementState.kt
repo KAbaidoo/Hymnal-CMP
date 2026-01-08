@@ -1,42 +1,23 @@
 package com.kobby.hymnal.core.iap
 
 /**
- * Represents the current entitlement state of the user in the freemium model.
+ * Represents the current entitlement state of the user.
+ * In the new model, all features are free - this only tracks supporter status.
  */
 enum class EntitlementState {
     /**
-     * User has an active one-time purchase.
-     * One-time purchases remain in this state forever (non-expiring).
+     * User has supported the app with a one-time donation.
+     * Supporters receive relief from donation prompts for approximately one year.
      */
-    SUBSCRIBED,
-    
+    SUPPORTED,
+
     /**
-     * No entitlement - user has not supported the app.
-     * In freemium model, users can still access core features.
+     * User has not yet supported the app.
+     * All features remain accessible - support is optional.
      */
     NONE
 }
 
-/**
- * Premium features that require support contribution to access.
- * Core worship features (reading hymns, basic search) remain free.
- */
-enum class PremiumFeature {
-    /**
-     * Ability to mark hymns as favorites
-     */
-    FAVORITES,
-
-    /**
-     * Ability to highlight text in hymns
-     */
-    HIGHLIGHTS,
-
-    /**
-     * Ability to customize font size and family
-     */
-    FONT_CUSTOMIZATION
-}
 
 /**
  * Represents the type of purchase the user has made.
@@ -49,48 +30,27 @@ enum class PurchaseType {
 
 /**
  * Complete entitlement information for the user.
+ * In the new model, this only tracks supporter status for donation prompt management.
  */
 data class EntitlementInfo(
     val state: EntitlementState,
     val purchaseType: PurchaseType,
-    val trialDaysRemaining: Int?, // Deprecated - always null in freemium model
-    val firstInstallDate: Long?, // Deprecated - always null in freemium model
     val purchaseDate: Long?,
-    val expirationDate: Long? // Deprecated - always null for one-time purchases
+    val expirationDate: Long? // Deprecated - always null for one-time donations
 ) {
     /**
-     * In freemium model, only users with one-time purchases have access to premium features.
-     * Free users can access core features without any time limit.
-     */
-    val hasAccess: Boolean
-        get() = state == EntitlementState.SUBSCRIBED
-
-    /**
-     * Deprecated - no trial period in freemium model.
-     */
-    @Deprecated("No trial in freemium model")
-    val isInTrial: Boolean
-        get() = false
-
-    /**
-     * Deprecated - no hard paywall in freemium model.
-     * Support sheet is shown on feature access, not as a blocking wall.
-     */
-    @Deprecated("No hard paywall in freemium model")
-    val needsPaywall: Boolean
-        get() = false
-
-    /**
-     * Check if user can access a specific premium feature.
-     * In the generous freemium model, users need to support to access premium features.
-     */
-    fun canAccessFeature(feature: PremiumFeature): Boolean {
-        return state == EntitlementState.SUBSCRIBED
-    }
-
-    /**
-     * Check if user has supported the app (made any purchase).
+     * Check if user has supported the app.
+     * Supporters receive relief from donation prompts for approximately one year.
+     * Note: All features are accessible regardless of support status.
      */
     val hasSupported: Boolean
-        get() = purchaseType != PurchaseType.NONE
+        get() = state == EntitlementState.SUPPORTED
+
+    /**
+     * Legacy property for backwards compatibility.
+     * In the new model, all users "have access" since everything is free.
+     */
+    @Deprecated("All features are now free. Use hasSupported to check supporter status.")
+    val hasAccess: Boolean
+        get() = true // Everyone has access to all features now
 }

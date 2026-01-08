@@ -44,8 +44,8 @@ class AndroidPurchaseManager(
                         productId = productId,
                         purchaseType = PurchaseType.ONE_TIME_PURCHASE
                     )
-                    // Reset hymn read count after support
-                    usageTracker.resetHymnReadCount()
+                    // Record donation made to reset prompt counters and start grace period
+                    usageTracker.recordDonationMade()
                     refreshEntitlementState()
                 }
                 callback(success)

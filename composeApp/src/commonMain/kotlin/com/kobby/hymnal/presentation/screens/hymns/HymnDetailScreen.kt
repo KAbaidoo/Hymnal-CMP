@@ -52,13 +52,15 @@ data class HymnDetailScreen(
             // Add to history once we navigate here
             repository.addToHistory(hymnId)
 
-            // Track hymn read for usage tracking (only if not already supported)
-            if (!entitlementInfo.hasSupported) {
-                val shouldShowSupport = purchaseManager.usageTracker.recordHymnRead()
-                if (shouldShowSupport) {
-                    // Show support sheet after 10th hymn
-                    navigator.push(PayWallScreen())
-                }
+            // Track hymn read and check if donation prompt should show
+            val isSupporter = entitlementInfo.hasSupported
+            val shouldShowPrompt = purchaseManager.usageTracker.recordHymnRead(isSupporter)
+
+            if (shouldShowPrompt) {
+                // Show donation prompt with exponential backoff
+                purchaseManager.usageTracker.recordPromptShown(isSupporter)
+                val isYearlyReminder = purchaseManager.usageTracker.isYearlyReminder(isSupporter)
+                navigator.push(PayWallScreen(isYearlyReminder = isYearlyReminder))
             }
         }
         
@@ -86,39 +88,21 @@ data class HymnDetailScreen(
                     }
                 },
                 onFavoriteClick = {
-                    // Check if user has access to favorites feature
-                    if (entitlementInfo.canAccessFeature(com.kobby.hymnal.core.iap.PremiumFeature.FAVORITES)) {
-                        scope.launch {
-                            repository.let { repo ->
-                                if (isFavorite) {
-                                    repo.removeFromFavorites(hymnId)
-                                } else {
-                                    repo.addToFavorites(hymnId)
-                                }
-                                isFavorite = !isFavorite
+                    // All users can use favorites now - no gates!
+                    scope.launch {
+                        repository.let { repo ->
+                            if (isFavorite) {
+                                repo.removeFromFavorites(hymnId)
+                            } else {
+                                repo.addToFavorites(hymnId)
                             }
+                            isFavorite = !isFavorite
                         }
-                    } else {
-                        // Track access attempt and show support sheet
-                        purchaseManager.usageTracker.recordFeatureAccessAttempt(
-                            com.kobby.hymnal.core.iap.PremiumFeature.FAVORITES
-                        )
-                        // User is already viewing content, just show paywall (don't pop back twice)
-                        navigator.push(PayWallScreen(fromGatedScreen = false))
                     }
                 },
                 onFontSettingsClick = {
-                    // Check if user has access to font customization feature
-                    if (entitlementInfo.canAccessFeature(com.kobby.hymnal.core.iap.PremiumFeature.FONT_CUSTOMIZATION)) {
-                        showFontSettings = true
-                    } else {
-                        // Track access attempt and show support sheet
-                        purchaseManager.usageTracker.recordFeatureAccessAttempt(
-                            com.kobby.hymnal.core.iap.PremiumFeature.FONT_CUSTOMIZATION
-                        )
-                        // User is already viewing content, just show paywall (don't pop back twice)
-                        navigator.push(PayWallScreen(fromGatedScreen = false))
-                    }
+                    // All users can customize fonts now - no gates!
+                    showFontSettings = true
                 },
                 onShareClick = {
                     shareManager.shareHymn(loadedHymn)
