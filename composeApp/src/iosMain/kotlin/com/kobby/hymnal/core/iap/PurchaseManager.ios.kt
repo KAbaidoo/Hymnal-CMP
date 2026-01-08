@@ -47,8 +47,8 @@ class IosPurchaseManager(
                         productId = productId,
                         purchaseType = PurchaseType.ONE_TIME_PURCHASE
                     )
-                    // Reset hymn read count after support
-                    usageTracker.resetHymnReadCount()
+                    // Record donation made to reset prompt counters and start grace period
+                    usageTracker.recordDonationMade()
                     refreshEntitlementState()
                 }
                 callback(success)
@@ -75,8 +75,23 @@ class IosPurchaseManager(
     override fun restorePurchases(callback: (Boolean) -> Unit) {
         nativePurchaseProvider?.restorePurchases { success ->
             if (success) {
-                // Refresh purchase status after restoration
-                isUserSubscribed { _ ->
+                // After restoration, ensure purchase is recorded locally and grace period started
+                isUserSubscribed { isPurchased ->
+                    if (isPurchased && !storage.isSubscribed) {
+                        // Best-effort: mark a purchase recorded; productId unknown here
+                        storage.recordPurchase(
+                            productId = SUPPORT_BASIC_ID,
+                            purchaseType = PurchaseType.ONE_TIME_PURCHASE,
+                            purchaseTimestamp = Clock.System.now().toEpochMilliseconds()
+                        )
+                    } else {
+                        // If subscribed locally but missing a purchase date, set a fallback timestamp
+                        if (storage.isSubscribed && storage.purchaseDate == null) {
+                            storage.purchaseDate = Clock.System.now().toEpochMilliseconds()
+                        }
+                    }
+                    // Start grace period and reset counters
+                    usageTracker.recordDonationMade()
                     callback(true)
                 }
             } else {

@@ -88,12 +88,13 @@ class BillingHelper(private val context: Context) {
         }
     }
 
-    fun checkSubscriptionStatus(callback: (Boolean) -> Unit) {
+    // Modified: returns (hasPurchase, productIdFound?)
+    fun checkSubscriptionStatus(callback: (Boolean, String?) -> Unit) {
         Log.d(TAG, "checkPurchaseStatus - checking one-time purchases")
         connectPlayStore { isConnected ->
             if (!isConnected) {
                 Log.e(TAG, "Failed to connect to Play Store for purchase check")
-                callback(false)
+                callback(false, null)
                 return@connectPlayStore
             }
 
@@ -105,13 +106,25 @@ class BillingHelper(private val context: Context) {
             billingClient.queryPurchasesAsync(inappParams) { billingResult, purchases ->
                 Log.d(TAG, "queryPurchasesAsync INAPP callback: ${billingResult.responseCode}, ${purchases.size}")
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                    // Determine which product was purchased if any
+                    var foundProduct: String? = null
                     val hasPurchase = purchases.any {
-                        it.products.contains(SUPPORT_BASIC) || it.products.contains(SUPPORT_GENEROUS)
+                        when {
+                            it.products.contains(SUPPORT_BASIC) -> {
+                                foundProduct = SUPPORT_BASIC
+                                true
+                            }
+                            it.products.contains(SUPPORT_GENEROUS) -> {
+                                foundProduct = SUPPORT_GENEROUS
+                                true
+                            }
+                            else -> false
+                        }
                     }
-                    callback(hasPurchase)
+                    callback(hasPurchase, foundProduct)
                 } else {
                     Log.e(TAG, "Failed to query inapp purchases: ${billingResult.responseCode} - ${billingResult.debugMessage}")
-                    callback(false)
+                    callback(false, null)
                 }
             }
         }

@@ -225,7 +225,7 @@ fun PayWallContent(
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Text(
-                                text = if (isRestoring) "Restoring..." else "Restore Purchases",
+                                text = if (isRestoring) "Restoring..." else "Restore Purchase",
                                 style = MaterialTheme.typography.bodyMedium
                             )
                         }
@@ -265,19 +265,21 @@ private fun PaywallHeader(isYearlyReminder: Boolean = false) {
             color = DarkTextColor,
             textAlign = TextAlign.Center
         )
-        Spacer(Modifier.height(10.dp))
-        
+        Spacer(Modifier.height(12.dp))
 
-        Text(
-            text = if (isYearlyReminder) {
-                "Thanks for your past support! If you're still finding value, another small contribution helps us continue."
-            } else {
-                "All features are free forever. If you find this app helpful, consider supporting development."
-            },
-            style = MaterialTheme.typography.bodyMedium,
-            color = YellowAccent.copy(alpha = 0.85f),
-            textAlign = TextAlign.Center
-        )
+                Text(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    text = if (isYearlyReminder) {
+                        "Thanks for your past support! If you're still finding value, another small contribution helps us continue."
+                    } else {
+                        "All features are free forever. If you find this app helpful, consider supporting development."
+                    },
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        lineHeight = MaterialTheme.typography.bodyMedium.fontSize * 1.25f
+                    ),
+                    color = YellowAccent.copy(alpha = 0.85f),
+                    textAlign = TextAlign.Center
+                )
     }
 }
 

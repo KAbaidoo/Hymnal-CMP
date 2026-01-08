@@ -28,7 +28,7 @@ class UsageTrackingManager(private val storage: PurchaseStorage) {
 
         // Track hymns since donation for supporters
         if (isSupporter) {
-            storage.hymnsSinceDonation = storage.hymnsSinceDonation + 1
+            storage.hymnsSinceDonation += 1
         }
 
         _usageStats.value = _usageStats.value.copy(hymnsRead = newCount)

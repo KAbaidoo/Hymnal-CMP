@@ -54,14 +54,14 @@ class AndroidPurchaseManager(
     }
 
     override fun isUserSubscribed(callback: (Boolean) -> Unit) {
-        billingHelper.checkSubscriptionStatus { isSubscribed ->
+        billingHelper.checkSubscriptionStatus { hasPurchase, _ ->
             // Update storage with current state
-            storage.isSubscribed = isSubscribed
+            storage.isSubscribed = hasPurchase
             storage.lastVerificationTime = Clock.System.now().toEpochMilliseconds()
 
             // In freemium model, only actual subscribers have access
             refreshEntitlementState()
-            callback(isSubscribed)
+            callback(hasPurchase)
         }
     }
 
@@ -75,11 +75,27 @@ class AndroidPurchaseManager(
     
     override fun restorePurchases(callback: (Boolean) -> Unit) {
         // On Android, restoration is automatic via queryPurchasesAsync
-        billingHelper.checkSubscriptionStatus { isSubscribed ->
-            if (isSubscribed) {
-                // User has active subscription, update storage
-                storage.isSubscribed = true
-                storage.lastVerificationTime = Clock.System.now().toEpochMilliseconds()
+        billingHelper.checkSubscriptionStatus { hasPurchase, productId ->
+            if (hasPurchase) {
+                // If not already recorded locally, record the purchase using the found product id
+                if (!storage.isSubscribed) {
+                    val pid = productId ?: billingHelper.SUPPORT_BASIC
+                    storage.recordPurchase(
+                        productId = pid,
+                        purchaseType = PurchaseType.ONE_TIME_PURCHASE,
+                        purchaseTimestamp = Clock.System.now().toEpochMilliseconds()
+                    )
+                } else {
+                    // If subscribed but no purchaseDate recorded, set a fallback date
+                    if (storage.purchaseDate == null) {
+                        storage.purchaseDate = Clock.System.now().toEpochMilliseconds()
+                    }
+                }
+
+                // Treat restoration as a donation recovery: start grace period and reset counters
+                usageTracker.recordDonationMade()
+
+                // Update entitlement state and return success
                 refreshEntitlementState()
                 callback(true)
             } else {

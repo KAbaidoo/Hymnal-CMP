@@ -63,10 +63,14 @@ class PayWallScreen(
             },
             onRestore = {
                 if (!isProcessing && !isRestoring) {
+                    isRestoring = true
+                    purchaseError = null
+                    successMessage = null
 
                     purchaseManager.restorePurchases { success ->
+                        isRestoring = false
                         if (success) {
-                            successMessage = "Purchases restored successfully!"
+                            successMessage = "Support restored — you won't see donation prompts for 12 months."
                             // Navigate back after a short delay
                             coroutineScope.launch {
                                 kotlinx.coroutines.delay(1500)
@@ -81,7 +85,7 @@ class PayWallScreen(
                                 }
                             }
                         } else {
-                            purchaseError = "No purchases found to restore."
+                            purchaseError = "No previous purchase found on this store account."
                         }
                     }
                 }
