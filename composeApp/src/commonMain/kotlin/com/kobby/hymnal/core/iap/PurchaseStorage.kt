@@ -20,14 +20,11 @@ class PurchaseStorage(private val settings: Settings) {
         
         // Usage tracking keys
         private const val KEY_HYMNS_READ_COUNT = "usage_hymns_read_count"
-        private const val KEY_FEATURE_ACCESS_PREFIX = "usage_feature_access_"
 
         // Donation prompt tracking keys (new model)
         private const val KEY_DONATION_PROMPT_COUNT = "donation_prompt_count"
         private const val KEY_LAST_DONATION_PROMPT_TIMESTAMP = "last_donation_prompt_timestamp"
-        private const val KEY_LAST_DONATION_DATE = "last_donation_date"
         private const val KEY_NEXT_PROMPT_THRESHOLD = "next_prompt_threshold"
-        private const val KEY_HYMNS_SINCE_DONATION = "hymns_since_donation"
     }
 
     /**
@@ -176,16 +173,6 @@ class PurchaseStorage(private val settings: Settings) {
         set(value) = settings.putLong(KEY_LAST_DONATION_PROMPT_TIMESTAMP, value ?: 0L)
 
     /**
-     * Get or set the timestamp of the last donation made.
-     */
-    var lastDonationDate: Long?
-        get() {
-            val value = settings.getLong(KEY_LAST_DONATION_DATE, 0L)
-            return if (value > 0) value else null
-        }
-        set(value) = settings.putLong(KEY_LAST_DONATION_DATE, value ?: 0L)
-
-    /**
      * Get or set the next hymn count threshold for showing donation prompt.
      */
     var nextPromptThreshold: Int
@@ -193,54 +180,24 @@ class PurchaseStorage(private val settings: Settings) {
         set(value) = settings.putInt(KEY_NEXT_PROMPT_THRESHOLD, value)
 
     /**
-     * Get or set hymns read since last donation (for supporters).
-     */
-    var hymnsSinceDonation: Int
-        get() = settings.getInt(KEY_HYMNS_SINCE_DONATION, 0)
-        set(value) = settings.putInt(KEY_HYMNS_SINCE_DONATION, value)
-
-    /**
-     * Check if yearly reminder should be shown to supporters.
-     * Returns true if 365 days have passed since last donation.
-     */
-    fun shouldShowYearlyReminder(): Boolean {
-        val lastDonation = lastDonationDate ?: return false
-        val oneYearInMillis = 365L * 24 * 60 * 60 * 1000
-        val currentTime = Clock.System.now().toEpochMilliseconds()
-        return (currentTime - lastDonation) >= oneYearInMillis
-    }
-
-    /**
      * Record that a donation was made.
      */
     fun recordDonation() {
-        lastDonationDate = Clock.System.now().toEpochMilliseconds()
         donationPromptCount = 0
-        hymnsSinceDonation = 0
-        nextPromptThreshold = 50 // First reminder after 365 days starts at 50 hymns
+        // Do not set yearly reminders or donation timestamps — supporters will not be prompted again
     }
 
     /**
-     * Calculate the next prompt threshold based on prompt count and supporter status.
+     * Calculate the next prompt threshold based on prompt count.
      */
-    fun calculateNextThreshold(isSupporter: Boolean): Int {
-        return if (isSupporter) {
-            // Supporters (yearly reminders): 50, 100, 200 (less aggressive)
-            when (donationPromptCount) {
-                0 -> 50
-                1 -> 100
-                else -> 200
-            }
-        } else {
-            // Non-supporters: 10, 25, 50, 100, 200, 400 (capped)
-            when (donationPromptCount) {
-                0 -> 10
-                1 -> 25
-                2 -> 50
-                3 -> 100
-                4 -> 200
-                else -> 400 // Cap at 400
-            }
+    fun calculateNextThreshold(): Int {
+        return when (donationPromptCount) {
+            0 -> 10
+            1 -> 25
+            2 -> 50
+            3 -> 100
+            4 -> 200
+            else -> 400 // Cap at 400
         }
     }
 
