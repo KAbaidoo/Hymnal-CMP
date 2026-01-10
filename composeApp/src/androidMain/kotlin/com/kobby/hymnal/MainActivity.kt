@@ -7,20 +7,19 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.WindowCompat
 import com.google.firebase.Firebase
 import androidx.compose.runtime.Composable
 import com.google.firebase.initialize
-import com.kobby.hymnal.BuildKonfig
-import com.kobby.hymnal.BuildConfig
 import com.kobby.hymnal.core.crashlytics.CrashlyticsManager
+import com.kobby.hymnal.core.iap.BillingHelper
+import com.kobby.hymnal.core.iap.PurchaseManager
 import com.kobby.hymnal.di.androidModule
 import com.kobby.hymnal.di.crashlyticsModule
 import com.kobby.hymnal.di.databaseModule
 import com.kobby.hymnal.di.settingsModule
+import com.kobby.hymnal.di.subscriptionModule
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -35,11 +34,15 @@ class MainActivity : ComponentActivity() {
         startKoin {
             androidLogger()
             androidContext(this@MainActivity)
-            modules(databaseModule, settingsModule, androidModule, crashlyticsModule)
+            modules(databaseModule, settingsModule, androidModule, crashlyticsModule, subscriptionModule)
         }
 
         Firebase.initialize(this)
         
+        // Initialize subscription manager for trial tracking and entitlement state
+        val purchaseManager: PurchaseManager by inject()
+        purchaseManager.initialize()
+
         // Set custom keys for Crashlytics context (release builds only)
         setupCrashlyticsKeys()
 
@@ -76,6 +79,13 @@ class MainActivity : ComponentActivity() {
         
         // Log initialization
         crashlytics.log("App initialized - version ${BuildKonfig.VERSION_NAME}")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Clean up billing client connection
+        val billingHelper: BillingHelper by inject()
+        billingHelper.endConnection()
     }
 }
 

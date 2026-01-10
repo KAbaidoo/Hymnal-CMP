@@ -45,6 +45,7 @@ kotlin {
             implementation(libs.sqldelight.android)
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
+            implementation(libs.billing.ktx)
         }
 
         commonMain.dependencies {
@@ -62,6 +63,7 @@ kotlin {
             implementation(libs.multiplatform.settings)
             implementation(libs.multiplatform.settings.noargs)
             implementation(libs.sqldelight.coroutines)
+            implementation(libs.kotlinx.datetime)
 
             implementation(project.dependencies.platform(libs.koin.bom))
             api(libs.koin.core)
@@ -72,6 +74,7 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
+            implementation(libs.multiplatform.settings.test)
             // Removed sqldelight.jvm to fix iOS test compilation
             // Add platform-specific test drivers if needed
         }
@@ -91,9 +94,9 @@ android {
     namespace = "com.kobby.hymnal"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
-//    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-//    sourceSets["main"].res.srcDirs("src/androidMain/res")
-//    sourceSets["main"].resources.srcDirs("src/commonMain/composeResources")
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+    sourceSets["main"].res.srcDirs("src/androidMain/res")
+    sourceSets["main"].resources.srcDirs("src/commonMain/composeResources")
 
     defaultConfig {
         applicationId = "com.kobby.hymnal"

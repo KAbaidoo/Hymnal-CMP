@@ -1,6 +1,5 @@
 package com.kobby.hymnal.start
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -32,7 +31,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
@@ -44,17 +42,12 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
-import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
+import androidx.compose.foundation.layout.BoxWithConstraints
 import com.kobby.hymnal.composeApp.database.Hymn
 import com.kobby.hymnal.core.database.HymnRepository
 import com.kobby.hymnal.presentation.components.ScreenBackground
 import com.kobby.hymnal.presentation.screens.home.HomeScreen
 import com.kobby.hymnal.presentation.screens.hymns.HymnDetailScreen
-import com.kobby.hymnal.presentation.screens.settings.PayWallContent
-import com.kobby.hymnal.theme.HymnalAppTheme
 import com.kobby.hymnal.theme.Shapes
 import org.koin.compose.koinInject
 import hymnal_cmp.composeapp.generated.resources.Res
@@ -67,8 +60,12 @@ import hymnal_cmp.composeapp.generated.resources.author_name
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import com.kobby.hymnal.theme.DarkTextColor
+import com.kobby.hymnal.theme.HymnalAppTheme
 import com.kobby.hymnal.theme.LightTextColor
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 
 private const val AUTO_NAVIGATION_DELAY_MS = 6000L
 
@@ -77,7 +74,6 @@ class StartScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val scope = rememberCoroutineScope()
         val repository: HymnRepository = koinInject()
         var randomHymn by remember { mutableStateOf<Hymn?>(null) }
         var hasNavigated by remember { mutableStateOf(false) }
@@ -86,12 +82,13 @@ class StartScreen : Screen {
         LaunchedEffect(Unit) {
             try {
                 randomHymn = repository.getRandomHymn()
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // Silently handle any database errors
                 randomHymn = null
             }
         }
 
+        // Auto-navigate to HomeScreen after delay
         LaunchedEffect(Unit) {
             delay(AUTO_NAVIGATION_DELAY_MS)
             if (!hasNavigated) {
@@ -158,7 +155,7 @@ fun StartScreenContent(
     
     // Animated slide values for dynamic entrance
     val cardOffsetY by animateDpAsState(
-        targetValue = if (isCardVisible) 0.dp else 50.dp,
+        targetValue = if (isCardVisible) 0.dp else 80.dp,
         animationSpec = tween(
             durationMillis = 800,
             easing = FastOutSlowInEasing
@@ -204,12 +201,23 @@ fun StartScreenContent(
             easing = FastOutSlowInEasing
         )
     )
-    
-    Box(
-        modifier = Modifier
+
+    BoxWithConstraints(
+        modifier = modifier
             .fillMaxSize()
             .background(DarkTextColor)
     ) {
+        // Responsive sizing: ensure the hymn-of-the-day artwork/card doesn't exceed the bottom half
+        val screenHeightDp = maxHeight
+        val bottomAreaMax = screenHeightDp * 0.5f
+        val desiredImageHeight = 400.dp
+        val desiredImageWidth = 300.dp
+        val imageHeight = if (desiredImageHeight > bottomAreaMax) bottomAreaMax * 1f else desiredImageHeight
+        val scaleFactor = imageHeight / desiredImageHeight
+        val imageWidth = desiredImageWidth * scaleFactor
+        // If we scaled, avoid the negative offset (which would cause overlap)
+        val columnOffsetY = if (scaleFactor < 1f) 0.dp else (-50).dp
+
         Column {
             ScreenBackground(modifier = Modifier.weight(0.5f).fillMaxSize()) {
                 Column(
@@ -237,14 +245,15 @@ fun StartScreenContent(
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .offset(x = 28.dp, y = (-50).dp)
+                .offset(x = 20.dp, y = columnOffsetY)
         ) {
+            // Hymn of the day section
             Box {
                 Image(
                     modifier = Modifier
-                        .height(400.dp)
-                        .width(300.dp)
-                        .clip(Shapes.large),
+                        .height(imageHeight)
+                        .width(imageWidth)
+                         .clip(Shapes.large),
                     painter = painterResource(Res.drawable.piano_hands),
                     contentDescription = null,
                     contentScale = ContentScale.Crop
@@ -255,10 +264,10 @@ fun StartScreenContent(
                     Card(
                         modifier = Modifier
                             .align(Alignment.TopStart)
-                            .width(300.dp)
-                            .offset(y = cardOffsetY)
-                            .alpha(cardAlpha)
-                            .clickable { onRandomHymnClicked(hymn) },
+                            .width(imageWidth)
+                             .offset(y = cardOffsetY)
+                             .alpha(cardAlpha)
+                             .clickable { onRandomHymnClicked(hymn) },
                         colors = CardDefaults.cardColors(
                             containerColor = Color.Black.copy(alpha = 0.2f)
                         ),
@@ -328,6 +337,16 @@ fun StartScreenContent(
                 style = MaterialTheme.typography.bodyMedium,
                 color = LightTextColor
             )
+        }
+    }
+}
+
+@Preview(showBackground = true, heightDp = 780, widthDp = 360)
+@Composable
+fun StartScreenContentPreview() {
+    HymnalAppTheme {
+        StartScreenContent {
+
         }
     }
 }

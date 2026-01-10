@@ -10,7 +10,10 @@
 		058557BB273AAA24004C7B11 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058557BA273AAA24004C7B11 /* Assets.xcassets */; };
 		058557D9273AAEEB004C7B11 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058557D8273AAEEB004C7B11 /* Preview Assets.xcassets */; };
 		2152FB042600AC8F00CF470E /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2152FB032600AC8F00CF470E /* iOSApp.swift */; };
+		617C45D24CDCD459D052F71A /* IosPurchaseProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 617C43368FF6A74ABE0B6DBD /* IosPurchaseProvider.swift */; };
 		7555FF83242A565900829871 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7555FF82242A565900829871 /* ContentView.swift */; };
+		CE1E25342EFE302C00CF55D2 /* MyProducts.storekit in Resources */ = {isa = PBXBuildFile; fileRef = CE1E25332EFE302C00CF55D2 /* MyProducts.storekit */; };
+		CE1E253A2EFEA21F00CF55D2 /* StoreKitTestCertificate.cer in Resources */ = {isa = PBXBuildFile; fileRef = CE1E25392EFEA21F00CF55D2 /* StoreKitTestCertificate.cer */; };
 		CE27C6D42DB7433F00B4C7D0 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CE27C6D32DB7433F00B4C7D0 /* LaunchScreen.storyboard */; };
 		CE559BEF2ED99A140019BBAE /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = CE559BEE2ED99A140019BBAE /* FirebaseAnalytics */; };
 		CE559BF12ED99A1B0019BBAE /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = CE559BF02ED99A1B0019BBAE /* FirebaseCrashlytics */; };
@@ -24,10 +27,13 @@
 		058557BA273AAA24004C7B11 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		058557D8273AAEEB004C7B11 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		2152FB032600AC8F00CF470E /* iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp.swift; sourceTree = "<group>"; };
+		617C43368FF6A74ABE0B6DBD /* IosPurchaseProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IosPurchaseProvider.swift; sourceTree = "<group>"; };
 		7555FF7B242A565900829871 /* Anglican Hymnal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Anglican Hymnal.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7555FF82242A565900829871 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		7555FF8C242A565B00829871 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AB3632DC29227652001CCB65 /* Config.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
+		CE1E25332EFE302C00CF55D2 /* MyProducts.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = MyProducts.storekit; sourceTree = "<group>"; };
+		CE1E25392EFEA21F00CF55D2 /* StoreKitTestCertificate.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = StoreKitTestCertificate.cer; sourceTree = "<group>"; };
 		CE27C6D32DB7433F00B4C7D0 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		CE559BFA2ED9B36D0019BBAE /* IosCrashlyticsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IosCrashlyticsProvider.swift; sourceTree = "<group>"; };
 		CEEF7E722DC0B82E00345ABE /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -78,7 +84,7 @@
 		7555FF7D242A565900829871 /* iosApp */ = {
 			isa = PBXGroup;
 			children = (
-				CE559BFA2ED9B36D0019BBAE /* IosCrashlyticsProvider.swift */,
+				CE41E3CC2EFCE5880093BCC2 /* Core */,
 				CEEF7E722DC0B82E00345ABE /* GoogleService-Info.plist */,
 				058557BA273AAA24004C7B11 /* Assets.xcassets */,
 				7555FF82242A565900829871 /* ContentView.swift */,
@@ -95,6 +101,33 @@
 				AB3632DC29227652001CCB65 /* Config.xcconfig */,
 			);
 			path = Configuration;
+			sourceTree = "<group>";
+		};
+		CE41E3CC2EFCE5880093BCC2 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				CE41E3CE2EFCE5BB0093BCC2 /* crashlytics */,
+				CE41E3CD2EFCE59F0093BCC2 /* iap */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		CE41E3CD2EFCE59F0093BCC2 /* iap */ = {
+			isa = PBXGroup;
+			children = (
+				617C43368FF6A74ABE0B6DBD /* IosPurchaseProvider.swift */,
+				CE1E25332EFE302C00CF55D2 /* MyProducts.storekit */,
+				CE1E25392EFEA21F00CF55D2 /* StoreKitTestCertificate.cer */,
+			);
+			path = iap;
+			sourceTree = "<group>";
+		};
+		CE41E3CE2EFCE5BB0093BCC2 /* crashlytics */ = {
+			isa = PBXGroup;
+			children = (
+				CE559BFA2ED9B36D0019BBAE /* IosCrashlyticsProvider.swift */,
+			);
+			path = crashlytics;
 			sourceTree = "<group>";
 		};
 		CE559BED2ED99A140019BBAE /* Frameworks */ = {
@@ -169,9 +202,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				CE27C6D42DB7433F00B4C7D0 /* LaunchScreen.storyboard in Resources */,
+				CE1E25342EFE302C00CF55D2 /* MyProducts.storekit in Resources */,
 				058557D9273AAEEB004C7B11 /* Preview Assets.xcassets in Resources */,
 				058557BB273AAA24004C7B11 /* Assets.xcassets in Resources */,
 				CEEF7E732DC0B82E00345ABE /* GoogleService-Info.plist in Resources */,
+				CE1E253A2EFEA21F00CF55D2 /* StoreKitTestCertificate.cer in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -226,6 +261,7 @@
 				2152FB042600AC8F00CF470E /* iOSApp.swift in Sources */,
 				CE559BFB2ED9B3B50019BBAE /* IosCrashlyticsProvider.swift in Sources */,
 				7555FF83242A565900829871 /* ContentView.swift in Sources */,
+				617C45D24CDCD459D052F71A /* IosPurchaseProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
