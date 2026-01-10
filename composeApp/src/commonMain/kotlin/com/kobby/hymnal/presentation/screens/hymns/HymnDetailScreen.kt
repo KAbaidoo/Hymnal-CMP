@@ -59,8 +59,7 @@ data class HymnDetailScreen(
             if (shouldShowPrompt) {
                 // Show donation prompt with exponential backoff
                 purchaseManager.usageTracker.recordPromptShown(isSupporter)
-                val isYearlyReminder = purchaseManager.usageTracker.isYearlyReminder(isSupporter)
-                navigator.push(PayWallScreen(isYearlyReminder = isYearlyReminder))
+                navigator.push(PayWallScreen())
             }
         }
         
@@ -82,7 +81,7 @@ data class HymnDetailScreen(
                     while (navigator.canPop) {
                         navigator.pop()
                         // Check if current screen is HomeScreen by trying to find it in the stack
-                        if (navigator.lastItem is com.kobby.hymnal.presentation.screens.home.HomeScreen) {
+                        if (navigator.lastItem is HomeScreen) {
                             break
                         }
                     }
