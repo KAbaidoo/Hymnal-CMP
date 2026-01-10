@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -37,15 +36,14 @@ fun MoreScreenContent(
         actionButtons = null,
         content = { innerPadding ->
             val menuItems = mutableListOf<String>()
-            if (showSupportItem) {
-                menuItems.add("Support Development")
-            }
             menuItems.addAll(listOf(
                 "Favorites",
                 "History",
                 "Highlights"
             ))
-
+            if (showSupportItem) {
+                menuItems.add("Support Development")
+            }
             Column(
                 modifier = Modifier
                     .fillMaxSize()
