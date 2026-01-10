@@ -120,37 +120,17 @@
 
 ## ✅ Phase 4: Supporter Experience
 
-### Test: 365-Day Grace Period
-
-**Note**: This requires timestamp manipulation for testing
+### Test: Supporter Experience
 
 - [ ] **Make donation** - Complete purchase
 - [ ] **Verify prompt counter reset** - Hymns read = 0
-- [ ] **Read 100 hymns** - No prompts appear (within grace period)
-
-**For full test** (requires dev tools):
-- [ ] **Manipulate timestamp** - Set last donation to 364 days ago
 - [ ] **Read hymns** - No prompts appear
-- [ ] **Manipulate timestamp** - Set last donation to 366 days ago
-- [ ] **Read 50 hymns** - First yearly reminder appears
 
-**Expected Result**: ✅ No prompts for 365 days after donation
+**Notes for testing**:
+- Restoring purchases should be treated as a donation (no more prompts)
+- Simulate restores and verify supporters are not shown prompts
 
-### Test: Yearly Reminder (After 365 Days)
-
-**Note**: Requires timestamp manipulation or waiting
-
-- [ ] **Simulate 365+ days** - Adjust last donation timestamp
-- [ ] **Read 50 hymns** - First yearly reminder appears
-- [ ] **Verify title** - "Still enjoying the hymnal?"
-- [ ] **Verify subtitle** - "Thanks for your past support..."
-- [ ] **Verify button** - "Support Again"
-- [ ] **Verify tone** - Softer, more grateful messaging
-- [ ] **Dismiss reminder**
-- [ ] **Read 100 more hymns** - Second reminder at 150 total
-- [ ] **Read 200 more hymns** - Third reminder at 350 total
-
-**Expected Result**: ✅ Yearly reminders use longer intervals: 50, 100, 200
+**Expected Result**: ✅ Supporters will not be prompted again after donation
 
 ---
 
@@ -201,7 +181,6 @@
 ### Test: Messaging Quality
 
 - [ ] **First prompt** - Tone is grateful, not pushy
-- [ ] **Yearly reminder** - Tone is gentle, acknowledges past support
 - [ ] **No typos** - All text is correct
 - [ ] **Cultural fit** - Messaging feels appropriate for Ghana
 - [ ] **Payment methods** - MTN MoMo/Telecel Cash mentioned
@@ -255,7 +234,6 @@ If any test fails, document:
 ### Should Pass (Important Issues)
 - ✅ UI looks professional on all devices
 - ✅ Messaging tone is appropriate
-- ✅ Yearly reminders work correctly
 - ✅ Restore purchases works
 - ✅ Performance is acceptable
 
@@ -287,4 +265,3 @@ Before deploying to production:
 **Tested By**: _____________  
 **Result**: ⬜ PASS / ⬜ FAIL  
 **Notes**: _____________
-

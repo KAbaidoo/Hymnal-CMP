@@ -314,8 +314,7 @@ fun PremiumFeatureAccess(
 #### Changes Implemented:
 - ✅ Removed all feature gates - All features available to everyone immediately
 - ✅ Implemented exponential backoff - Prompts at 10, 25, 50, 100, 200, 400 hymns
-- ✅ 365-day supporter grace period - Full year without prompts
-- ✅ Gentle yearly reminders - Softer asks at 50, 100, 200 hymn intervals
+- ✅ Supporters are no longer prompted after making a donation
 - ✅ Updated messaging - Focus on "support the free app" not "unlock features"
 #### Code Architecture Updates:
 - Removed `PremiumFeature` enum
