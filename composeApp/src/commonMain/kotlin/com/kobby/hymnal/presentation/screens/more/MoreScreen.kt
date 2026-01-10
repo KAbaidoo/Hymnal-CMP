@@ -2,24 +2,24 @@ package com.kobby.hymnal.presentation.screens.more
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.presentation.screens.more.components.MoreScreenContent
 import com.kobby.hymnal.presentation.screens.settings.PayWallScreen
+import com.kobby.hymnal.core.iap.PurchaseManager
+import org.koin.compose.koinInject
 
 class MoreScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        var isDarkMode by remember { mutableStateOf(false) }
-        
+        val purchaseManager: PurchaseManager = koinInject()
+        val entitlementInfo by purchaseManager.entitlementState.collectAsState()
+        val showSupport = !entitlementInfo.hasSupported
+
         MoreScreenContent(
-            isDarkMode = isDarkMode,
-            onDarkModeToggle = { isDarkMode = it },
             onItemClick = { item ->
                 when (item) {
                     "Favorites" -> navigator.push(FavoritesScreen())
@@ -38,7 +38,8 @@ class MoreScreen : Screen {
                         break
                     }
                 }
-            }
+            },
+            showSupportItem = showSupport
         )
     }
 }
