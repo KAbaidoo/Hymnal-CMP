@@ -41,31 +41,20 @@ import com.kobby.hymnal.theme.DarkTextColor
 import com.kobby.hymnal.theme.HymnalAppTheme
 import com.kobby.hymnal.theme.YellowAccent
 import hymnal_cmp.composeapp.generated.resources.Res
-import hymnal_cmp.composeapp.generated.resources.arrow_left_s_line
 import hymnal_cmp.composeapp.generated.resources.book_leaf
 import hymnal_cmp.composeapp.generated.resources.bookmark_line
-import hymnal_cmp.composeapp.generated.resources.close_circle_line
 import hymnal_cmp.composeapp.generated.resources.heart_2_line
-import hymnal_cmp.composeapp.generated.resources.home_3_line
 import hymnal_cmp.composeapp.generated.resources.music_2_line
 import hymnal_cmp.composeapp.generated.resources.settings_action_privacy
 import hymnal_cmp.composeapp.generated.resources.settings_action_terms
-import hymnal_cmp.composeapp.generated.resources.settings_feature_favorites
-import hymnal_cmp.composeapp.generated.resources.settings_feature_font_customization
-import hymnal_cmp.composeapp.generated.resources.settings_feature_highlighting
 import hymnal_cmp.composeapp.generated.resources.settings_option_basic_subtitle
 import hymnal_cmp.composeapp.generated.resources.settings_option_basic_title
 import hymnal_cmp.composeapp.generated.resources.settings_option_generous_badge
 import hymnal_cmp.composeapp.generated.resources.settings_option_generous_subtitle
 import hymnal_cmp.composeapp.generated.resources.settings_option_generous_title
-import hymnal_cmp.composeapp.generated.resources.settings_section_features_subtitle
-import hymnal_cmp.composeapp.generated.resources.settings_section_features_title
 import hymnal_cmp.composeapp.generated.resources.settings_section_shared_ministry_body
 import hymnal_cmp.composeapp.generated.resources.settings_section_shared_ministry_title
 import hymnal_cmp.composeapp.generated.resources.settings_separator_bullet
-import hymnal_cmp.composeapp.generated.resources.settings_subtitle_paywall
-import hymnal_cmp.composeapp.generated.resources.settings_title_paywall
-import hymnal_cmp.composeapp.generated.resources.wifi_off_line
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
@@ -85,7 +74,6 @@ fun PayWallContent(
     isRestoring: Boolean = false,
     errorMsg: String? = null,
     successMsg: String? = null,
-    isYearlyReminder: Boolean = false,
     onPurchase: (PayPlan) -> Unit = {},
     onRestore: () -> Unit = {},
     onCloseClick: () -> Unit = {},
@@ -136,7 +124,7 @@ fun PayWallContent(
                         .size(250.dp)
                         .align(Alignment.TopEnd)
                 )
-                PaywallHeader(isYearlyReminder = isYearlyReminder)
+                PaywallHeader()
 
             }
 
@@ -206,8 +194,6 @@ fun PayWallContent(
                         PrimaryCTA(
                             text = if (isLoading) {
                                 "Processing..."
-                            } else if (isYearlyReminder) {
-                                "Support Again"
                             } else {
                                 "Support Development"
                             },
@@ -245,7 +231,7 @@ fun PayWallContent(
 }
 
 @Composable
-private fun PaywallHeader(isYearlyReminder: Boolean = false) {
+private fun PaywallHeader() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -256,11 +242,7 @@ private fun PaywallHeader(isYearlyReminder: Boolean = false) {
 
         Spacer(Modifier.height(50.dp))
         Text(
-            text = if (isYearlyReminder) {
-                "Still enjoying the hymnal?"
-            } else {
-                "Thank you for using our app!"
-            },
+            text = "Thank you for using our app!",
             style =  MaterialTheme.typography.headlineLarge,
             color = DarkTextColor,
             textAlign = TextAlign.Center
@@ -269,11 +251,7 @@ private fun PaywallHeader(isYearlyReminder: Boolean = false) {
 
                 Text(
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    text = if (isYearlyReminder) {
-                        "Thanks for your past support! If you're still finding value, another small contribution helps us continue."
-                    } else {
-                        "All features are free forever. If you find this app helpful, consider supporting development."
-                    },
+                    text = "All features are free forever. If you find this app helpful, consider supporting development.",
                     style = MaterialTheme.typography.bodyMedium.copy(
                         lineHeight = MaterialTheme.typography.bodyMedium.fontSize * 1.25f
                     ),
