@@ -10,7 +10,6 @@ import kotlinx.datetime.Clock
  * Uses exponential backoff to show prompts less frequently over time.
  *
  * Non-supporters: 10, 25, 50, 100, 200, 400 (capped) hymns
- * Supporters (yearly reminders): 50, 100, 200 (less aggressive) hymns
  */
 class UsageTrackingManager(private val storage: PurchaseStorage) {
 
@@ -26,7 +25,7 @@ class UsageTrackingManager(private val storage: PurchaseStorage) {
         val newCount = currentCount + 1
         storage.hymnsReadCount = newCount
 
-        // Track hymns since donation for supporters
+        // Track hymns since donation for supporters (kept for analytics)
         if (isSupporter) {
             storage.hymnsSinceDonation += 1
         }
@@ -39,17 +38,12 @@ class UsageTrackingManager(private val storage: PurchaseStorage) {
 
     /**
      * Check if donation prompt should be shown based on exponential backoff logic.
+     * Updated behavior: supporters NEVER see the paywall again (no yearly reminders).
      */
     fun shouldShowDonationPrompt(isSupporter: Boolean): Boolean {
-        // For supporters, check if yearly reminder is due
+        // Supporters should not be shown donation prompts anymore
         if (isSupporter) {
-            if (!storage.shouldShowYearlyReminder()) {
-                return false // Within 365-day grace period
-            }
-            // After 365 days, use hymns since donation for reminder interval
-            val hymnsSinceDonation = storage.hymnsSinceDonation
-            val nextThreshold = storage.nextPromptThreshold
-            return hymnsSinceDonation >= nextThreshold
+            return false
         }
 
         // For non-supporters, use regular exponential backoff
@@ -73,7 +67,7 @@ class UsageTrackingManager(private val storage: PurchaseStorage) {
 
     /**
      * Record that a donation was made.
-     * Resets counters and sets up yearly reminder schedule.
+     * Resets counters and sets up reminder schedule for internal tracking.
      */
     fun recordDonationMade() {
         storage.recordDonation()
@@ -91,13 +85,6 @@ class UsageTrackingManager(private val storage: PurchaseStorage) {
      */
     fun getNextPromptThreshold(): Int {
         return storage.nextPromptThreshold
-    }
-
-    /**
-     * Check if this is a yearly reminder (for supporters).
-     */
-    fun isYearlyReminder(isSupporter: Boolean): Boolean {
-        return isSupporter && storage.shouldShowYearlyReminder()
     }
 
     /**
@@ -120,4 +107,3 @@ data class UsageStats(
     val promptCount: Int = 0,
     val lastDonationDate: Long? = null
 )
-
