@@ -4,6 +4,7 @@ package com.kobby.hymnal.presentation.screens.settings
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.platform.LocalUriHandler
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -21,15 +22,11 @@ class PayWallScreen(
         val navigator = LocalNavigator.currentOrThrow
         val purchaseManager: PurchaseManager = koinInject()
         val coroutineScope = rememberCoroutineScope()
+        val uriHandler = LocalUriHandler.current
         var isProcessing by remember { mutableStateOf(false) }
         var isRestoring by remember { mutableStateOf(false) }
         var purchaseError by remember { mutableStateOf<String?>(null) }
         var successMessage by remember { mutableStateOf<String?>(null) }
-
-        // Touch the vars in a no-op effect so static analysis recognizes they're read.
-        LaunchedEffect(isProcessing, isRestoring, purchaseError, successMessage) {
-            // no-op - variables are intentionally observed by the UI
-        }
 
         // In freemium model, support sheet is always dismissible
         PayWallContent(
@@ -88,7 +85,7 @@ class PayWallScreen(
                                 }
                             }
                         } else {
-                            purchaseError = "No previous purchase found on this store account."
+                            purchaseError = "No previous purchase found!"
                         }
                     }
                 }
@@ -108,10 +105,12 @@ class PayWallScreen(
                 }
             },
             onPrivacy = {
-                // TODO: Navigate to privacy policy or open URL
+                // Open privacy policy in the user's browser
+                uriHandler.openUri("https://mypockethymnal.com/privacy-policy")
             },
             onTerms = {
-                // TODO: Navigate to terms of service or open URL
+                // Open terms of service in the user's browser
+                uriHandler.openUri("https://mypockethymnal.com/terms-of-service")
             }
         )
     }
