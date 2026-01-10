@@ -75,24 +75,62 @@ class IosPurchaseManager(
     override fun restorePurchases(callback: (Boolean) -> Unit) {
         nativePurchaseProvider?.restorePurchases { success ->
             if (success) {
-                // After restoration, ensure purchase is recorded locally and grace period started
-                isUserSubscribed { isPurchased ->
-                    if (isPurchased && !storage.isSubscribed) {
-                        // Best-effort: mark a purchase recorded; productId unknown here
-                        storage.recordPurchase(
-                            productId = SUPPORT_BASIC_ID,
-                            purchaseType = PurchaseType.ONE_TIME_PURCHASE,
-                            purchaseTimestamp = Clock.System.now().toEpochMilliseconds()
-                        )
-                    } else {
-                        // If subscribed locally but missing a purchase date, set a fallback timestamp
-                        if (storage.isSubscribed && storage.purchaseDate == null) {
-                            storage.purchaseDate = Clock.System.now().toEpochMilliseconds()
+                // Try to get detailed restored purchase info (productId,timestamp;...)
+                nativePurchaseProvider?.getRestoredPurchasesInfo { info ->
+                    if (info != null) {
+                        // Parse the string
+                        val raw = info
+                        val entries = raw.split(';').mapNotNull { entry ->
+                            val parts = entry.split(',')
+                            if (parts.size >= 2) {
+                                val pid = parts[0]
+                                val ts = parts[1].toLongOrNull()
+                                if (ts != null) Pair(pid, ts) else null
+                            } else null
+                        }
+
+                        if (entries.isNotEmpty()) {
+                            // Choose the most recent purchase timestamp entry
+                            val latest = entries.maxByOrNull { it.second }!!
+                            val pid = latest.first
+                            val ts = latest.second
+
+                            // Record exact product and timestamp if not already recorded
+                            if (!storage.isSubscribed) {
+                                storage.recordPurchase(
+                                    productId = pid,
+                                    purchaseType = PurchaseType.ONE_TIME_PURCHASE,
+                                    purchaseTimestamp = ts
+                                )
+                            } else {
+                                if (storage.purchaseDate == null) {
+                                    storage.purchaseDate = ts
+                                }
+                            }
+
+                            usageTracker.recordDonationMade()
+                            refreshEntitlementState()
+                            callback(true)
+                            return@getRestoredPurchasesInfo
                         }
                     }
-                    // Start grace period and reset counters
-                    usageTracker.recordDonationMade()
-                    callback(true)
+
+                    // Fallback: use previous flow (check boolean existence)
+                    isUserSubscribed { isPurchased ->
+                        if (isPurchased && !storage.isSubscribed) {
+                            storage.recordPurchase(
+                                productId = SUPPORT_BASIC_ID,
+                                purchaseType = PurchaseType.ONE_TIME_PURCHASE,
+                                purchaseTimestamp = Clock.System.now().toEpochMilliseconds()
+                            )
+                        } else {
+                            if (storage.isSubscribed && storage.purchaseDate == null) {
+                                storage.purchaseDate = Clock.System.now().toEpochMilliseconds()
+                            }
+                        }
+                        usageTracker.recordDonationMade()
+                        callback(true)
+                    }
                 }
             } else {
                 callback(false)
@@ -119,6 +157,8 @@ interface NativePurchaseProvider {
     fun managePurchase()
     fun purchasePurchase(productId: String, callback: (Boolean) -> Unit): Boolean
     fun restorePurchases(callback: (Boolean) -> Unit)
+    // New: return a semicolon-separated list of restored purchases in the format "productId,timestampMillis;productId,timestampMillis"
+    fun getRestoredPurchasesInfo(callback: (String?) -> Unit)
 }
 
 private var nativePurchaseProvider: NativePurchaseProvider? = null

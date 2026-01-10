@@ -88,13 +88,13 @@ class BillingHelper(private val context: Context) {
         }
     }
 
-    // Modified: returns (hasPurchase, productIdFound?)
-    fun checkSubscriptionStatus(callback: (Boolean, String?) -> Unit) {
+    // Modified: returns (hasPurchase, productIdFound?, purchaseTimestampMillis?)
+    fun checkSubscriptionStatus(callback: (Boolean, String?, Long?) -> Unit) {
         Log.d(TAG, "checkPurchaseStatus - checking one-time purchases")
         connectPlayStore { isConnected ->
             if (!isConnected) {
                 Log.e(TAG, "Failed to connect to Play Store for purchase check")
-                callback(false, null)
+                callback(false, null, null)
                 return@connectPlayStore
             }
 
@@ -106,25 +106,31 @@ class BillingHelper(private val context: Context) {
             billingClient.queryPurchasesAsync(inappParams) { billingResult, purchases ->
                 Log.d(TAG, "queryPurchasesAsync INAPP callback: ${billingResult.responseCode}, ${purchases.size}")
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                    // Determine which product was purchased if any
                     var foundProduct: String? = null
-                    val hasPurchase = purchases.any {
-                        when {
-                            it.products.contains(SUPPORT_BASIC) -> {
+                    var foundTimestamp: Long? = null
+
+                    for (purchase in purchases) {
+                        val purchaseTime = purchase.purchaseTime
+                        if (purchase.products.contains(SUPPORT_BASIC)) {
+                            // prefer the latest timestamp
+                            if (foundTimestamp == null || purchaseTime > foundTimestamp) {
                                 foundProduct = SUPPORT_BASIC
-                                true
+                                foundTimestamp = purchaseTime
                             }
-                            it.products.contains(SUPPORT_GENEROUS) -> {
+                        }
+                        if (purchase.products.contains(SUPPORT_GENEROUS)) {
+                            if (foundTimestamp == null || purchaseTime > foundTimestamp) {
                                 foundProduct = SUPPORT_GENEROUS
-                                true
+                                foundTimestamp = purchaseTime
                             }
-                            else -> false
                         }
                     }
-                    callback(hasPurchase, foundProduct)
+
+                    val hasPurchase = foundProduct != null
+                    callback(hasPurchase, foundProduct, foundTimestamp)
                 } else {
                     Log.e(TAG, "Failed to query inapp purchases: ${billingResult.responseCode} - ${billingResult.debugMessage}")
-                    callback(false, null)
+                    callback(false, null, null)
                 }
             }
         }

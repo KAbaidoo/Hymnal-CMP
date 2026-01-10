@@ -19,6 +19,8 @@ class IosPurchaseProvider: NSObject, NativePurchaseProvider, SKProductsRequestDe
     
     var purchaseCallBack: ((KotlinBoolean) -> Void)? = nil
     var restoreCallBack: ((KotlinBoolean) -> Void)? = nil
+    // Collect restored products and timestamps
+    private var restoredProducts: [(String, TimeInterval)] = []
 
     override init() {
         super.init()
@@ -53,6 +55,8 @@ class IosPurchaseProvider: NSObject, NativePurchaseProvider, SKProductsRequestDe
     
     public func restorePurchases(callback: @escaping (KotlinBoolean) -> Void) {
         restoreCallBack = callback
+        // Clear previous restoredProducts to collect fresh ones
+        restoredProducts.removeAll()
         SKPaymentQueue.default().restoreCompletedTransactions()
     }
     
@@ -60,10 +64,10 @@ class IosPurchaseProvider: NSObject, NativePurchaseProvider, SKProductsRequestDe
         for transaction in transactions {
             switch transaction.transactionState {
             case .purchased:
-                unlockContent(productId: transaction.payment.productIdentifier)
+                unlockContent(productId: transaction.payment.productIdentifier, transactionDate: transaction.transactionDate)
                 SKPaymentQueue.default().finishTransaction(transaction)
             case .restored:
-                unlockContent(productId: transaction.payment.productIdentifier)
+                unlockContent(productId: transaction.payment.productIdentifier, transactionDate: transaction.transactionDate)
                 SKPaymentQueue.default().finishTransaction(transaction)
             case .failed:
                 purchaseCallBack?(KotlinBoolean(value: false))
@@ -90,15 +94,48 @@ class IosPurchaseProvider: NSObject, NativePurchaseProvider, SKProductsRequestDe
         restoreCallBack = nil
     }
     
-    private func unlockContent(productId: String) {
+    private func unlockContent(productId: String, transactionDate: Date?) {
         purchaseCallBack?(KotlinBoolean(value: true))
         UserDefaults.standard.set(true, forKey: productId)
+        // store purchase timestamp in millis
+        let timestampMs = Int64((transactionDate ?? Date()).timeIntervalSince1970 * 1000.0)
+        UserDefaults.standard.set(timestampMs, forKey: "\(productId)_purchaseDate")
+        // keep restoredProducts in memory for immediate access
+        // avoid duplicates
+        if !restoredProducts.contains(where: { $0.0 == productId }) {
+            restoredProducts.append((productId, Double(timestampMs)))
+        }
     }
     
     public func isUserPurchased(callback: @escaping (KotlinBoolean) -> Void) {
         let basicPurchased = UserDefaults.standard.bool(forKey: SUPPORT_BASIC_ID)
         let generousPurchased = UserDefaults.standard.bool(forKey: SUPPORT_GENEROUS_ID)
         callback(KotlinBoolean(value: basicPurchased || generousPurchased))
+    }
+
+    // New: provide restored purchases info as a semicolon-separated string "productId,timestamp;productId,timestamp"
+    public func getRestoredPurchasesInfo(callback: @escaping (KotlinString?) -> Void) {
+        if restoredProducts.isEmpty {
+            // attempt to read from UserDefaults if in-memory empty
+            var entries: [String] = []
+            for pid in [SUPPORT_BASIC_ID, SUPPORT_GENEROUS_ID] {
+                if UserDefaults.standard.bool(forKey: pid) {
+                    let ts = UserDefaults.standard.object(forKey: "\(pid)_purchaseDate") as? Int64 ?? Int64(Date().timeIntervalSince1970 * 1000.0)
+                    entries.append("\(pid),\(ts)")
+                }
+            }
+            if entries.isEmpty {
+                callback(nil)
+                return
+            }
+            let joined = entries.joined(separator: ";")
+            callback(KotlinString(string: joined))
+            return
+        }
+
+        let parts = restoredProducts.map { "\($0.0),\(Int64($0.1))" }
+        let joined = parts.joined(separator: ";")
+        callback(KotlinString(string: joined))
     }
 
     public func managePurchase() {

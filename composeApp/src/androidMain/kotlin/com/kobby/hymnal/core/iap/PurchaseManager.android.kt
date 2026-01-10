@@ -54,10 +54,16 @@ class AndroidPurchaseManager(
     }
 
     override fun isUserSubscribed(callback: (Boolean) -> Unit) {
-        billingHelper.checkSubscriptionStatus { hasPurchase, _ ->
+        billingHelper.checkSubscriptionStatus { hasPurchase, productId, purchaseTime ->
             // Update storage with current state
             storage.isSubscribed = hasPurchase
             storage.lastVerificationTime = Clock.System.now().toEpochMilliseconds()
+
+            // If we have a purchaseTime and no local purchaseDate, record it (do not override existing)
+            if (hasPurchase && purchaseTime != null && storage.purchaseDate == null) {
+                val pid = productId ?: billingHelper.SUPPORT_BASIC
+                storage.recordPurchase(productId = pid, purchaseType = PurchaseType.ONE_TIME_PURCHASE, purchaseTimestamp = purchaseTime)
+            }
 
             // In freemium model, only actual subscribers have access
             refreshEntitlementState()
@@ -75,20 +81,21 @@ class AndroidPurchaseManager(
     
     override fun restorePurchases(callback: (Boolean) -> Unit) {
         // On Android, restoration is automatic via queryPurchasesAsync
-        billingHelper.checkSubscriptionStatus { hasPurchase, productId ->
+        billingHelper.checkSubscriptionStatus { hasPurchase, productId, purchaseTime ->
             if (hasPurchase) {
-                // If not already recorded locally, record the purchase using the found product id
+                // If not already recorded locally, record the purchase using the found product id and timestamp if available
                 if (!storage.isSubscribed) {
                     val pid = productId ?: billingHelper.SUPPORT_BASIC
+                    val ts = purchaseTime ?: Clock.System.now().toEpochMilliseconds()
                     storage.recordPurchase(
                         productId = pid,
                         purchaseType = PurchaseType.ONE_TIME_PURCHASE,
-                        purchaseTimestamp = Clock.System.now().toEpochMilliseconds()
+                        purchaseTimestamp = ts
                     )
                 } else {
-                    // If subscribed but no purchaseDate recorded, set a fallback date
+                    // If subscribed but no purchaseDate recorded, set from purchaseTime if available, else fallback
                     if (storage.purchaseDate == null) {
-                        storage.purchaseDate = Clock.System.now().toEpochMilliseconds()
+                        storage.purchaseDate = purchaseTime ?: Clock.System.now().toEpochMilliseconds()
                     }
                 }
 

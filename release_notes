@@ -41,3 +41,6 @@
 
 0.7.0
 - Adds Paywall feature for One Time Purchase and Subscription options.
+
+0.9.1
+- Migrate payment model to free with donation prompts.
