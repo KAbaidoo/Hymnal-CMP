@@ -190,7 +190,7 @@ fun PayWallContent(
                         // Shared ministry card just beneath FeaturesCard
                         SharedMinistryCard()
 
-
+                        Spacer(Modifier.height(12.dp))
                         PrimaryCTA(
                             text = if (isLoading) {
                                 "Processing..."
@@ -201,7 +201,7 @@ fun PayWallContent(
                             onClick = { onPurchase(selectedPlan) }
                         )
 
-                        Spacer(Modifier.height(8.dp))
+                        Spacer(Modifier.height(12.dp))
 
                         // Restore purchases button
                         OutlinedButton(
