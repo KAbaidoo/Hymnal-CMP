@@ -91,10 +91,10 @@ class StartScreen : Screen {
         // Auto-navigate to HomeScreen after delay
         LaunchedEffect(Unit) {
             delay(AUTO_NAVIGATION_DELAY_MS)
-//            if (!hasNavigated) {
-//                hasNavigated = true
-//                navigator.push(HomeScreen())
-//            }
+            if (!hasNavigated) {
+                hasNavigated = true
+                navigator.push(HomeScreen())
+            }
         }
 
         StartScreenContent(
