@@ -14,15 +14,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import com.kobby.hymnal.core.iap.PurchaseManager
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowForward
 import androidx.compose.material3.Button
@@ -80,9 +78,7 @@ class HomeScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val purchaseManager: PurchaseManager = koinInject()
         var isDeveloperMode by remember { mutableStateOf(false) }
-        val entitlementInfo by purchaseManager.entitlementState.collectAsState()
 
         HomeScreenContent(
             onSearchClick = { navigator.push(GlobalSearchScreen()) },
@@ -137,7 +133,7 @@ private fun HomeScreenContent(
     onTestDatabaseClick: () -> Unit = {},
     isDeveloperMode: Boolean = false
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.primary)) {
         Image(
             painter = painterResource(Res.drawable.cathedral),
             contentDescription = null,
@@ -308,7 +304,7 @@ private fun AppBar(
     )
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true,)
 @Composable
 fun HomeScreenContentPreview(){
     HymnalAppTheme {
