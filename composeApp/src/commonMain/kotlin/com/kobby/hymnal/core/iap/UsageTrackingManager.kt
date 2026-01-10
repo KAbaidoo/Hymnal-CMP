@@ -25,11 +25,6 @@ class UsageTrackingManager(private val storage: PurchaseStorage) {
         val newCount = currentCount + 1
         storage.hymnsReadCount = newCount
 
-        // Track hymns since donation for supporters (kept for analytics)
-        if (isSupporter) {
-            storage.hymnsSinceDonation += 1
-        }
-
         _usageStats.value = _usageStats.value.copy(hymnsRead = newCount)
 
         // Check if we should show donation prompt
@@ -56,12 +51,12 @@ class UsageTrackingManager(private val storage: PurchaseStorage) {
      * Record that the donation prompt was shown.
      * Increments prompt counter and calculates next threshold.
      */
-    fun recordPromptShown(isSupporter: Boolean) {
+    fun recordPromptShown() {
         storage.lastDonationPromptTimestamp = Clock.System.now().toEpochMilliseconds()
         storage.donationPromptCount += 1
 
-        // Calculate and store next threshold based on new prompt count
-        val nextThreshold = storage.calculateNextThreshold(isSupporter)
+        // Calculate and store next threshold based on new prompt count (no supporter branch)
+        val nextThreshold = storage.calculateNextThreshold()
         storage.nextPromptThreshold = nextThreshold
     }
 
@@ -94,7 +89,7 @@ class UsageTrackingManager(private val storage: PurchaseStorage) {
         _usageStats.value = UsageStats(
             hymnsRead = storage.hymnsReadCount,
             promptCount = storage.donationPromptCount,
-            lastDonationDate = storage.lastDonationDate
+            lastDonationDate = null
         )
     }
 }

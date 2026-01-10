@@ -58,7 +58,7 @@ data class HymnDetailScreen(
 
             if (shouldShowPrompt) {
                 // Show donation prompt with exponential backoff
-                purchaseManager.usageTracker.recordPromptShown(isSupporter)
+                purchaseManager.usageTracker.recordPromptShown()
                 navigator.push(PayWallScreen())
             }
         }
