@@ -32,13 +32,13 @@ class IosPurchaseManager(
         refreshEntitlementState()
     }
 
-    override fun purchaseSubscription(plan: PayPlan, callback: (Boolean) -> Unit) {
+    override fun makePurchase(plan: PayPlan, callback: (Boolean) -> Unit) {
         val productId = when (plan) {
             PayPlan.SupportBasic -> SUPPORT_BASIC_ID
             PayPlan.SupportGenerous -> SUPPORT_GENEROUS_ID
         }
 
-        nativePurchaseProvider?.purchasePurchase(
+        nativePurchaseProvider?.makePurchase(
             productId = productId,
             callback = { success ->
                 if (success) {
@@ -147,7 +147,7 @@ class IosPurchaseManager(
     }
 }
 
-actual fun createSubscriptionManager(): PurchaseManager {
+actual fun createPurchaseManager(): PurchaseManager {
     throw IllegalStateException("Use Koin for dependency injection on iOS")
 }
 
@@ -155,7 +155,7 @@ interface NativePurchaseProvider {
     fun isUserPurchased(callback: (Boolean) -> Unit)
     fun fetchPurchases()
     fun managePurchase()
-    fun purchasePurchase(productId: String, callback: (Boolean) -> Unit): Boolean
+    fun makePurchase(productId: String, callback: (Boolean) -> Unit): Boolean
     fun restorePurchases(callback: (Boolean) -> Unit)
     // New: return a semicolon-separated list of restored purchases in the format "productId,timestampMillis;productId,timestampMillis"
     fun getRestoredPurchasesInfo(callback: (String?) -> Unit)
