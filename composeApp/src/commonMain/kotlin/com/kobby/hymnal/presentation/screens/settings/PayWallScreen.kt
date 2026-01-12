@@ -39,7 +39,7 @@ class PayWallScreen(
 
 
                     // Handle purchase with the selected plan
-                    purchaseManager.purchaseSubscription(plan) { success ->
+                    purchaseManager.makePurchase(plan) { success ->
                         if (success) {
                             // Record donation to reset prompt counters
                             purchaseManager.usageTracker.recordDonationMade()

@@ -5,9 +5,9 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface PurchaseManager {
     /**
-     * Purchase a subscription plan.
+     * Make a purchase plan.
      */
-    fun purchaseSubscription(plan: PayPlan, callback: (Boolean) -> Unit)
+    fun makePurchase(plan: PayPlan, callback: (Boolean) -> Unit)
     
     /**
      * Check if the user has an active subscription.
@@ -46,5 +46,5 @@ interface PurchaseManager {
     fun initialize()
 }
 
-expect fun createSubscriptionManager(): PurchaseManager
+expect fun createPurchaseManager(): PurchaseManager
 

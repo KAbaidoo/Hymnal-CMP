@@ -30,7 +30,7 @@ class AndroidPurchaseManager(
         refreshEntitlementState()
     }
 
-    override fun purchaseSubscription(plan: PayPlan, callback: (Boolean) -> Unit) {
+    override fun makePurchase(plan: PayPlan, callback: (Boolean) -> Unit) {
         (context as? Activity)?.let { activity ->
             // Both tiers are one-time purchases (non-consumable in-app products)
             val productId = when (plan) {
@@ -120,6 +120,6 @@ class AndroidPurchaseManager(
     }
 }
 
-actual fun createSubscriptionManager(): PurchaseManager {
+actual fun createPurchaseManager(): PurchaseManager {
     throw IllegalStateException("Use Koin for dependency injection on Android")
 }

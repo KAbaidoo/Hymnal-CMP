@@ -42,7 +42,7 @@ class IosPurchaseProvider: NSObject, NativePurchaseProvider, SKProductsRequestDe
         }
     }
     
-    public func purchasePurchase(productId: String, callback: @escaping (KotlinBoolean) -> Void) -> Bool {
+    public func makePurchase(productId: String, callback: @escaping (KotlinBoolean) -> Void) -> Bool {
         guard let product = products.first(where: { $0.productIdentifier == productId }) else {
             callback(KotlinBoolean(value: false))
             return false
