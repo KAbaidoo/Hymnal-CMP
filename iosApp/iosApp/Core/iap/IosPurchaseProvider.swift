@@ -114,7 +114,7 @@ class IosPurchaseProvider: NSObject, NativePurchaseProvider, SKProductsRequestDe
     }
 
     // New: provide restored purchases info as a semicolon-separated string "productId,timestamp;productId,timestamp"
-    public func getRestoredPurchasesInfo(callback: @escaping (KotlinString?) -> Void) {
+    public func getRestoredPurchasesInfo(callback: @escaping (String?) -> Void) {
         if restoredProducts.isEmpty {
             // attempt to read from UserDefaults if in-memory empty
             var entries: [String] = []
@@ -129,13 +129,13 @@ class IosPurchaseProvider: NSObject, NativePurchaseProvider, SKProductsRequestDe
                 return
             }
             let joined = entries.joined(separator: ";")
-            callback(KotlinString(string: joined))
+            callback(joined)
             return
         }
 
         let parts = restoredProducts.map { "\($0.0),\(Int64($0.1))" }
         let joined = parts.joined(separator: ";")
-        callback(KotlinString(string: joined))
+        callback(joined)
     }
 
     public func managePurchase() {
