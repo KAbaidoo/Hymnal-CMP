@@ -26,7 +26,7 @@
         }
       ],
       "productID" : "support_basic",
-      "referenceName" : "Basic Support (GH₵ 10)",
+      "referenceName" : "Basic Support",
       "type" : "NonConsumable"
     },
     {
@@ -41,7 +41,7 @@
         }
       ],
       "productID" : "support_generous",
-      "referenceName" : "Generous Support (GH₵ 20)",
+      "referenceName" : "Generous Support",
       "type" : "NonConsumable"
     }
   ],
