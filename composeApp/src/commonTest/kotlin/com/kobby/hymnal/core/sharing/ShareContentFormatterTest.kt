@@ -2,8 +2,8 @@ package com.kobby.hymnal.core.sharing
 
 import com.kobby.hymnal.composeApp.database.Hymn
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.test.assertFalse
 
 class ShareContentFormatterTest {
 
@@ -60,11 +60,12 @@ class ShareContentFormatterTest {
         // Then
         assertTrue(formatted.contains("📱 Shared from ${ShareConstants.APP_NAME}"))
         assertTrue(formatted.contains("✨ ${ShareConstants.APP_TAGLINE}"))
-        assertTrue(formatted.contains("📲 Download:"))
+        // Now expect the landing page link instead of store download text
+        assertTrue(formatted.contains("🔗 ${ShareConstants.LANDING_PAGE_URL}"))
     }
 
     @Test
-    fun `formatHymnForSharing includes Android Play Store URL`() {
+    fun `formatHymnForSharing does not include Android Play Store URL`() {
         // Given
         val hymn = createTestHymn()
 
@@ -72,11 +73,11 @@ class ShareContentFormatterTest {
         val formatted = ShareContentFormatter.formatHymnForSharing(hymn)
 
         // Then
-        assertTrue(formatted.contains("🤖 Android: ${ShareConstants.ANDROID_PLAY_STORE_URL}"))
+        assertFalse(formatted.contains("🤖 Android: ${ShareConstants.ANDROID_PLAY_STORE_URL}"))
     }
 
     @Test
-    fun `formatHymnForSharing includes iOS App Store URL`() {
+    fun `formatHymnForSharing does not include iOS App Store URL`() {
         // Given
         val hymn = createTestHymn()
 
@@ -84,7 +85,7 @@ class ShareContentFormatterTest {
         val formatted = ShareContentFormatter.formatHymnForSharing(hymn)
 
         // Then
-        assertTrue(formatted.contains("🍎 iOS: ${ShareConstants.IOS_APP_STORE_URL}"))
+        assertFalse(formatted.contains("🍎 iOS: ${ShareConstants.IOS_APP_STORE_URL}"))
     }
 
     @Test
@@ -249,9 +250,8 @@ class ShareContentFormatterTest {
         assertTrue(formatted.contains("🎵"), "Should contain music note emoji")
         assertTrue(formatted.contains("📱"), "Should contain mobile phone emoji")
         assertTrue(formatted.contains("✨"), "Should contain sparkles emoji")
-        assertTrue(formatted.contains("📲"), "Should contain download emoji")
-        assertTrue(formatted.contains("🤖"), "Should contain Android emoji")
-        assertTrue(formatted.contains("🍎"), "Should contain Apple emoji")
+        // Store/download emojis are no longer present; expect landing link emoji instead
+        assertTrue(formatted.contains("🔗"), "Should contain link emoji")
     }
 
     @Test
