@@ -1,12 +1,26 @@
 import SwiftUI
 import FirebaseCore
+import FirebaseCrashlytics
+import ComposeApp
 
 @main
 struct iOSApp: App {
     
-    init(){
+    init() {
         FirebaseApp.configure()
-      }
+        
+        // Enable Crashlytics only in release builds
+        #if DEBUG
+        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(false)
+        #else
+        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(true)
+        #endif
+        
+        CrashlyticsManager_iosKt.initializeNativeCrashlyticsProvider(provider: IosCrashlyticsProvider())
+        
+        // Initialize subscription provider
+        PurchaseManager_iosKt.initializeNativePurchaseProvider(provider: IosPurchaseProvider())
+    }
     
     var body: some Scene {
         WindowGroup {

@@ -1,5 +1,7 @@
 import java.io.File
 import java.util.regex.Pattern
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.INT
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -7,11 +9,14 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.googleServices)
     alias(libs.plugins.firebase.appdistribution)
+    alias(libs.plugins.firebase.crashlytics)
+    alias(libs.plugins.buildkonfig)
 }
 
 kotlin {
-
+    jvmToolchain(17)
     androidTarget()
 
     listOf(
@@ -36,14 +41,11 @@ kotlin {
             implementation(project.dependencies.platform(libs.firebase.bom))
             implementation(libs.firebase.common)
             implementation(libs.firebase.analytics)
+            implementation(libs.firebase.crashlytics)
             implementation(libs.sqldelight.android)
-
-
-            implementation(libs.androidx.lifecycle.viewmodel)
-            implementation(libs.androidx.lifecycle.runtime.compose)
-            implementation(compose.uiTooling)
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
+            implementation(libs.billing.ktx)
         }
 
         commonMain.dependencies {
@@ -51,13 +53,17 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
+            implementation(compose.materialIconsExtended)
             implementation(compose.components.resources)
-
+            implementation(compose.components.uiToolingPreview)
+            implementation(libs.androidx.lifecycle.viewmodelCompose)
+            implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.transitions)
             implementation(libs.multiplatform.settings)
             implementation(libs.multiplatform.settings.noargs)
             implementation(libs.sqldelight.coroutines)
+            implementation(libs.kotlinx.datetime)
 
             implementation(project.dependencies.platform(libs.koin.bom))
             api(libs.koin.core)
@@ -68,14 +74,16 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
+            implementation(libs.multiplatform.settings.test)
+            // Removed sqldelight.jvm to fix iOS test compilation
+            // Add platform-specific test drivers if needed
         }
 
         iosMain.dependencies {
             implementation(libs.sqldelight.ios)
         }
-    }
 
-//    jvmToolchain(17)
+    }
 
 }
 
@@ -105,7 +113,12 @@ android {
 
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            signingConfig = signingConfigs.getByName("debug")
         }
 
         getByName("debug") {
@@ -124,6 +137,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     compileOptions {
@@ -132,12 +146,25 @@ android {
     }
 
 }
+dependencies {
+    debugImplementation(compose.uiTooling)
+}
+
 
 sqldelight {
     databases {
         create("HymnDatabase") {
             packageName = "com.kobby.hymnal.composeApp.database"
         }
+    }
+}
+
+buildkonfig {
+    packageName = "com.kobby.hymnal"
+    
+    defaultConfigs {
+        buildConfigField(STRING, "VERSION_NAME", appVersionName)
+        buildConfigField(INT, "VERSION_CODE", appVersionCode.toString())
     }
 }
 

@@ -1,47 +1,49 @@
+@file:Suppress("UNUSED_IMPORT", "unused")
+
 package com.kobby.hymnal.presentation.screens.more.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.kobby.hymnal.BuildKonfig
 import com.kobby.hymnal.presentation.components.ContentScreen
 import com.kobby.hymnal.presentation.components.ListItem
 import hymnal_cmp.composeapp.generated.resources.Res
-import hymnal_cmp.composeapp.generated.resources.settings
-import hymnal_cmp.composeapp.generated.resources.dark_mode
 import hymnal_cmp.composeapp.generated.resources.version
+import hymnal_cmp.composeapp.generated.resources.more
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun MoreScreenContent(
-    isDarkMode: Boolean,
-    onDarkModeToggle: (Boolean) -> Unit,
     onItemClick: (String) -> Unit,
     onBackClick: () -> Unit,
-    onHomeClick: () -> Unit
+    onHomeClick: () -> Unit,
+    showSupportItem: Boolean = true
 ) {
     ContentScreen(
-        titleCollapsed = "More",
-        titleExpanded = "More",
+        titleCollapsed = stringResource(Res.string.more),
+        titleExpanded = stringResource(Res.string.more),
         actionButtons = null,
         content = { innerPadding ->
-            val menuItems = listOf("Bookmarks", "History", "Highlights")
-
+            val menuItems = mutableListOf<String>()
+            menuItems.addAll(listOf(
+                "Favorites",
+                "History",
+                "Highlights"
+            ))
+            if (showSupportItem) {
+                menuItems.add("Support Development")
+            }
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -56,47 +58,11 @@ fun MoreScreenContent(
                     )
                 }
 
-                // Settings section
-                Text(
-                    text = stringResource(Res.string.settings), 
-                    style = MaterialTheme.typography.bodyMedium, 
-                    modifier = Modifier.padding(16.dp)
-                )
-                
-                Card(
-                    elevation = CardDefaults.elevatedCardElevation(), 
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    ), 
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(Res.string.dark_mode),
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
-
-                        Switch(
-                            modifier = Modifier
-                                .padding(10.dp)
-                                .height(8.dp),
-                            checked = isDarkMode,
-                            onCheckedChange = onDarkModeToggle
-                        )
-                    }
-                }
-
                 Spacer(modifier = Modifier.weight(1f))
                 
                 // Version info
                 Text(
-                    text = stringResource(Res.string.version), 
+                    text = "${stringResource(Res.string.version)} ${BuildKonfig.VERSION_NAME}", 
                     style = MaterialTheme.typography.bodyMedium, 
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -107,5 +73,15 @@ fun MoreScreenContent(
         },
         onBackClick = onBackClick,
         onHomeClick = onHomeClick
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MoreScreenContentPreview() {
+    MoreScreenContent(
+        onItemClick = {},
+        onBackClick = {},
+        onHomeClick = {}
     )
 }

@@ -14,11 +14,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kobby.hymnal.theme.Shapes
+import com.kobby.hymnal.theme.PurplePrimary
 
 @Composable
 fun HighlightTextBottomSheet(
     onDismiss: () -> Unit,
-    onColorSelected: (Color) -> Unit
+    onColorSelected: (Color) -> Unit,
+    onRemoveHighlight: (() -> Unit)? = null,
+    currentColor: Color? = null // Null means no color selected
 ) {
     val fontColor = MaterialTheme.colorScheme.onSurface
     val shape = Shapes.medium
@@ -81,8 +84,24 @@ fun HighlightTextBottomSheet(
                         .height(56.dp)
                         .clip(shape)
                         .background(color)
-                        .clickable { onColorSelected(color) }
-                )
+                        .clickable { 
+                            if (color == currentColor && onRemoveHighlight != null) {
+                                onRemoveHighlight()
+                            } else {
+                                onColorSelected(color)
+                            }
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (color == currentColor && currentColor != null) {
+                        Text(
+                            text = "✕",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = PurplePrimary
+                        )
+                    }
+                }
             }
         }
     }
@@ -93,7 +112,9 @@ fun HighlightTextBottomSheet(
 fun HighlightTextModal(
     isVisible: Boolean,
     onDismiss: () -> Unit,
-    onColorSelected: (Color) -> Unit
+    onColorSelected: (Color) -> Unit,
+    onRemoveHighlight: (() -> Unit)? = null,
+    currentColor: Color? = null
 ) {
     if (isVisible) {
         ModalBottomSheet(
@@ -102,7 +123,9 @@ fun HighlightTextModal(
         ) {
             HighlightTextBottomSheet(
                 onDismiss = onDismiss,
-                onColorSelected = onColorSelected
+                onColorSelected = onColorSelected,
+                onRemoveHighlight = onRemoveHighlight,
+                currentColor = currentColor
             )
         }
     }

@@ -8,6 +8,7 @@ import com.kobby.hymnal.composeApp.database.HymnDatabase
 import com.kobby.hymnal.composeApp.database.Hymn
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 class HymnRepository(private val database: HymnDatabase) {
@@ -73,10 +74,15 @@ class HymnRepository(private val database: HymnDatabase) {
     
     suspend fun addToHistory(hymnId: Long) = withContext(Dispatchers.Default) {
         database.hymnsQueries.addToHistory(hymnId)
+        trimHistoryToLimit()
     }
     
     suspend fun clearHistory() = withContext(Dispatchers.Default) {
         database.hymnsQueries.clearHistory()
+    }
+    
+    private suspend fun trimHistoryToLimit() = withContext(Dispatchers.Default) {
+        database.hymnsQueries.trimHistoryToLimit(HISTORY_LIMIT)
     }
     
     // Highlight queries
@@ -85,8 +91,30 @@ class HymnRepository(private val database: HymnDatabase) {
             .executeAsList()
     }
     
-    suspend fun addHighlight(hymnId: Long, startIndex: Long, endIndex: Long) = withContext(Dispatchers.Default) {
-        database.hymnsQueries.addHighlight(hymnId, startIndex, endIndex)
+    fun getHymnsWithHighlights(): Flow<List<Hymn>> {
+        return database.hymnsQueries.getHymnsWithHighlights()
+            .asFlow()
+            .mapToList(Dispatchers.Default)
+            .map { results ->
+                results.map { result ->
+                    Hymn(
+                        id = result.id,
+                        number = result.number,
+                        title = result.title,
+                        category = result.category,
+                        content = result.content,
+                        created_at = result.created_at
+                    )
+                }
+            }
+    }
+    
+    suspend fun addHighlight(hymnId: Long, startIndex: Long, endIndex: Long, colorIndex: Long = 0) = withContext(Dispatchers.Default) {
+        database.hymnsQueries.addHighlight(hymnId, startIndex, endIndex, colorIndex)
+    }
+    
+    suspend fun updateHighlightColor(highlightId: Long, colorIndex: Long) = withContext(Dispatchers.Default) {
+        database.hymnsQueries.updateHighlightColor(colorIndex, highlightId)
     }
     
     suspend fun removeHighlight(highlightId: Long) = withContext(Dispatchers.Default) {
@@ -102,5 +130,9 @@ class HymnRepository(private val database: HymnDatabase) {
         const val CATEGORY_ANCIENT_MODERN = "ancient_modern"
         const val CATEGORY_SUPPLEMENTARY = "supplementary"
         const val CATEGORY_CANTICLES = "canticles"
+        const val CATEGORY_PSALMS = "psalms"
+        
+        // History management
+        private const val HISTORY_LIMIT = 100L
     }
 }

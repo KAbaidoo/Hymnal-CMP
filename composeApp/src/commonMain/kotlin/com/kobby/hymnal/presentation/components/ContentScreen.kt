@@ -39,6 +39,7 @@ import hymnal_cmp.composeapp.generated.resources.cd_home
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.resources.stringResource
+import com.kobby.hymnal.theme.DarkTextColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,11 +61,7 @@ fun ContentScreen(
        titleExpanded
     }
 
-    val titleStyle = if (!isCollapsed.value) {
-        MaterialTheme.typography.headlineLarge
-    } else {
-        MaterialTheme.typography.headlineSmall
-    }
+    val titleStyle = if (!isCollapsed.value) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.headlineSmall
 
     val topAppBarElementColor = MaterialTheme.colorScheme.secondary
     // Define the expanded and collapsed height of the TopAppBar
@@ -90,7 +87,7 @@ fun ContentScreen(
                             horizontalArrangement = Arrangement.SpaceBetween, 
                             verticalAlignment = Alignment.Bottom
                         ) {
-                            Text(titleText, style = titleStyle)
+                            Text(titleText, style = titleStyle,color = DarkTextColor)
                             if (actionButtons != null && !isCollapsed.value) {
                                 actionButtons()
                             }
