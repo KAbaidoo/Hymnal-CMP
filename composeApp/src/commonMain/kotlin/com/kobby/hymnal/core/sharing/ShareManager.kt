@@ -12,8 +12,8 @@ object ShareConstants {
     const val IOS_APP_STORE_URL = "https://apps.apple.com/app/anglican-hymnal/id123456789" // TODO: Replace with actual App Store ID
     
     // Fallback landing page
-    const val LANDING_PAGE_URL = "https://github.com/KAbaidoo/Hymnal-CMP" // Current project repository
-    
+    const val LANDING_PAGE_URL = "https://mypockethymnal.com" // Updated to official landing page
+
     // App branding
     const val APP_NAME = "Anglican Hymnal"
     const val APP_TAGLINE = "841 Anglican hymns always available offline"

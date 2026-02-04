@@ -11,6 +11,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
 import com.kobby.hymnal.theme.Shapes
+import com.kobby.hymnal.theme.DarkBackground
 
 @Composable
 fun SemiTransparentCard(content: @Composable () -> Unit){
@@ -21,8 +22,8 @@ fun SemiTransparentCard(content: @Composable () -> Unit){
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        MaterialTheme.colorScheme.background.copy(alpha = 0.6f),
-                        MaterialTheme.colorScheme.background.copy(alpha = 0.6f)
+                        DarkBackground.copy(alpha = 0.6f),
+                        DarkBackground.copy(alpha = 0.6f)
                     )
                 )
             )

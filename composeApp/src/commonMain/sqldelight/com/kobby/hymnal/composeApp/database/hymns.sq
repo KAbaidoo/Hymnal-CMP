@@ -29,6 +29,7 @@ CREATE TABLE highlight (
     hymn_id INTEGER NOT NULL,
     start_index INTEGER NOT NULL,
     end_index INTEGER NOT NULL,
+    color_index INTEGER NOT NULL DEFAULT 0,
     created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
     FOREIGN KEY (hymn_id) REFERENCES hymn(id)
 );
@@ -121,13 +122,29 @@ INSERT INTO history (hymn_id) VALUES (?);
 clearHistory:
 DELETE FROM history;
 
+trimHistoryToLimit:
+DELETE FROM history WHERE id NOT IN (
+    SELECT id FROM history 
+    ORDER BY accessed_at DESC 
+    LIMIT ?
+);
+
 -- Queries for highlights
 getHighlightsForHymn:
 SELECT * FROM highlight WHERE hymn_id = ? ORDER BY start_index;
 
+getHymnsWithHighlights:
+SELECT h.*, MAX(hl.created_at) AS last_highlighted FROM hymn h
+JOIN highlight hl ON h.id = hl.hymn_id
+GROUP BY h.id
+ORDER BY MAX(hl.created_at) DESC;
+
 addHighlight:
-INSERT INTO highlight (hymn_id, start_index, end_index) 
-VALUES (?, ?, ?);
+INSERT INTO highlight (hymn_id, start_index, end_index, color_index) 
+VALUES (?, ?, ?, ?);
+
+updateHighlightColor:
+UPDATE highlight SET color_index = ? WHERE id = ?;
 
 removeHighlight:
 DELETE FROM highlight WHERE id = ?;

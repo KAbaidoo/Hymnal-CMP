@@ -1,0 +1,11 @@
+<resources>
+    <!-- Ghana (en-GH) overrides for pricing displayed to Ghana users -->
+
+    <!-- Purchase options (Ghana prices) -->
+    <string name="settings_option_yearly_title">GHS 10.00 / year</string>
+    <string name="settings_option_yearly_subtitle">Renews automatically</string>
+    <string name="settings_option_onetime_title">GHS 25.00 / One-time payment</string>
+    <string name="settings_option_onetime_subtitle">Pay once. Own it forever.</string>
+
+</resources>
+

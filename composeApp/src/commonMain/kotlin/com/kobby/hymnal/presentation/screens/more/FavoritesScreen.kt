@@ -21,9 +21,9 @@ class FavoritesScreen : Screen {
         val repository: HymnRepository = koinInject()
         var searchText by remember { mutableStateOf("") }
         
-        // Get favorite hymns from repository
+        // All users can access favorites now - no gates!
         val favoriteHymns by repository.getFavoriteHymns().collectAsState(initial = emptyList())
-        
+
         val filteredHymns = remember(favoriteHymns, searchText) {
             if (searchText.isBlank()) {
                 favoriteHymns
@@ -35,7 +35,7 @@ class FavoritesScreen : Screen {
                 }
             }
         }
-        
+
         FavoritesContent(
             hymns = filteredHymns,
             searchText = searchText,
@@ -43,14 +43,13 @@ class FavoritesScreen : Screen {
             error = null,
             onSearchTextChanged = { searchText = it },
             onItemClick = { hymn ->
-                navigator.push(HymnDetailScreen(hymn))
+                navigator.push(HymnDetailScreen(hymnId = hymn.id))
             },
             onBackClick = { navigator.pop() },
-            onHomeClick = { 
+            onHomeClick = {
                 // Navigate to home by popping until we reach HomeScreen or we can't pop anymore
                 while (navigator.canPop) {
                     navigator.pop()
-                    // Check if current screen is HomeScreen by trying to find it in the stack
                     if (navigator.lastItem is com.kobby.hymnal.presentation.screens.home.HomeScreen) {
                         break
                     }

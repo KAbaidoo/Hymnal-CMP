@@ -4,22 +4,30 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Kotlin Multiplatform Compose application called "Hymnal-CMP" - an Anglican hymnal app targeting Android and iOS platforms. The app contains 841 Anglican liturgical texts (779 Ancient & Modern hymns + 55 Supplementary hymns + 7 Canticles) stored in a prepackaged SQLite database with full-text search capabilities.
+This is a Kotlin Multiplatform Compose application called "Hymnal-CMP" - an Anglican hymnal app targeting Android and iOS platforms. The app contains 991 Anglican liturgical texts (779 Ancient & Modern hymns + 55 Supplementary hymns + 7 Canticles + 150 Psalms) stored in a prepackaged SQLite database with full-text search capabilities.
 
 ## Architecture
 
 - **Kotlin Multiplatform**: Shared business logic and UI across Android and iOS
 - **Compose Multiplatform**: Declarative UI framework for cross-platform development
-- **Voyager**: Navigation library for screen management and transitions
+- **Voyager**: Navigation library for screen management and transitions with serialization-safe navigation
 - **SQLDelight**: Type-safe database access with prepackaged hymn data
 - **Firebase**: Analytics integration
 - **Settings**: Multiplatform settings storage for user preferences
+
+### Screen Architecture Pattern
+
+The app follows a **repository-first screen pattern** where:
+1. **Navigation**: Screens accept primitive parameters (IDs) for Voyager serialization compatibility
+2. **Data Loading**: Screens load complex data internally using repository patterns
+3. **Separation of Concerns**: UI components (like `DetailScreen`) remain reusable while screens handle navigation logic
 
 ### Database Architecture (Key Implementation Detail)
 
 The app uses a **prepackaged database strategy**:
 - Hymn data is processed offline using `scripts/hymn_processor.py`
-- Database file (`1.8MB`) is bundled in `composeResources/files/hymns.db`
+- Source texts stored in `hymnal_data/Anglican/` directory within project
+- Database file (`~2.1MB`) is bundled in `composeResources/files/hymns.db`
 - On first launch, database is copied to app's data directory
 - SQLDelight provides type-safe access with FTS4 full-text search
 
@@ -36,6 +44,10 @@ The app uses a **prepackaged database strategy**:
   - `src/commonMain/`: Shared code for all platforms
     - `kotlin/com/kobby/hymnal/`: Main application package
       - `core/database/`: Database layer with expect/actual implementations
+      - `presentation/screens/`: Screen implementations following Voyager patterns
+        - `hymns/HymnDetailScreen.kt`: ID-based navigation screen for hymn viewing
+      - `presentation/components/`: Reusable UI components
+        - `DetailScreen.kt`: Core hymn display component
       - `debug/`: Database inspector and testing tools
       - `test/`: Testing screens and utilities
       - `theme/`: App theming (Colors, Typography, Shapes)
@@ -46,6 +58,7 @@ The app uses a **prepackaged database strategy**:
   - `src/commonTest/`: Unit tests for repository and database
 - `iosApp/`: iOS application wrapper and SwiftUI integration
 - `scripts/`: Data processing scripts for generating hymn database
+- `hymnal_data/`: Source Anglican texts organized by category
 
 ## Key Dependencies
 
@@ -89,7 +102,7 @@ The app uses a **prepackaged database strategy**:
 ```bash
 cd scripts
 python3 hymn_processor.py
-# Processes /Users/kobby/Desktop/Anglican hymn files and canticles
+# Processes hymnal_data/Anglican/ directory containing hymns, canticles, and psalms
 # Outputs to composeApp/src/commonMain/composeResources/files/hymns.db
 ```
 
@@ -99,6 +112,7 @@ sqlite3 composeApp/src/commonMain/composeResources/files/hymns.db
 # Check total count: SELECT COUNT(*) FROM hymn;
 # Category breakdown: SELECT category, COUNT(*) FROM hymn GROUP BY category;
 # View canticles: SELECT number, title FROM hymn WHERE category = 'canticles' ORDER BY number;
+# View psalms: SELECT number, title FROM hymn WHERE category = 'psalms' ORDER BY number;
 ```
 
 ### Database Schema Key Points
@@ -113,13 +127,50 @@ sqlite3 composeApp/src/commonMain/composeResources/files/hymns.db
 - **Initialization**: Handled by `DatabaseInitializer` with platform-specific contexts
 - **Error Handling**: Loading states and error recovery in `App.kt`
 
-### Navigation & Testing
-- Uses Voyager for navigation between screens
-- Screen implementations extend `cafe.adriel.voyager.core.screen.Screen`
-- **Testing Infrastructure**: 
-  - `TestHymnScreen`: Basic database functionality testing
-  - `DatabaseInspectorScreen`: Advanced database analysis and search performance
-  - Navigation: Main → Test → Inspector
+### Navigation & Voyager Integration
+
+**Navigation Architecture:**
+- Uses Voyager navigation library for screen management and transitions
+- All screens implement `cafe.adriel.voyager.core.screen.Screen` interface
+- **ID-based Navigation**: Due to Voyager serialization constraints, screens now pass primitive types (IDs) instead of complex objects
+
+**Key Navigation Patterns:**
+
+1. **HymnDetailScreen Navigation** (Post-Serialization Fix):
+   ```kotlin
+   // Current implementation - passes hymnId instead of Hymn object
+   navigator.push(HymnDetailScreen(hymnId = hymn.id))
+   
+   // Data loading handled internally by the screen
+   data class HymnDetailScreen(
+       private val hymnId: Long,
+       private val fromStartScreen: Boolean = false
+   ) : Screen
+   ```
+
+2. **Data Loading Pattern**:
+   - Screens load data asynchronously using repository after navigation
+   - `LaunchedEffect` used for data fetching in screen's `Content()` method
+   - Automatic history tracking on hymn view navigation
+
+3. **Navigation Examples**:
+   ```kotlin
+   // From any hymn list
+   navigator.push(HymnDetailScreen(hymnId = hymn.id))
+   
+   // From StartScreen with special back navigation
+   navigator.push(HymnDetailScreen(hymnId = hymn.id, fromStartScreen = true))
+   ```
+
+**Voyager Serialization Requirements:**
+- Screen parameters must be primitive/serializable types (`Long`, `String`, `Boolean`, etc.)
+- Avoid passing complex objects (`Hymn`, custom data classes) as Screen parameters
+- Complex data should be loaded inside screens using repository patterns
+
+**Testing Infrastructure**: 
+- `TestHymnScreen`: Basic database functionality testing
+- `DatabaseInspectorScreen`: Advanced database analysis and search performance
+- Navigation: Main → Test → Inspector
 
 ### Settings & Configuration
 - Multiplatform Settings library for persistent storage
@@ -128,13 +179,14 @@ sqlite3 composeApp/src/commonMain/composeResources/files/hymns.db
 - iOS: `GoogleService-Info.plist`
 
 ## App Features
-- Prepackaged database with 841 Anglican liturgical texts
+- Prepackaged database with 991 Anglican liturgical texts
 - Full-text search with performance monitoring  
-- Category filtering (Ancient & Modern, Supplementary, Canticles)
+- Category filtering (Ancient & Modern, Supplementary, Canticles, Psalms)
 - Favorites and history tracking with SQLDelight queries
 - Text highlighting capabilities
 - Database inspector for debugging and performance analysis
 - Cross-platform database initialization and error handling
+- Self-contained source data within project repository
 
 ## Canticles Numbering System
 - Canticles are assigned numbers 1001-1007 in liturgical order:

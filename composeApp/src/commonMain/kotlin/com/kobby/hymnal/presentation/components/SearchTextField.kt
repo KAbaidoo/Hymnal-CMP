@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.kobby.hymnal.theme.Shapes
-
+import com.kobby.hymnal.theme.DarkTextColor
 @Composable
 fun SearchTextField(
     searchText: String,
@@ -24,7 +24,7 @@ fun SearchTextField(
     placeholderText: String,
     contentPadding: PaddingValues = PaddingValues(14.dp)
 ) {
-    val textStyle = MaterialTheme.typography.titleMedium
+    val textStyle = MaterialTheme.typography.titleMedium.copy(color = DarkTextColor)
 
     TextField(
         value = searchText, 
@@ -35,21 +35,23 @@ fun SearchTextField(
         placeholder = {  
             Text(
                 text = placeholderText,
-                style = textStyle,
+                style = textStyle.copy(color = DarkTextColor.copy(alpha = 0.6f))
             )
         },
         textStyle = textStyle,
         leadingIcon = { 
             Icon(
                 imageVector = Icons.Outlined.Search, 
-                contentDescription = null
+                contentDescription = null,
+                tint = DarkTextColor.copy(alpha = 0.6f)
             )
         }, 
         shape = Shapes.large,
         colors = TextFieldDefaults.colors(
-            unfocusedContainerColor = MaterialTheme.colorScheme.primary, 
+            unfocusedContainerColor = MaterialTheme.colorScheme.primary,
             focusedContainerColor = MaterialTheme.colorScheme.primary,
-            unfocusedIndicatorColor = Color.Transparent
+            unfocusedIndicatorColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent
         )
     )
 }
