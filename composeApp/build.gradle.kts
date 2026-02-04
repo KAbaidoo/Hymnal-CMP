@@ -73,7 +73,7 @@ kotlin {
         
         commonTest.dependencies {
             implementation(libs.kotlin.test)
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
+            implementation(libs.kotlinx.coroutines.test)
             implementation(libs.multiplatform.settings.test)
             // Removed sqldelight.jvm to fix iOS test compilation
             // Add platform-specific test drivers if needed
