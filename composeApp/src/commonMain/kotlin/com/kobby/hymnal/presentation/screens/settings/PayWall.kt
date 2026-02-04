@@ -89,33 +89,35 @@ fun PayWallContent(
 
     Scaffold(
         topBar = {
-            Box(modifier = Modifier.height(220.dp)) {
-                TopAppBar(
-                    title = {
+            TopAppBar(
+                title = {
 
 
-                    },
-                    navigationIcon = {
+                },
+                navigationIcon = {
 
-                    },
-                    actions = {
-                        // Close button (X) - always visible in freemium
-                        IconButton(onClick = onCloseClick) {
-                            Icon(
-                                modifier = Modifier.size(30.dp),
-                                imageVector = Icons.Outlined.Close,
-                                contentDescription = null
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.largeTopAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        scrolledContainerColor = MaterialTheme.colorScheme.primary,
-                        navigationIconContentColor = topAppBarElementColor,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                        actionIconContentColor= topAppBarElementColor,
-                    )
+                },
+                actions = {
+                    // Close button (X) - always visible in freemium
+                    IconButton(onClick = onCloseClick) {
+                        Icon(
+                            modifier = Modifier.size(30.dp),
+                            imageVector = Icons.Outlined.Close,
+                            contentDescription = null
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.largeTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    scrolledContainerColor = MaterialTheme.colorScheme.primary,
+                    navigationIconContentColor = topAppBarElementColor,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    actionIconContentColor= topAppBarElementColor,
                 )
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Box(modifier = Modifier.height(220.dp)) {
+
                 Image(
                     painter = painterResource(Res.drawable.book_leaf),
                     contentDescription = null,
@@ -157,7 +159,8 @@ fun PayWallContent(
                         modifier = Modifier
                             .verticalScroll(contentScrollState)
                             .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 16.dp)
+                            .padding(horizontal = 20.dp, vertical = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
 
 
@@ -184,13 +187,11 @@ fun PayWallContent(
                                 color = Color(0xFF4CAF50) // Green for success
                             )
                         }
-
                         // Features card
                         FeaturesCard()
                         // Shared ministry card just beneath FeaturesCard
                         SharedMinistryCard()
 
-                        Spacer(Modifier.height(12.dp))
                         PrimaryCTA(
                             text = if (isLoading) {
                                 "Processing..."
@@ -201,20 +202,23 @@ fun PayWallContent(
                             onClick = { onPurchase(selectedPlan) }
                         )
 
-                        Spacer(Modifier.height(12.dp))
 
-                        // Restore purchases button
-                        OutlinedButton(
-                            modifier = Modifier.fillMaxWidth().height(48.dp),
-                            enabled = !isLoading && !isRestoring,
-                            onClick = onRestore,
-                            shape = RoundedCornerShape(12.dp)
-                        ) {
-                            Text(
-                                text = if (isRestoring) "Restoring..." else "Restore Purchase",
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
+//                        // Restore purchases button
+//                        OutlinedButton(
+//                            modifier = Modifier.fillMaxWidth().height(48.dp),
+//                            enabled = !isLoading && !isRestoring,
+//                            onClick = onRestore,
+//                            shape = RoundedCornerShape(12.dp),
+//                            colors = ButtonDefaults.buttonColors(
+//                                containerColor = MaterialTheme.colorScheme.background,
+//                                contentColor = MaterialTheme.colorScheme.onBackground
+//                            )
+//                        ) {
+//                            Text(
+//                                text = if (isRestoring) "Restoring..." else "Restore Purchase",
+//                                style = MaterialTheme.typography.bodyMedium
+//                            )
+//                        }
 
 
                         FooterLinks(onPrivacy = onPrivacy, onTerms = onTerms)
@@ -240,7 +244,7 @@ private fun PaywallHeader() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Spacer(Modifier.height(50.dp))
+        Spacer(Modifier.height(60.dp))
         Text(
             text = "Thank you for using our app!",
             style =  MaterialTheme.typography.headlineLarge,
