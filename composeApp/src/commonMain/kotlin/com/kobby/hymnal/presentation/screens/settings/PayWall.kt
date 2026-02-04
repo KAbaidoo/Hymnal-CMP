@@ -81,61 +81,37 @@ fun PayWallContent(
     onTerms: () -> Unit = {}
 ) {
     var selectedPlan by remember { mutableStateOf(PayPlan.SupportGenerous) }
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-    val topAppBarElementColor = MaterialTheme.colorScheme.secondary
     // Add a content scroll state for the main content so bottom content can scroll when space is limited
     val contentScrollState = rememberScrollState()
 
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
+    Column( modifier = Modifier.background( MaterialTheme.colorScheme.primary)) {
 
+        Spacer(modifier = Modifier.height(12.dp))
 
-                },
-                navigationIcon = {
+        Box(modifier = Modifier.height(220.dp)) {
 
-                },
-                actions = {
-                    // Close button (X) - always visible in freemium
-                    IconButton(onClick = onCloseClick) {
-                        Icon(
-                            modifier = Modifier.size(30.dp),
-                            imageVector = Icons.Outlined.Close,
-                            contentDescription = null
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.largeTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    scrolledContainerColor = MaterialTheme.colorScheme.primary,
-                    navigationIconContentColor = topAppBarElementColor,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    actionIconContentColor= topAppBarElementColor,
-                )
+            Image(
+                painter = painterResource(Res.drawable.book_leaf),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(250.dp)
+                    .align(Alignment.TopEnd)
             )
-            Spacer(modifier = Modifier.height(12.dp))
-            Box(modifier = Modifier.height(220.dp)) {
-
-                Image(
-                    painter = painterResource(Res.drawable.book_leaf),
+            Row (modifier = Modifier.fillMaxWidth().padding(24.dp), horizontalArrangement = Arrangement.End) {
+                IconButton(onClick = onCloseClick) {
+                Icon(
+                    modifier = Modifier.size(30.dp),
+                    imageVector = Icons.Outlined.Close,
                     contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(250.dp)
-                        .align(Alignment.TopEnd)
-                )
-                PaywallHeader()
-
+                    tint = MaterialTheme.colorScheme.secondary
+                ) }
             }
 
-        },
-        containerColor = MaterialTheme.colorScheme.background,
-        modifier = Modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection)
-            .imePadding()
-    ) { paddingValues ->
+            PaywallHeader()
+
+        }
         // Hero / Header area with background
         Box(
             modifier = modifier
@@ -145,7 +121,7 @@ fun PayWallContent(
             // Content card
             Box(
                 modifier = Modifier
-                    .padding(paddingValues)
+//                    .padding(paddingValues)
                     .background(MaterialTheme.colorScheme.primary)
             ) {
                 Column(
@@ -202,25 +178,6 @@ fun PayWallContent(
                             onClick = { onPurchase(selectedPlan) }
                         )
 
-
-//                        // Restore purchases button
-//                        OutlinedButton(
-//                            modifier = Modifier.fillMaxWidth().height(48.dp),
-//                            enabled = !isLoading && !isRestoring,
-//                            onClick = onRestore,
-//                            shape = RoundedCornerShape(12.dp),
-//                            colors = ButtonDefaults.buttonColors(
-//                                containerColor = MaterialTheme.colorScheme.background,
-//                                contentColor = MaterialTheme.colorScheme.onBackground
-//                            )
-//                        ) {
-//                            Text(
-//                                text = if (isRestoring) "Restoring..." else "Restore Purchase",
-//                                style = MaterialTheme.typography.bodyMedium
-//                            )
-//                        }
-
-
                         FooterLinks(onPrivacy = onPrivacy, onTerms = onTerms)
                     }
                 }
@@ -228,10 +185,7 @@ fun PayWallContent(
         }
 
 
-
-
     }
-
 }
 
 @Composable
