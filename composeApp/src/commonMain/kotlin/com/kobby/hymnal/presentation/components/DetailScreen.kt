@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
@@ -34,6 +36,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.geometry.Offset
 import com.kobby.hymnal.composeApp.database.Hymn
@@ -202,98 +205,104 @@ fun DetailScreen(
                     .verticalScroll(rememberScrollState())
                     .padding(16.dp)
             ) {
-                SelectionContainer {
-                    Text(
-                        text = buildHighlightedText(hymn.content ?: "No content available"),
-                        style = TextStyle(
-                            fontFamily = getAppFontFamily(fontSettings.fontFamily),
-                            fontWeight = FontWeight.Normal,
-                            fontSize = fontSettings.fontSize.sp,
-                            lineHeight = (fontSettings.fontSize * 1.8f).sp,
-                            color = MaterialTheme.colorScheme.onBackground
-                        ),
-                        onTextLayout = { textLayoutResult = it },
-                        modifier = Modifier
-                            .pointerInput(highlights.size, hymn.content) {
-                                detectTapGestures(
-                                    onTap = { position ->
-                                        val layout = textLayoutResult ?: return@detectTapGestures
-                                        val offset = layout.getOffsetForPosition(position)
-                                        val annotatedText = buildHighlightedText(hymn.content ?: "")
-                                        annotatedText.getStringAnnotations(
-                                            tag = "highlight",
-                                            start = offset,
-                                            end = offset
-                                        ).firstOrNull()?.let { annotation ->
-                                            val highlightIndex = annotation.item.toIntOrNull()
-                                            highlightIndex?.let { index ->
-                                                if (index < highlights.size) {
-                                                    currentHighlightIndex = index
-                                                    currentHighlightColor = highlights[index].color
-                                                    showHighlightBottomSheet = true
+                val selectionColors = TextSelectionColors(
+                    handleColor = MaterialTheme.colorScheme.secondary,
+                    backgroundColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.35f)
+                )
+                CompositionLocalProvider(LocalTextSelectionColors provides selectionColors) {
+                    SelectionContainer {
+                        Text(
+                            text = buildHighlightedText(hymn.content ?: "No content available"),
+                            style = TextStyle(
+                                fontFamily = getAppFontFamily(fontSettings.fontFamily),
+                                fontWeight = FontWeight.Normal,
+                                fontSize = fontSettings.fontSize.sp,
+                                lineHeight = (fontSettings.fontSize * 1.8f).sp,
+                                color = MaterialTheme.colorScheme.onBackground
+                            ),
+                            onTextLayout = { textLayoutResult = it },
+                            modifier = Modifier
+                                .pointerInput(highlights.size, hymn.content) {
+                                    detectTapGestures(
+                                        onTap = { position ->
+                                            val layout = textLayoutResult ?: return@detectTapGestures
+                                            val offset = layout.getOffsetForPosition(position)
+                                            val annotatedText = buildHighlightedText(hymn.content ?: "")
+                                            annotatedText.getStringAnnotations(
+                                                tag = "highlight",
+                                                start = offset,
+                                                end = offset
+                                            ).firstOrNull()?.let { annotation ->
+                                                val highlightIndex = annotation.item.toIntOrNull()
+                                                highlightIndex?.let { index ->
+                                                    if (index < highlights.size) {
+                                                        currentHighlightIndex = index
+                                                        currentHighlightColor = highlights[index].color
+                                                        showHighlightBottomSheet = true
+                                                    }
                                                 }
                                             }
                                         }
-                                    }
-                                )
-                            }
-                            .pointerInput(hymn.content) {
-                                awaitPointerEventScope {
-                                    while (true) {
-                                        val downEvent = awaitPointerEvent(PointerEventPass.Final)
-                                        val down = downEvent.changes.firstOrNull { it.pressed } ?: continue
-                                        lastSelectionDownPosition = down.position
-                                        val downTime = down.uptimeMillis
-                                        var lastPosition = down.position
-                                        var upTime = downTime
-                                        var isUp = false
-                                        while (!isUp) {
-                                            val event = awaitPointerEvent(PointerEventPass.Final)
-                                            val change = event.changes.firstOrNull { it.id == down.id }
-                                            if (change == null || !change.pressed) {
-                                                isUp = true
-                                                lastSelectionUpPosition = lastPosition
-                                                upTime = change?.uptimeMillis ?: upTime
-                                            } else {
-                                                lastPosition = change.position
-                                                upTime = change.uptimeMillis
+                                    )
+                                }
+                                .pointerInput(hymn.content) {
+                                    awaitPointerEventScope {
+                                        while (true) {
+                                            val downEvent = awaitPointerEvent(PointerEventPass.Final)
+                                            val down = downEvent.changes.firstOrNull { it.pressed } ?: continue
+                                            lastSelectionDownPosition = down.position
+                                            val downTime = down.uptimeMillis
+                                            var lastPosition = down.position
+                                            var upTime = downTime
+                                            var isUp = false
+                                            while (!isUp) {
+                                                val event = awaitPointerEvent(PointerEventPass.Final)
+                                                val change = event.changes.firstOrNull { it.id == down.id }
+                                                if (change == null || !change.pressed) {
+                                                    isUp = true
+                                                    lastSelectionUpPosition = lastPosition
+                                                    upTime = change?.uptimeMillis ?: upTime
+                                                } else {
+                                                    lastPosition = change.position
+                                                    upTime = change.uptimeMillis
+                                                }
                                             }
-                                        }
 
-                                        val layout = textLayoutResult ?: continue
-                                        val startPos = lastSelectionDownPosition ?: continue
-                                        val endPos = lastSelectionUpPosition ?: continue
-                                        val pressDuration = upTime - downTime
-                                        if (pressDuration < viewConfiguration.longPressTimeoutMillis) {
-                                            continue
-                                        }
-                                        val startOffset = layout.getOffsetForPosition(startPos)
-                                        val endOffset = layout.getOffsetForPosition(endPos)
+                                            val layout = textLayoutResult ?: continue
+                                            val startPos = lastSelectionDownPosition ?: continue
+                                            val endPos = lastSelectionUpPosition ?: continue
+                                            val pressDuration = upTime - downTime
+                                            if (pressDuration < viewConfiguration.longPressTimeoutMillis) {
+                                                continue
+                                            }
+                                            val startOffset = layout.getOffsetForPosition(startPos)
+                                            val endOffset = layout.getOffsetForPosition(endPos)
 
-                                        val start: Int
-                                        val end: Int
-                                        if (startOffset <= endOffset) {
-                                            val startWord = layout.getWordBoundary(startOffset)
-                                            val endWord = layout.getWordBoundary(endOffset)
-                                            if (startWord.length == 0 || endWord.length == 0) continue
-                                            start = startWord.start
-                                            end = endWord.end
-                                        } else {
-                                            val startWord = layout.getWordBoundary(endOffset)
-                                            val endWord = layout.getWordBoundary(startOffset)
-                                            if (startWord.length == 0 || endWord.length == 0) continue
-                                            start = startWord.start
-                                            end = endWord.end
-                                        }
+                                            val start: Int
+                                            val end: Int
+                                            if (startOffset <= endOffset) {
+                                                val startWord = layout.getWordBoundary(startOffset)
+                                                val endWord = layout.getWordBoundary(endOffset)
+                                                if (startWord.length == 0 || endWord.length == 0) continue
+                                                start = startWord.start
+                                                end = endWord.end
+                                            } else {
+                                                val startWord = layout.getWordBoundary(endOffset)
+                                                val endWord = layout.getWordBoundary(startOffset)
+                                                if (startWord.length == 0 || endWord.length == 0) continue
+                                                start = startWord.start
+                                                end = endWord.end
+                                            }
 
-                                        selectedTextRange = TextRange(start, end)
-                                        currentHighlightIndex = null
-                                        currentHighlightColor = Color.Transparent
-                                        showHighlightBottomSheet = true
+                                            selectedTextRange = TextRange(start, end)
+                                            currentHighlightIndex = null
+                                            currentHighlightColor = Color.Transparent
+                                            showHighlightBottomSheet = true
+                                        }
                                     }
                                 }
-                            }
-                    )
+                        )
+                    }
                 }
                 
                 HighlightTextModal(
