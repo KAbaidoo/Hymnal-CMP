@@ -1,3 +1,5 @@
+#include? "Versions.xcconfig"
+
 TEAM_ID=
 BUNDLE_ID=com.kobby.hymnal
 APP_NAME=Anglican Hymnal

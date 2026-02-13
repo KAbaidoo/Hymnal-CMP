@@ -256,3 +256,24 @@ fun versionNameToCode(versionName: String): Int {
     
     return major * 10000 + minor * 100 + patch
 }
+/**
+ * Generates a Xcode configuration file with the version code and version name. The file is used by
+ * the Xcode project to set the version code and version name in the Info.plist file. Should be invoked as a
+ * pre-action script inside your .xcscheme file.
+ */
+tasks.register("bootstrapXcodeVersionConfig") {
+    // Point this to the directory where your Config.xccconfig file is
+    val configFile = file(project.rootDir.toString() + "/iosApp/Configuration/Versions.xcconfig")
+    outputs.file(configFile)
+    val content = """
+        BUNDLE_VERSION=${appVersionCode}
+        BUNDLE_SHORT_VERSION_STRING=${appVersionName}
+    """.trimIndent()
+
+    outputs.upToDateWhen {
+        configFile.takeIf { it.exists() }?.readText() == content
+    }
+    doLast {
+        configFile.writeText(content)
+    }
+}
