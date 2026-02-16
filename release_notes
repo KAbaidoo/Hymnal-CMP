@@ -53,3 +53,6 @@
 
 0.9.4
 - Centralize versioning for IOS and gradle.
+
+0.9.5
+- Fix FontSettingsBottomSheet close button tint.
