@@ -50,3 +50,6 @@
 
 0.9.3
 - Fix Top App Bar layout issues on PayWall screen.
+
+0.9.4
+- Centralize versioning for IOS and gradle.
