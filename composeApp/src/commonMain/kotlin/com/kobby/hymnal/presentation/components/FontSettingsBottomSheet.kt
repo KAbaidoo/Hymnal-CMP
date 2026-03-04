@@ -81,7 +81,7 @@ fun FontSettingsBottomSheet(
                 Icon(
                     imageVector = Icons.Outlined.Close,
                     contentDescription = stringResource(Res.string.close),
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = fontColor
                 )
             }
         }

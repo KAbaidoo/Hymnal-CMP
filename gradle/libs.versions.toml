@@ -14,6 +14,7 @@ androidx-test-junit = "1.2.1"
 billingKtx = "8.0.0"
 compose-multiplatform = "1.9.0"
 coreSplashscreen = "1.0.1"
+kotlinxCoroutinesTest = "1.8.0"
 voyager = "1.1.0-beta02"
 junit = "4.13.2"
 kotlin = "2.2.21"
@@ -45,6 +46,7 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 androidx-lifecycle-viewmodelCompose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtimeCompose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
 voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyager" }
 voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", version.ref = "voyager" }
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatform-settings" }
