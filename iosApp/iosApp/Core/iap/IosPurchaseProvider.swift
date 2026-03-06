@@ -27,6 +27,28 @@ class IosPurchaseProvider: NSObject, NativePurchaseProvider, SKProductsRequestDe
         SKPaymentQueue.default().add(self)
     }
     
+    private var productDetailsCallback: ((String?) -> Void)? = nil
+
+    public func fetchProductDetails(callback: @escaping (String?) -> Void) {
+        if products.isEmpty {
+            // If products aren't loaded yet, store the callback and trigger a fetch
+            productDetailsCallback = callback
+            fetchPurchases()
+            return
+        }
+        
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        
+        let entries = products.map { product in
+            formatter.locale = product.priceLocale
+            let price = formatter.string(from: product.price) ?? ""
+            return "\(product.productIdentifier),\(price)"
+        }
+        
+        callback(entries.joined(separator: ";"))
+    }
+    
     public func fetchPurchases() {
         let productIds: Set<String> = [SUPPORT_BASIC_ID, SUPPORT_GENEROUS_ID]
         let request = SKProductsRequest(productIdentifiers: productIds)
@@ -39,6 +61,11 @@ class IosPurchaseProvider: NSObject, NativePurchaseProvider, SKProductsRequestDe
         print("productsRequest is called: \(self.products)")
         for product in products {
             print(product.productIdentifier)
+        }
+        
+        if let callback = productDetailsCallback {
+            fetchProductDetails(callback: callback)
+            productDetailsCallback = nil
         }
     }
     

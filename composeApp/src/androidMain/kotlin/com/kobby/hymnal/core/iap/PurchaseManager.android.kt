@@ -30,6 +30,11 @@ class AndroidPurchaseManager(
         refreshEntitlementState()
     }
 
+    override fun fetchPlanDetails(callback: (List<PlanDetails>) -> Unit) {
+        val productIds = listOf(billingHelper.SUPPORT_BASIC, billingHelper.SUPPORT_GENEROUS)
+        billingHelper.fetchProductDetails(productIds, callback)
+    }
+
     override fun makePurchase(plan: PayPlan, callback: (Boolean) -> Unit) {
         (context as? Activity)?.let { activity ->
             // Both tiers are one-time purchases (non-consumable in-app products)

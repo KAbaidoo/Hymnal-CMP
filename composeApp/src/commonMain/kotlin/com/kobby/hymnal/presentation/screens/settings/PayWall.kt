@@ -62,8 +62,8 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 // Support tier model - both tiers unlock the same features
 enum class PayPlan {
-    SupportBasic,   // GH₵ 15 / $0.99 - accessible tier
-    SupportGenerous // GH₵ 20 / $1.99 - generous supporter tier
+    SupportBasic,
+    SupportGenerous
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -74,6 +74,7 @@ fun PayWallContent(
     isRestoring: Boolean = false,
     errorMsg: String? = null,
     successMsg: String? = null,
+    planPrices: Map<String, String> = emptyMap(),
     onPurchase: (PayPlan) -> Unit = {},
     onRestore: () -> Unit = {},
     onCloseClick: () -> Unit = {},
@@ -85,11 +86,16 @@ fun PayWallContent(
     val contentScrollState = rememberScrollState()
 
 
-    Column( modifier = Modifier.background( MaterialTheme.colorScheme.primary)) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.primary)
+            .verticalScroll(contentScrollState)
+    ) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        Box(modifier = Modifier.height(220.dp)) {
+        Box(modifier = Modifier.height(220.dp).fillMaxWidth()) {
 
             Image(
                 painter = painterResource(Res.drawable.book_leaf),
@@ -99,92 +105,76 @@ fun PayWallContent(
                     .size(250.dp)
                     .align(Alignment.TopEnd)
             )
-            Row (modifier = Modifier.fillMaxWidth().padding(24.dp), horizontalArrangement = Arrangement.End) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(24.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
                 IconButton(onClick = onCloseClick) {
-                Icon(
-                    modifier = Modifier.size(30.dp),
-                    imageVector = Icons.Outlined.Close,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.secondary
-                ) }
+                    Icon(
+                        modifier = Modifier.size(30.dp),
+                        imageVector = Icons.Outlined.Close,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.secondary
+                    )
+                }
             }
 
             PaywallHeader()
 
         }
-        // Hero / Header area with background
-        Box(
-            modifier = modifier
-                .background(MaterialTheme.colorScheme.primary)
+
+        // Content card
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(32.dp, 32.dp, 0.dp, 0.dp))
+                .background(MaterialTheme.colorScheme.background)
+                .padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
-            // Content card
-            Box(
-                modifier = Modifier
-//                    .padding(paddingValues)
-                    .background(MaterialTheme.colorScheme.primary)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(32.dp, 32.dp, 0.dp, 0.dp))
-                        .background(MaterialTheme.colorScheme.background)
-                ) {
-                    Column(
-                        // Make the inner column vertically scrollable and avoid fillMaxSize so it can scroll when content exceeds available space
-                        modifier = Modifier
-                            .verticalScroll(contentScrollState)
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
 
+            // Radio cards for plan selection
+            PurchaseOptions(
+                selected = selectedPlan,
+                prices = planPrices,
+                onSelected = { selectedPlan = it }
+            )
 
-                        // Radio cards for plan selection
-                        PurchaseOptions(
-                            selected = selectedPlan,
-                            onSelected = { selectedPlan = it }
-                        )
-
-                        if (errorMsg != null) {
-                            Spacer(Modifier.height(8.dp))
-                            Text(
-                                text = errorMsg,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.error
-                            )
-                        }
-
-                        if (successMsg != null) {
-                            Spacer(Modifier.height(8.dp))
-                            Text(
-                                text = successMsg,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color(0xFF4CAF50) // Green for success
-                            )
-                        }
-                        // Features card
-                        FeaturesCard()
-                        // Shared ministry card just beneath FeaturesCard
-                        SharedMinistryCard()
-
-                        PrimaryCTA(
-                            text = if (isLoading) {
-                                "Processing..."
-                            } else {
-                                "Support Development"
-                            },
-                            enabled = !isLoading && !isRestoring,
-                            onClick = { onPurchase(selectedPlan) }
-                        )
-
-                        FooterLinks(onPrivacy = onPrivacy, onTerms = onTerms)
-                    }
-                }
+            if (errorMsg != null) {
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = errorMsg,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error
+                )
             }
+
+            if (successMsg != null) {
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = successMsg,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color(0xFF4CAF50) // Green for success
+                )
+            }
+            // Features card
+            FeaturesCard()
+            // Shared ministry card just beneath FeaturesCard
+            SharedMinistryCard()
+
+            PrimaryCTA(
+                text = if (isLoading) {
+                    "Processing..."
+                } else {
+                    "Support Development"
+                },
+                enabled = !isLoading && !isRestoring,
+                onClick = { onPurchase(selectedPlan) }
+            )
+
+            FooterLinks(onPrivacy = onPrivacy, onTerms = onTerms)
         }
-
-
     }
 }
 
@@ -220,17 +210,20 @@ private fun PaywallHeader() {
 }
 
 @Composable
-private fun PurchaseOptions(selected: PayPlan, onSelected: (PayPlan) -> Unit) {
+private fun PurchaseOptions(selected: PayPlan, prices: Map<String, String>, onSelected: (PayPlan) -> Unit) {
+    val basicPrice = prices["support_basic"].takeIf { it?.isNotBlank() == true } ?: stringResource(Res.string.settings_option_basic_title)
+    val generousPrice = prices["support_generous"].takeIf { it?.isNotBlank() == true } ?: stringResource(Res.string.settings_option_generous_title)
+
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         RadioPlanCard(
-            title = stringResource(Res.string.settings_option_basic_title),
+            title = basicPrice,
             subtitle = stringResource(Res.string.settings_option_basic_subtitle),
             badge = null,
             selected = selected == PayPlan.SupportBasic,
             onClick = { onSelected(PayPlan.SupportBasic) }
         )
         RadioPlanCard(
-            title = stringResource(Res.string.settings_option_generous_title),
+            title = generousPrice,
             subtitle = stringResource(Res.string.settings_option_generous_subtitle),
             badge = stringResource(Res.string.settings_option_generous_badge),
             selected = selected == PayPlan.SupportGenerous,
@@ -418,7 +411,8 @@ private fun FeatureRow(icon: ImageVector, text: String) {
         Icon(
             modifier = Modifier.size(16.dp),
             imageVector = icon,
-            contentDescription = null
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurface
         )
         Spacer(Modifier.width(10.dp))
         Text(
