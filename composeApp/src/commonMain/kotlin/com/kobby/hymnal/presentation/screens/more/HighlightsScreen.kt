@@ -21,9 +21,9 @@ class HighlightsScreen : Screen {
         val repository: HymnRepository = koinInject()
         var searchText by remember { mutableStateOf("") }
         
-        // Get hymns with highlights from repository
+        // All users can access highlights now - no gates!
         val hymnsWithHighlights by repository.getHymnsWithHighlights().collectAsState(initial = emptyList())
-        
+
         val filteredHymns = remember(hymnsWithHighlights, searchText) {
             if (searchText.isBlank()) {
                 hymnsWithHighlights
@@ -35,7 +35,7 @@ class HighlightsScreen : Screen {
                 }
             }
         }
-        
+
         HighlightsContent(
             hymns = filteredHymns,
             searchText = searchText,
@@ -46,11 +46,10 @@ class HighlightsScreen : Screen {
                 navigator.push(HymnDetailScreen(hymnId = hymn.id))
             },
             onBackClick = { navigator.pop() },
-            onHomeClick = { 
+            onHomeClick = {
                 // Navigate to home by popping until we reach HomeScreen or we can't pop anymore
                 while (navigator.canPop) {
                     navigator.pop()
-                    // Check if current screen is HomeScreen by trying to find it in the stack
                     if (navigator.lastItem is com.kobby.hymnal.presentation.screens.home.HomeScreen) {
                         break
                     }

@@ -15,7 +15,9 @@ import com.android.billingclient.api.QueryPurchasesParams
 
 class BillingHelper(private val context: Context) {
 
-    val PREMIUM ="premium_subscription"
+    // Freemium model product IDs - Both are one-time purchases
+    val SUPPORT_BASIC = "support_basic"           // GH₵ 10 / $0.99 - One-time purchase
+    val SUPPORT_GENEROUS = "support_generous"     // GH₵ 20 / $1.99 - One-time purchase
     val TAG = BillingHelper::class.simpleName
     var purchaseCallback:((isSuccess:Boolean)->Unit)? = null
 
@@ -86,34 +88,56 @@ class BillingHelper(private val context: Context) {
         }
     }
 
-    fun checkSubscriptionStatus(callback: (Boolean) -> Unit) {
-        Log.d(TAG, "checkSubscriptionStatus")
+    // Modified: returns (hasPurchase, productIdFound?, purchaseTimestampMillis?)
+    fun checkSubscriptionStatus(callback: (Boolean, String?, Long?) -> Unit) {
+        Log.d(TAG, "checkPurchaseStatus - checking one-time purchases")
         connectPlayStore { isConnected ->
             if (!isConnected) {
-                Log.e(TAG, "Failed to connect to Play Store for subscription check")
-                callback(false)
+                Log.e(TAG, "Failed to connect to Play Store for purchase check")
+                callback(false, null, null)
                 return@connectPlayStore
             }
 
-            val params = QueryPurchasesParams.newBuilder()
-                .setProductType(BillingClient.ProductType.SUBS)
+            // Check one-time purchases - both tiers are INAPP products
+            val inappParams = QueryPurchasesParams.newBuilder()
+                .setProductType(BillingClient.ProductType.INAPP)
                 .build()
 
-            billingClient.queryPurchasesAsync(params) { billingResult, purchases ->
-                Log.d(TAG, "queryPurchasesAsync callback: ${billingResult.responseCode}, ${purchases.size}")
+            billingClient.queryPurchasesAsync(inappParams) { billingResult, purchases ->
+                Log.d(TAG, "queryPurchasesAsync INAPP callback: ${billingResult.responseCode}, ${purchases.size}")
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                    val isSubscribed = purchases.any { it.products.contains(PREMIUM) }
-                    callback(isSubscribed)
+                    var foundProduct: String? = null
+                    var foundTimestamp: Long? = null
+
+                    for (purchase in purchases) {
+                        val purchaseTime = purchase.purchaseTime
+                        if (purchase.products.contains(SUPPORT_BASIC)) {
+                            // prefer the latest timestamp
+                            if (foundTimestamp == null || purchaseTime > foundTimestamp) {
+                                foundProduct = SUPPORT_BASIC
+                                foundTimestamp = purchaseTime
+                            }
+                        }
+                        if (purchase.products.contains(SUPPORT_GENEROUS)) {
+                            if (foundTimestamp == null || purchaseTime > foundTimestamp) {
+                                foundProduct = SUPPORT_GENEROUS
+                                foundTimestamp = purchaseTime
+                            }
+                        }
+                    }
+
+                    val hasPurchase = foundProduct != null
+                    callback(hasPurchase, foundProduct, foundTimestamp)
                 } else {
-                    Log.e(TAG, "Failed to query purchases: ${billingResult.responseCode} - ${billingResult.debugMessage}")
-                    callback(false)
+                    Log.e(TAG, "Failed to query inapp purchases: ${billingResult.responseCode} - ${billingResult.debugMessage}")
+                    callback(false, null, null)
                 }
             }
         }
     }
 
 
-    fun purchaseSubscription(activity: Activity, callback: (Boolean) -> Unit) {
+    fun purchaseProduct(productId: String, productType: String, activity: Activity, callback: (Boolean) -> Unit) {
         // First, ensure we're connected to the Play Store
         connectPlayStore { isConnected ->
             if (!isConnected) {
@@ -126,8 +150,8 @@ class BillingHelper(private val context: Context) {
                 .setProductList(
                     listOf(
                         QueryProductDetailsParams.Product.newBuilder()
-                            .setProductId(PREMIUM)
-                            .setProductType(BillingClient.ProductType.SUBS)
+                            .setProductId(productId)
+                            .setProductType(productType)
                             .build()
                     )
                 )
@@ -136,27 +160,30 @@ class BillingHelper(private val context: Context) {
             billingClient.queryProductDetailsAsync(params) { billingResult, queryProductDetailsResult ->
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && queryProductDetailsResult.productDetailsList.isNotEmpty()) {
                     val productDetails = queryProductDetailsResult.productDetailsList.first()
-                    val offerToken = productDetails.subscriptionOfferDetails?.first()?.offerToken
 
-                    if (offerToken == null) {
-                        Log.e(TAG, "No offer token found for product")
-                        callback(false)
-                        return@queryProductDetailsAsync
-                    }
-
-                    val billingParams = BillingFlowParams.newBuilder()
+                    val billingParamsBuilder = BillingFlowParams.newBuilder()
                         .setProductDetailsParamsList(
                             listOf(
                                 BillingFlowParams.ProductDetailsParams.newBuilder()
                                     .setProductDetails(productDetails)
-                                    .setOfferToken(offerToken)
+                                    .apply {
+                                        if (productType == BillingClient.ProductType.SUBS) {
+                                            val offerToken = productDetails.subscriptionOfferDetails?.first()?.offerToken
+                                            if (offerToken == null) {
+                                                Log.e(TAG, "No offer token found for subscription product")
+                                                callback(false)
+                                                return@queryProductDetailsAsync
+                                            }
+                                            setOfferToken(offerToken)
+                                        }
+                                    }
                                     .build()
                             )
                         )
                         .build()
 
                     purchaseCallback = callback
-                    val launchResult = billingClient.launchBillingFlow(activity, billingParams)
+                    val launchResult = billingClient.launchBillingFlow(activity, billingParamsBuilder)
 
                     if (launchResult.responseCode != BillingClient.BillingResponseCode.OK) {
                         Log.e(TAG, "Failed to launch billing flow: ${launchResult.responseCode} - ${launchResult.debugMessage}")
@@ -175,9 +202,9 @@ class BillingHelper(private val context: Context) {
         for (purchase in purchases) {
             when (purchase.purchaseState) {
                 Purchase.PurchaseState.PURCHASED -> {
-                    // Grant subscription benefits
-                    Log.d(TAG, "Subscription is active: ${purchase.products}")
-                    acknowledgePurchase(purchase)
+                    // Grant support benefits for one-time purchases
+                    Log.d(TAG, "Purchase is active: ${purchase.products}")
+                    // One-time purchases don't need acknowledgment
                     purchaseCallback?.invoke(true)
                     purchaseCallback = null
                 }
@@ -190,22 +217,6 @@ class BillingHelper(private val context: Context) {
                     Log.w(TAG, "Purchase state is unspecified: ${purchase.products}")
                     purchaseCallback?.invoke(false)
                     purchaseCallback = null
-                }
-            }
-        }
-    }
-
-    private fun acknowledgePurchase(purchase: Purchase) {
-        if (!purchase.isAcknowledged) {
-            val params = AcknowledgePurchaseParams.newBuilder()
-                .setPurchaseToken(purchase.purchaseToken)
-                .build()
-
-            billingClient.acknowledgePurchase(params) { billingResult ->
-                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                    Log.d(TAG, "Purchase acknowledged")
-                } else {
-                    Log.e(TAG, "Failed to acknowledge purchase: ${billingResult.responseCode} - ${billingResult.debugMessage}")
                 }
             }
         }

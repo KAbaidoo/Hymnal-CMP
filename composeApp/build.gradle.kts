@@ -63,6 +63,7 @@ kotlin {
             implementation(libs.multiplatform.settings)
             implementation(libs.multiplatform.settings.noargs)
             implementation(libs.sqldelight.coroutines)
+            implementation(libs.kotlinx.datetime)
 
             implementation(project.dependencies.platform(libs.koin.bom))
             api(libs.koin.core)
@@ -72,7 +73,8 @@ kotlin {
         
         commonTest.dependencies {
             implementation(libs.kotlin.test)
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
+            implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.multiplatform.settings.test)
             // Removed sqldelight.jvm to fix iOS test compilation
             // Add platform-specific test drivers if needed
         }
@@ -253,4 +255,25 @@ fun versionNameToCode(versionName: String): Int {
     val patch = parts.getOrNull(2)?.toIntOrNull() ?: 0
     
     return major * 10000 + minor * 100 + patch
+}
+/**
+ * Generates a Xcode configuration file with the version code and version name. The file is used by
+ * the Xcode project to set the version code and version name in the Info.plist file. Should be invoked as a
+ * pre-action script inside your .xcscheme file.
+ */
+tasks.register("bootstrapXcodeVersionConfig") {
+    // Point this to the directory where your Config.xccconfig file is
+    val configFile = file(project.rootDir.toString() + "/iosApp/Configuration/Versions.xcconfig")
+    outputs.file(configFile)
+    val content = """
+        BUNDLE_VERSION=${appVersionCode}
+        BUNDLE_SHORT_VERSION_STRING=${appVersionName}
+    """.trimIndent()
+
+    outputs.upToDateWhen {
+        configFile.takeIf { it.exists() }?.readText() == content
+    }
+    doLast {
+        configFile.writeText(content)
+    }
 }

@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,125 +41,87 @@ import com.kobby.hymnal.theme.DarkTextColor
 import com.kobby.hymnal.theme.HymnalAppTheme
 import com.kobby.hymnal.theme.YellowAccent
 import hymnal_cmp.composeapp.generated.resources.Res
-import hymnal_cmp.composeapp.generated.resources.ai_generate
-import hymnal_cmp.composeapp.generated.resources.arrow_left_s_line
 import hymnal_cmp.composeapp.generated.resources.book_leaf
 import hymnal_cmp.composeapp.generated.resources.bookmark_line
-import hymnal_cmp.composeapp.generated.resources.close_circle_line
-import hymnal_cmp.composeapp.generated.resources.home_3_line
+import hymnal_cmp.composeapp.generated.resources.heart_2_line
 import hymnal_cmp.composeapp.generated.resources.music_2_line
-import hymnal_cmp.composeapp.generated.resources.settings_action_continue
-import hymnal_cmp.composeapp.generated.resources.settings_action_maybe_later
 import hymnal_cmp.composeapp.generated.resources.settings_action_privacy
-import hymnal_cmp.composeapp.generated.resources.settings_action_processing
-import hymnal_cmp.composeapp.generated.resources.settings_action_restore
 import hymnal_cmp.composeapp.generated.resources.settings_action_terms
-import hymnal_cmp.composeapp.generated.resources.settings_feature_bookmarks
-import hymnal_cmp.composeapp.generated.resources.settings_feature_full_library
-import hymnal_cmp.composeapp.generated.resources.settings_feature_future_updates
-import hymnal_cmp.composeapp.generated.resources.settings_feature_no_ads
-import hymnal_cmp.composeapp.generated.resources.settings_feature_offline_access
-import hymnal_cmp.composeapp.generated.resources.settings_option_onetime_badge
-import hymnal_cmp.composeapp.generated.resources.settings_option_onetime_subtitle
-import hymnal_cmp.composeapp.generated.resources.settings_option_onetime_title
-import hymnal_cmp.composeapp.generated.resources.settings_option_yearly_subtitle
-import hymnal_cmp.composeapp.generated.resources.settings_option_yearly_title
-import hymnal_cmp.composeapp.generated.resources.settings_section_features_subtitle
-import hymnal_cmp.composeapp.generated.resources.settings_section_features_title
+import hymnal_cmp.composeapp.generated.resources.settings_option_basic_subtitle
+import hymnal_cmp.composeapp.generated.resources.settings_option_basic_title
+import hymnal_cmp.composeapp.generated.resources.settings_option_generous_badge
+import hymnal_cmp.composeapp.generated.resources.settings_option_generous_subtitle
+import hymnal_cmp.composeapp.generated.resources.settings_option_generous_title
 import hymnal_cmp.composeapp.generated.resources.settings_section_shared_ministry_body
 import hymnal_cmp.composeapp.generated.resources.settings_section_shared_ministry_title
 import hymnal_cmp.composeapp.generated.resources.settings_separator_bullet
-import hymnal_cmp.composeapp.generated.resources.settings_subtitle_paywall
-import hymnal_cmp.composeapp.generated.resources.settings_title_paywall
-import hymnal_cmp.composeapp.generated.resources.wifi_off_line
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-// Simple plan model
-enum class PayPlan { Yearly, OneTime }
+// Support tier model - both tiers unlock the same features
+enum class PayPlan {
+    SupportBasic,   // GH₵ 15 / $0.99 - accessible tier
+    SupportGenerous // GH₵ 20 / $1.99 - generous supporter tier
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PayWallContent(
     modifier: Modifier = Modifier,
     isLoading: Boolean = false,
+    isRestoring: Boolean = false,
     errorMsg: String? = null,
+    successMsg: String? = null,
     onPurchase: (PayPlan) -> Unit = {},
-    onBackClick: () -> Unit = {},
-    onHomeClick: () -> Unit = {},
+    onRestore: () -> Unit = {},
+    onCloseClick: () -> Unit = {},
     onPrivacy: () -> Unit = {},
     onTerms: () -> Unit = {}
 ) {
-    var selectedPlan by remember { mutableStateOf(PayPlan.OneTime) }
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-    val topAppBarElementColor = MaterialTheme.colorScheme.secondary
+    var selectedPlan by remember { mutableStateOf(PayPlan.SupportGenerous) }
+    // Add a content scroll state for the main content so bottom content can scroll when space is limited
+    val contentScrollState = rememberScrollState()
 
 
-    Scaffold(
-        topBar = {
-            Box {
-                TopAppBar(
-                    title = {
+    Column( modifier = Modifier.background( MaterialTheme.colorScheme.primary)) {
 
+        Spacer(modifier = Modifier.height(12.dp))
 
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = onBackClick) {
-                            Icon(
-                                modifier = Modifier.size(30.dp),
-                                imageVector = vectorResource(Res.drawable.arrow_left_s_line),
-                                contentDescription = null,
-                            )
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = onHomeClick) {
-                            Icon(
-                                modifier = Modifier.size(30.dp),
-                                imageVector = vectorResource(Res.drawable.home_3_line),
-                                contentDescription = null
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.largeTopAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        scrolledContainerColor = MaterialTheme.colorScheme.primary,
-                        navigationIconContentColor = topAppBarElementColor,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                        actionIconContentColor= topAppBarElementColor,
-                    )
-                )
-                Image(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .size(250.dp),
-                    painter = painterResource(Res.drawable.book_leaf),
+        Box(modifier = Modifier.height(220.dp)) {
+
+            Image(
+                painter = painterResource(Res.drawable.book_leaf),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(250.dp)
+                    .align(Alignment.TopEnd)
+            )
+            Row (modifier = Modifier.fillMaxWidth().padding(24.dp), horizontalArrangement = Arrangement.End) {
+                IconButton(onClick = onCloseClick) {
+                Icon(
+                    modifier = Modifier.size(30.dp),
+                    imageVector = Icons.Outlined.Close,
                     contentDescription = null,
-                    contentScale = ContentScale.Crop
-                )
-                PaywallHeader()
-
+                    tint = MaterialTheme.colorScheme.secondary
+                ) }
             }
 
-        },
-        containerColor = MaterialTheme.colorScheme.background,
-        modifier = Modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection)
-            .imePadding()
-    ) { paddingValues ->
+            PaywallHeader()
+
+        }
         // Hero / Header area with background
         Box(
             modifier = modifier
                 .background(MaterialTheme.colorScheme.primary)
         ) {
 
-//            PaywallHeader()
             // Content card
             Box(
                 modifier = Modifier
-                    .padding(paddingValues)
+//                    .padding(paddingValues)
                     .background(MaterialTheme.colorScheme.primary)
             ) {
                 Column(
@@ -167,9 +131,12 @@ fun PayWallContent(
                         .background(MaterialTheme.colorScheme.background)
                 ) {
                     Column(
+                        // Make the inner column vertically scrollable and avoid fillMaxSize so it can scroll when content exceeds available space
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 20.dp, vertical = 16.dp)
+                            .verticalScroll(contentScrollState)
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
 
 
@@ -180,10 +147,20 @@ fun PayWallContent(
                         )
 
                         if (errorMsg != null) {
+                            Spacer(Modifier.height(8.dp))
                             Text(
-                                text = errorMsg!!,
+                                text = errorMsg,
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.error
+                            )
+                        }
+
+                        if (successMsg != null) {
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                text = successMsg,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color(0xFF4CAF50) // Green for success
                             )
                         }
                         // Features card
@@ -191,13 +168,15 @@ fun PayWallContent(
                         // Shared ministry card just beneath FeaturesCard
                         SharedMinistryCard()
 
-
                         PrimaryCTA(
-                            text = if (isLoading) stringResource(Res.string.settings_action_processing) else stringResource(Res.string.settings_action_continue),
-                            enabled = !isLoading,
+                            text = if (isLoading) {
+                                "Processing..."
+                            } else {
+                                "Support Development"
+                            },
+                            enabled = !isLoading && !isRestoring,
                             onClick = { onPurchase(selectedPlan) }
                         )
-
 
                         FooterLinks(onPrivacy = onPrivacy, onTerms = onTerms)
                     }
@@ -207,7 +186,6 @@ fun PayWallContent(
 
 
     }
-
 }
 
 @Composable
@@ -220,20 +198,24 @@ private fun PaywallHeader() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Spacer(Modifier.height(80.dp))
+        Spacer(Modifier.height(60.dp))
         Text(
-            text = stringResource(Res.string.settings_title_paywall),
+            text = "Thank you for using our app!",
             style =  MaterialTheme.typography.headlineLarge,
             color = DarkTextColor,
             textAlign = TextAlign.Center
         )
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = stringResource(Res.string.settings_subtitle_paywall),
-            style = MaterialTheme.typography.bodySmall,
-            color = YellowAccent.copy(alpha = 0.85f),
-            textAlign = TextAlign.Center
-        )
+        Spacer(Modifier.height(12.dp))
+
+                Text(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    text = "All features are free forever. If you find this app helpful, consider supporting development.",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        lineHeight = MaterialTheme.typography.bodyMedium.fontSize * 1.25f
+                    ),
+                    color = YellowAccent.copy(alpha = 0.85f),
+                    textAlign = TextAlign.Center
+                )
     }
 }
 
@@ -241,18 +223,18 @@ private fun PaywallHeader() {
 private fun PurchaseOptions(selected: PayPlan, onSelected: (PayPlan) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         RadioPlanCard(
-            title = stringResource(Res.string.settings_option_yearly_title),
-            subtitle = stringResource(Res.string.settings_option_yearly_subtitle),
+            title = stringResource(Res.string.settings_option_basic_title),
+            subtitle = stringResource(Res.string.settings_option_basic_subtitle),
             badge = null,
-            selected = selected == PayPlan.Yearly,
-            onClick = { onSelected(PayPlan.Yearly) }
+            selected = selected == PayPlan.SupportBasic,
+            onClick = { onSelected(PayPlan.SupportBasic) }
         )
         RadioPlanCard(
-            title = stringResource(Res.string.settings_option_onetime_title),
-            subtitle = stringResource(Res.string.settings_option_onetime_subtitle),
-            badge = stringResource(Res.string.settings_option_onetime_badge),
-            selected = selected == PayPlan.OneTime,
-            onClick = { onSelected(PayPlan.OneTime) }
+            title = stringResource(Res.string.settings_option_generous_title),
+            subtitle = stringResource(Res.string.settings_option_generous_subtitle),
+            badge = stringResource(Res.string.settings_option_generous_badge),
+            selected = selected == PayPlan.SupportGenerous,
+            onClick = { onSelected(PayPlan.SupportGenerous) }
         )
     }
 }
@@ -311,7 +293,7 @@ private fun RadioPlanCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
                 if (badge != null) {
-                    Spacer(Modifier.width(48.dp))
+                    Spacer(Modifier.width(20.dp))
                     BadgePill(badge)
                 }
             }
@@ -391,20 +373,18 @@ private fun FeaturesCard() {
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Text(
-            text = stringResource(Res.string.settings_section_features_title),
+            text = "What Your Support Enables",
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurface
         )
         Text(
-            text = stringResource(Res.string.settings_section_features_subtitle),
+            text = "Help us keep this app free for everyone",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
         )
-        FeatureRow(vectorResource(Res.drawable.music_2_line), stringResource(Res.string.settings_feature_full_library))
-        FeatureRow(vectorResource(Res.drawable.wifi_off_line), stringResource(Res.string.settings_feature_offline_access))
-        FeatureRow(vectorResource(Res.drawable.bookmark_line), stringResource(Res.string.settings_feature_bookmarks))
-        FeatureRow(vectorResource(Res.drawable.close_circle_line), stringResource(Res.string.settings_feature_no_ads))
-        FeatureRow(vectorResource(Res.drawable.ai_generate), stringResource(Res.string.settings_feature_future_updates))
+        FeatureRow(vectorResource(Res.drawable.heart_2_line), "Keep the app free for everyone")
+        FeatureRow(vectorResource(Res.drawable.bookmark_line), "Add more hymns and features")
+        FeatureRow(vectorResource(Res.drawable.music_2_line), "Maintain and improve the app")
     }
 }
 

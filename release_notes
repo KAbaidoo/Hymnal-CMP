@@ -42,5 +42,17 @@
 0.7.0
 - Adds Paywall feature for One Time Purchase and Subscription options.
 
-0.8.0
-- Release for closed testing.
+0.9.1
+- Migrate payment model to free with donation prompts.
+
+0.9.2
+- Fix purchase management in ios.
+
+0.9.3
+- Fix Top App Bar layout issues on PayWall screen.
+
+0.9.4
+- Centralize versioning for IOS and gradle.
+
+0.9.5
+- Fix FontSettingsBottomSheet close button tint.

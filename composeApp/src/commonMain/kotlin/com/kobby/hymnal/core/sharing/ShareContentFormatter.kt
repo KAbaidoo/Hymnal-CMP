@@ -33,16 +33,14 @@ object ShareContentFormatter {
     }
     
     private fun getFullContent(hymn: Hymn): String {
-        return hymn.content ?: "No content available"
+        return hymn.content
     }
     
     private fun buildAppPromotion(): String {
         return buildString {
             append("📱 Shared from ${ShareConstants.APP_NAME}")
             append("\n✨ ${ShareConstants.APP_TAGLINE}")
-            append("\n📲 Download:")
-            append("\n🤖 Android: ${ShareConstants.ANDROID_PLAY_STORE_URL}")
-            append("\n🍎 iOS: ${ShareConstants.IOS_APP_STORE_URL}")
+            append("\n🔗 ${ShareConstants.LANDING_PAGE_URL}")
         }
     }
     

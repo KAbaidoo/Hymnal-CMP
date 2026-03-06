@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,6 +17,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kobby.hymnal.theme.Shapes
 import com.kobby.hymnal.theme.PurplePrimary
+import hymnal_cmp.composeapp.generated.resources.Res
+import hymnal_cmp.composeapp.generated.resources.close
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun HighlightTextBottomSheet(
@@ -61,11 +66,10 @@ fun HighlightTextBottomSheet(
                     .background(MaterialTheme.colorScheme.surface),
                 onClick = onDismiss
             ) {
-                Text(
-                    text = "✕",
-                    fontSize = 16.sp,
-                    color = fontColor,
-                    fontWeight = FontWeight.Normal
+                Icon(
+                    imageVector = Icons.Outlined.Close,
+                    contentDescription = stringResource(Res.string.close),
+                    tint = fontColor
                 )
             }
         }
