@@ -32,6 +32,22 @@ class IosPurchaseManager(
         refreshEntitlementState()
     }
 
+    override fun fetchPlanDetails(callback: (List<PlanDetails>) -> Unit) {
+        nativePurchaseProvider?.fetchProductDetails { info ->
+            if (info != null) {
+                val plans = info.split(';').mapNotNull { entry ->
+                    val parts = entry.split(',')
+                    if (parts.size >= 2) {
+                        PlanDetails(id = parts[0], formattedPrice = parts[1])
+                    } else null
+                }
+                callback(plans)
+            } else {
+                callback(emptyList())
+            }
+        }
+    }
+
     override fun makePurchase(plan: PayPlan, callback: (Boolean) -> Unit) {
         val productId = when (plan) {
             PayPlan.SupportBasic -> SUPPORT_BASIC_ID
@@ -152,6 +168,7 @@ actual fun createPurchaseManager(): PurchaseManager {
 }
 
 interface NativePurchaseProvider {
+    fun fetchProductDetails(callback: (String?) -> Unit)
     fun isUserPurchased(callback: (Boolean) -> Unit)
     fun fetchPurchases()
     fun managePurchase()

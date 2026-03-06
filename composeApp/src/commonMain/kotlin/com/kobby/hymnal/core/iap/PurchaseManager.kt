@@ -3,7 +3,17 @@ package com.kobby.hymnal.core.iap
 import com.kobby.hymnal.presentation.screens.settings.PayPlan
 import kotlinx.coroutines.flow.StateFlow
 
+data class PlanDetails(
+    val id: String,
+    val formattedPrice: String
+)
+
 interface PurchaseManager {
+    /**
+     * Fetch localized plan details (id and price) from the platform store.
+     */
+    fun fetchPlanDetails(callback: (List<PlanDetails>) -> Unit)
+
     /**
      * Make a purchase plan.
      */

@@ -56,3 +56,6 @@
 
 0.9.5
 - Fix FontSettingsBottomSheet close button tint.
+
+0.9.7
+- Fix price Localisation

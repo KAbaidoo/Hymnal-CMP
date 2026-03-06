@@ -16,8 +16,8 @@ import com.android.billingclient.api.QueryPurchasesParams
 class BillingHelper(private val context: Context) {
 
     // Freemium model product IDs - Both are one-time purchases
-    val SUPPORT_BASIC = "support_basic"           // GH₵ 10 / $0.99 - One-time purchase
-    val SUPPORT_GENEROUS = "support_generous"     // GH₵ 20 / $1.99 - One-time purchase
+    val SUPPORT_BASIC = "support_basic"
+    val SUPPORT_GENEROUS = "support_generous"
     val TAG = BillingHelper::class.simpleName
     var purchaseCallback:((isSuccess:Boolean)->Unit)? = null
 
@@ -136,6 +136,42 @@ class BillingHelper(private val context: Context) {
         }
     }
 
+
+    fun fetchProductDetails(productIds: List<String>, callback: (List<PlanDetails>) -> Unit) {
+        connectPlayStore { isConnected ->
+            if (!isConnected) {
+                callback(emptyList())
+                return@connectPlayStore
+            }
+
+            val params = QueryProductDetailsParams.newBuilder()
+                .setProductList(
+                    productIds.map { id ->
+                        QueryProductDetailsParams.Product.newBuilder()
+                            .setProductId(id)
+                            .setProductType(BillingClient.ProductType.INAPP)
+                            .build()
+                    }
+                )
+                .build()
+
+            billingClient.queryProductDetailsAsync(params) { billingResult, queryProductDetailsResult ->
+                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                    val detailsList = queryProductDetailsResult.productDetailsList ?: emptyList()
+                    val plans = detailsList.map { details ->
+                        PlanDetails(
+                            id = details.productId,
+                            formattedPrice = details.oneTimePurchaseOfferDetails?.formattedPrice ?: ""
+                        )
+                    }
+                    callback(plans)
+                } else {
+                    Log.e(TAG, "Failed to fetch product details: ${billingResult.responseCode}")
+                    callback(emptyList())
+                }
+            }
+        }
+    }
 
     fun purchaseProduct(productId: String, productType: String, activity: Activity, callback: (Boolean) -> Unit) {
         // First, ensure we're connected to the Play Store

@@ -62,8 +62,8 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 // Support tier model - both tiers unlock the same features
 enum class PayPlan {
-    SupportBasic,   // GH₵ 15 / $0.99 - accessible tier
-    SupportGenerous // GH₵ 20 / $1.99 - generous supporter tier
+    SupportBasic,
+    SupportGenerous
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -74,6 +74,7 @@ fun PayWallContent(
     isRestoring: Boolean = false,
     errorMsg: String? = null,
     successMsg: String? = null,
+    planPrices: Map<String, String> = emptyMap(),
     onPurchase: (PayPlan) -> Unit = {},
     onRestore: () -> Unit = {},
     onCloseClick: () -> Unit = {},
@@ -143,6 +144,7 @@ fun PayWallContent(
                         // Radio cards for plan selection
                         PurchaseOptions(
                             selected = selectedPlan,
+                            prices = planPrices,
                             onSelected = { selectedPlan = it }
                         )
 
@@ -220,17 +222,20 @@ private fun PaywallHeader() {
 }
 
 @Composable
-private fun PurchaseOptions(selected: PayPlan, onSelected: (PayPlan) -> Unit) {
+private fun PurchaseOptions(selected: PayPlan, prices: Map<String, String>, onSelected: (PayPlan) -> Unit) {
+    val basicPrice = prices["support_basic"].takeIf { it?.isNotBlank() == true } ?: stringResource(Res.string.settings_option_basic_title)
+    val generousPrice = prices["support_generous"].takeIf { it?.isNotBlank() == true } ?: stringResource(Res.string.settings_option_generous_title)
+
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         RadioPlanCard(
-            title = stringResource(Res.string.settings_option_basic_title),
+            title = basicPrice,
             subtitle = stringResource(Res.string.settings_option_basic_subtitle),
             badge = null,
             selected = selected == PayPlan.SupportBasic,
             onClick = { onSelected(PayPlan.SupportBasic) }
         )
         RadioPlanCard(
-            title = stringResource(Res.string.settings_option_generous_title),
+            title = generousPrice,
             subtitle = stringResource(Res.string.settings_option_generous_subtitle),
             badge = stringResource(Res.string.settings_option_generous_badge),
             selected = selected == PayPlan.SupportGenerous,
