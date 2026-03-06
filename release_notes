@@ -58,4 +58,12 @@
 - Fix FontSettingsBottomSheet close button tint.
 
 0.9.7
-- Fix price Localisation
+- Fix price Localisation.
+
+0.9.8
+- Implement milestone-based donation prompts (10, 30, 60, 100, 150 hymns).
+- Add yearly reset mechanism for usage counters.
+- Improve PayWall layout and scroll behavior.
+- Add localized price fetching for in-app purchases on Android and iOS.
+- Fix cursor color in SearchTextField.
+- Various UI improvements and icon tinting fixes.
