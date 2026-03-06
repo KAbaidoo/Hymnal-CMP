@@ -59,7 +59,7 @@
 **Path**: `/composeApp/src/commonMain/kotlin/com/kobby/hymnal/core/iap/UsageTrackingManager.kt`
 
 **Changes**:
-- **Complete rewrite** from feature-gating to exponential backoff model
+- **Complete rewrite** from feature-gating to linear backoff model
 - **Updated signature**: `recordHymnRead(isSupporter: Boolean): Boolean`
 - **Added methods**:
   - `shouldShowDonationPrompt(isSupporter: Boolean): Boolean`
@@ -194,7 +194,7 @@
 **Content**: Comprehensive 797-line implementation guide
 - Complete status tracker
 - Detailed implementation steps for all phases
-- Exponential backoff algorithm details
+- Linear backoff algorithm details
 - Testing procedures and checklists
 - Troubleshooting guide
 - Success criteria
@@ -299,7 +299,7 @@ grep -r "SUPPORTED" composeApp/src --include="*.kt"
 # Find all donation tracking
 grep -r "donationPrompt" composeApp/src --include="*.kt"
 
-# Find exponential backoff logic
+# Find linear backoff logic
 grep -r "calculateNextThreshold" composeApp/src --include="*.kt"
 
 # Find yearly reminder logic

@@ -57,7 +57,7 @@ data class HymnDetailScreen(
             val shouldShowPrompt = purchaseManager.usageTracker.recordHymnRead(isSupporter)
 
             if (shouldShowPrompt) {
-                // Show donation prompt with exponential backoff
+                // Show donation prompt with linear backoff
                 purchaseManager.usageTracker.recordPromptShown()
                 navigator.push(PayWallScreen())
             }

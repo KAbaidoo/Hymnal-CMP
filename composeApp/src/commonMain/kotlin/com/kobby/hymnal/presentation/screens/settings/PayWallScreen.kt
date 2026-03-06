@@ -28,12 +28,21 @@ class PayWallScreen(
         var purchaseError by remember { mutableStateOf<String?>(null) }
         var successMessage by remember { mutableStateOf<String?>(null) }
 
-        // In freemium model, support sheet is always dismissible
+        var planDetails by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
+
+        LaunchedEffect(Unit) {
+            purchaseManager.fetchPlanDetails { details ->
+                planDetails = details.associate { it.id to it.formattedPrice }
+            }
+        }
+
+
         PayWallContent(
             isLoading = isProcessing,
             isRestoring = isRestoring,
             errorMsg = purchaseError,
             successMsg = successMessage,
+            planPrices = planDetails,
             onPurchase = { plan ->
                 if (!isProcessing && !isRestoring) {
 

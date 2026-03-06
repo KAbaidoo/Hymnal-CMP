@@ -25,6 +25,9 @@ class PurchaseStorage(private val settings: Settings) {
         private const val KEY_DONATION_PROMPT_COUNT = "donation_prompt_count"
         private const val KEY_LAST_DONATION_PROMPT_TIMESTAMP = "last_donation_prompt_timestamp"
         private const val KEY_NEXT_PROMPT_THRESHOLD = "next_prompt_threshold"
+        private const val KEY_LAST_RESET_TIMESTAMP = "last_reset_timestamp"
+
+        const val PROMPT_CAP_THRESHOLD = 150
     }
 
     /**
@@ -180,6 +183,13 @@ class PurchaseStorage(private val settings: Settings) {
         set(value) = settings.putInt(KEY_NEXT_PROMPT_THRESHOLD, value)
 
     /**
+     * Get or set the timestamp when the counters were last reset (for yearly reset).
+     */
+    var lastResetTimestamp: Long
+        get() = settings.getLong(KEY_LAST_RESET_TIMESTAMP, 0L)
+        set(value) = settings.putLong(KEY_LAST_RESET_TIMESTAMP, value)
+
+    /**
      * Record that a donation was made.
      */
     fun recordDonation() {
@@ -189,15 +199,15 @@ class PurchaseStorage(private val settings: Settings) {
 
     /**
      * Calculate the next prompt threshold based on prompt count.
+     * Milestones: 10, 30 (10+20), 60 (30+30), 100 (60+40), 150 (100+50)
      */
     fun calculateNextThreshold(): Int {
         return when (donationPromptCount) {
-            0 -> 10
-            1 -> 25
-            2 -> 50
+            1 -> 30
+            2 -> 60
             3 -> 100
-            4 -> 200
-            else -> 400 // Cap at 400
+            4 -> 150
+            else -> 200 // Cap handled in UsageTrackingManager
         }
     }
 

@@ -313,15 +313,16 @@ fun PremiumFeatureAccess(
 **New Approach: "Everything is Free, Support is Appreciated"**
 #### Changes Implemented:
 - ✅ Removed all feature gates - All features available to everyone immediately
-- ✅ Implemented exponential backoff - Prompts at 10, 25, 50, 100, 200, 400 hymns
+- ✅ Implemented milestone backoff - Prompts at 10, 30, 60, 100, 150 hymns
+- ✅ Capped at 150 hymns per year - Prompts stop until annual reset
 - ✅ Supporters are no longer prompted after making a donation
 - ✅ Updated messaging - Focus on "support the free app" not "unlock features"
 #### Code Architecture Updates:
 - Removed `PremiumFeature` enum
 - Renamed `EntitlementState.SUBSCRIBED` to `EntitlementState.SUPPORTED`
 - Deleted `PremiumFeatureGate.kt` and `SupportSheetTrigger.kt`
-- Rewrote `UsageTrackingManager` with exponential backoff
-- Extended `PurchaseStorage` with donation tracking
+- Rewrote `UsageTrackingManager` with milestone backoff and annual reset
+- Extended `PurchaseStorage` with donation tracking and reset timestamps
 - Updated all screens to remove feature gates
 #### Expected Impact:
 - Higher user satisfaction and feature adoption
