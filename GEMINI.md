@@ -60,5 +60,5 @@ This file provides essential context and instructions for Gemini CLI when workin
 
 ## Key Implementation Details
 - **Canticles Numbering:** 1001-1007 (liturgical order).
-- **Donation Model:** Gentle, dismissible prompts using exponential backoff (triggered by hymn view counts: 10, 25, 50, etc.). Pricing targets the Ghanaian market (GH₵ 10/20).
+- **Donation Model:** Gentle, dismissible prompts at specific milestones (10, 30, 60, 100, 150 hymns read). Prompts are capped at 150 hymns per year for non-supporters. Counters reset annually for non-supporters. Pricing targets the Ghanaian market (GH₵ 10/20).
 - **FTS Search:** Full-text search is implemented via a virtual table `hymn_fts` with SQLite triggers.

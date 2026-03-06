@@ -37,7 +37,7 @@
 
 ---
 
-## ✅ Phase 2: Exponential Backoff (Non-Supporters)
+## ✅ Phase 2: Milestone-based Prompts (Non-Supporters)
 
 ### Test: First Prompt at 10 Hymns
 
@@ -52,30 +52,53 @@
 
 **Expected Result**: ✅ Prompt appears at exactly 10 hymns, is dismissible
 
-### Test: Second Prompt at 25 More Hymns (35 Total)
+### Test: Second Prompt at 30 Hymns (20 more)
 
-- [ ] **Read hymns 11-34** - No prompt appears
-- [ ] **Read hymn 35** - Second donation prompt appears
+- [ ] **Read hymns 11-29** - No prompt appears
+- [ ] **Read hymn 30** - Second donation prompt appears
 - [ ] **Dismiss prompt** - Can continue using app
 
-**Expected Result**: ✅ Second prompt at hymn 35 (25 hymns after first)
+**Expected Result**: ✅ Second prompt at hymn 30 (20 hymns after first)
 
-### Test: Third Prompt at 50 More Hymns (85 Total)
+### Test: Third Prompt at 60 Hymns (30 more)
 
-- [ ] **Read hymns 36-84** - No prompt appears
-- [ ] **Read hymn 85** - Third donation prompt appears
+- [ ] **Read hymns 31-59** - No prompt appears
+- [ ] **Read hymn 60** - Third donation prompt appears
 - [ ] **Dismiss prompt** - Can continue using app
 
-**Expected Result**: ✅ Third prompt at hymn 85 (50 hymns after second)
+**Expected Result**: ✅ Third prompt at hymn 60 (30 hymns after second)
 
-### Test: Subsequent Intervals
+### Test: Fourth Prompt at 100 Hymns (40 more)
 
-- [ ] **Read to hymn 185** - Fourth prompt appears (100 hymns after third)
-- [ ] **Read to hymn 385** - Fifth prompt appears (200 hymns after fourth)
-- [ ] **Read to hymn 785** - Sixth prompt appears (400 hymns after fifth - capped)
-- [ ] **Read to hymn 1185** - Seventh prompt appears (400 hymns after sixth - still capped)
+- [ ] **Read hymns 61-99** - No prompt appears
+- [ ] **Read hymn 100** - Fourth donation prompt appears
+- [ ] **Dismiss prompt** - Can continue using app
 
-**Expected Result**: ✅ Intervals follow exponential backoff: 10, 25, 50, 100, 200, 400 (capped)
+**Expected Result**: ✅ Fourth prompt at hymn 100 (40 hymns after third)
+
+### Test: Fifth Prompt at 150 Hymns (50 more)
+
+- [ ] **Read hymns 101-149** - No prompt appears
+- [ ] **Read hymn 150** - Fifth donation prompt appears
+- [ ] **Dismiss prompt** - Can continue using app
+
+**Expected Result**: ✅ Fifth prompt at hymn 150 (50 hymns after fourth)
+
+### Test: Prompt Cap
+
+- [ ] **Read to hymn 151** - No prompt appears (capped)
+- [ ] **Read to hymn 200** - No prompt appears (still capped)
+
+**Expected Result**: ✅ Prompts are capped at 5 per year: at milestones 10, 30, 60, 100, 150.
+
+### Test: Yearly Reset (Non-Supporters)
+
+- [ ] **Read to hymn 150** - Trigger last prompt of the year
+- [ ] **Simulate 365 days passing** (Change device time or adjust timestamp)
+- [ ] **Read hymn 151** - Counters should reset, 1st prompt of new year at 10 new hymns.
+- [ ] **Read 10 more hymns** - First prompt of the new year appears
+
+**Expected Result**: ✅ Counters reset annually for non-supporters, allowing prompts to reappear next year.
 
 ---
 

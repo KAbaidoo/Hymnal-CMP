@@ -7,20 +7,27 @@ import kotlinx.datetime.Clock
 
 /**
  * Tracks app usage to determine when to show donation prompts.
- * Uses exponential backoff to show prompts less frequently over time.
+ * Uses a milestone-based backoff to show prompts at regular intervals.
  *
- * Non-supporters: 10, 25, 50, 100, 200, 400 (capped) hymns
+ * Non-supporters: 10, 30, 60, 100, 150 (capped) hymns
  */
 class UsageTrackingManager(private val storage: PurchaseStorage) {
 
     private val _usageStats = MutableStateFlow(UsageStats())
     val usageStats: StateFlow<UsageStats> = _usageStats.asStateFlow()
 
+    companion object {
+        private const val YEAR_IN_MS = 365L * 24 * 60 * 60 * 1000
+    }
+
     /**
      * Record that a hymn was read.
      * Returns true if we should show the donation prompt.
      */
     fun recordHymnRead(isSupporter: Boolean): Boolean {
+        // Check for yearly reset before processing
+        checkYearlyReset(isSupporter)
+
         val currentCount = storage.hymnsReadCount
         val newCount = currentCount + 1
         storage.hymnsReadCount = newCount
@@ -32,8 +39,9 @@ class UsageTrackingManager(private val storage: PurchaseStorage) {
     }
 
     /**
-     * Check if donation prompt should be shown based on exponential backoff logic.
+     * Check if donation prompt should be shown based on milestone-based logic.
      * Updated behavior: supporters NEVER see the paywall again (no yearly reminders).
+     * Non-supporters: 10, 30, 60, 100, 150 hymns read (capped).
      */
     fun shouldShowDonationPrompt(isSupporter: Boolean): Boolean {
         // Supporters should not be shown donation prompts anymore
@@ -41,10 +49,50 @@ class UsageTrackingManager(private val storage: PurchaseStorage) {
             return false
         }
 
-        // For non-supporters, use regular exponential backoff
+        // For non-supporters, use milestones (10, 30, 60, 100, 150) with a hard cap at 150
         val hymnsRead = storage.hymnsReadCount
+        if (hymnsRead > PurchaseStorage.PROMPT_CAP_THRESHOLD) {
+            return false
+        }
+
         val nextThreshold = storage.nextPromptThreshold
         return hymnsRead >= nextThreshold
+    }
+
+    /**
+     * Check if a year has passed since the last reset and reset counters if so.
+     */
+    private fun checkYearlyReset(isSupporter: Boolean) {
+        if (isSupporter) return
+
+        val now = Clock.System.now().toEpochMilliseconds()
+        val lastReset = storage.lastResetTimestamp
+
+        // Initialize lastReset if it's 0 (first use)
+        if (lastReset == 0L) {
+            storage.lastResetTimestamp = now
+            return
+        }
+
+        if (now - lastReset >= YEAR_IN_MS) {
+            resetYearlyCounters()
+        }
+    }
+
+    /**
+     * Reset counters for a new year of usage tracking.
+     */
+    private fun resetYearlyCounters() {
+        storage.hymnsReadCount = 0
+        storage.donationPromptCount = 0
+        storage.nextPromptThreshold = 10
+        storage.lastResetTimestamp = Clock.System.now().toEpochMilliseconds()
+
+        _usageStats.value = UsageStats(
+            hymnsRead = 0,
+            promptCount = 0,
+            lastDonationDate = null
+        )
     }
 
     /**
