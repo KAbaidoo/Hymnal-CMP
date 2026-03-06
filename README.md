@@ -14,7 +14,8 @@ This is a Kotlin Multiplatform project targeting Android, iOS.
 Monetization / Donation model
 
 - All features in the app are free for everyone — no feature gates or locks.
-- Users will see gentle, dismissible donation prompts over time using exponential backoff (10, 25, 50, 100, 200, 400 hymns).
+- Users will see gentle, dismissible donation prompts at milestones: 10, 30, 60, 100, 150 hymns read.
+- Prompts are capped at 5 per year for non-supporters; counters reset annually for those who haven't supported yet.
 - Once a user donates (or restores a prior donation), they will not be shown donation prompts again.
 - Pricing (Ghana market): GH₵ 10 (basic), GH₵ 20 (generous). Payment methods include MTN MoMo and Telecel Cash.
 

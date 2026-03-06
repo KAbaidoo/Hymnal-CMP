@@ -245,5 +245,5 @@ class SubscriptionStorageTest {
     // - Test nextPromptThreshold defaults to 10
     // - Test recordDonation() resets counters
     // - Test shouldShowYearlyReminder() after 365 days
-    // - Test calculateNextThreshold() exponential backoff
+    // - Test calculateNextThreshold() linear backoff
 }
