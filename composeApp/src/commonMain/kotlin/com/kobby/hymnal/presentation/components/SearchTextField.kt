@@ -51,7 +51,8 @@ fun SearchTextField(
             unfocusedContainerColor = MaterialTheme.colorScheme.primary,
             focusedContainerColor = MaterialTheme.colorScheme.primary,
             unfocusedIndicatorColor = Color.Transparent,
-            focusedIndicatorColor = Color.Transparent
+            focusedIndicatorColor = Color.Transparent,
+            cursorColor = DarkTextColor
         )
     )
 }
