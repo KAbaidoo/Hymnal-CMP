@@ -110,18 +110,25 @@ class BillingHelper(private val context: Context) {
                     var foundTimestamp: Long? = null
 
                     for (purchase in purchases) {
-                        val purchaseTime = purchase.purchaseTime
-                        if (purchase.products.contains(SUPPORT_BASIC)) {
-                            // prefer the latest timestamp
-                            if (foundTimestamp == null || purchaseTime > foundTimestamp) {
-                                foundProduct = SUPPORT_BASIC
-                                foundTimestamp = purchaseTime
+                        if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
+                            // Ensure purchase is acknowledged
+                            if (!purchase.isAcknowledged) {
+                                acknowledgePurchase(purchase)
                             }
-                        }
-                        if (purchase.products.contains(SUPPORT_GENEROUS)) {
-                            if (foundTimestamp == null || purchaseTime > foundTimestamp) {
-                                foundProduct = SUPPORT_GENEROUS
-                                foundTimestamp = purchaseTime
+
+                            val purchaseTime = purchase.purchaseTime
+                            if (purchase.products.contains(SUPPORT_BASIC)) {
+                                // prefer the latest timestamp
+                                if (foundTimestamp == null || purchaseTime > foundTimestamp) {
+                                    foundProduct = SUPPORT_BASIC
+                                    foundTimestamp = purchaseTime
+                                }
+                            }
+                            if (purchase.products.contains(SUPPORT_GENEROUS)) {
+                                if (foundTimestamp == null || purchaseTime > foundTimestamp) {
+                                    foundProduct = SUPPORT_GENEROUS
+                                    foundTimestamp = purchaseTime
+                                }
                             }
                         }
                     }
@@ -240,19 +247,53 @@ class BillingHelper(private val context: Context) {
                 Purchase.PurchaseState.PURCHASED -> {
                     // Grant support benefits for one-time purchases
                     Log.d(TAG, "Purchase is active: ${purchase.products}")
-                    // One-time purchases don't need acknowledgment
-                    purchaseCallback?.invoke(true)
-                    purchaseCallback = null
+
+                    if (!purchase.isAcknowledged) {
+                        val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
+                            .setPurchaseToken(purchase.purchaseToken)
+                            .build()
+                        billingClient.acknowledgePurchase(acknowledgePurchaseParams) { billingResult ->
+                            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                                Log.d(TAG, "Purchase acknowledged successfully: ${purchase.products}")
+                                purchaseCallback?.invoke(true)
+                                purchaseCallback = null
+                            } else {
+                                Log.e(TAG, "Failed to acknowledge purchase: ${billingResult.responseCode} - ${billingResult.debugMessage}")
+                                // Still grant benefit if state is PURCHASED, even if acknowledgment failed (might succeed later or via restore)
+                                purchaseCallback?.invoke(true)
+                                purchaseCallback = null
+                            }
+                        }
+                    } else {
+                        Log.d(TAG, "Purchase already acknowledged: ${purchase.products}")
+                        purchaseCallback?.invoke(true)
+                        purchaseCallback = null
+                    }
                 }
                 Purchase.PurchaseState.PENDING -> {
                     Log.d(TAG, "Purchase is pending: ${purchase.products}")
                     // Optionally notify user that purchase is pending
                     // Don't invoke callback yet - wait for final state
                 }
-                Purchase.PurchaseState.UNSPECIFIED_STATE -> {
-                    Log.w(TAG, "Purchase state is unspecified: ${purchase.products}")
+                else -> {
+                    Log.w(TAG, "Purchase state is unsuccessful (${purchase.purchaseState}): ${purchase.products}")
                     purchaseCallback?.invoke(false)
                     purchaseCallback = null
+                }
+            }
+        }
+    }
+
+    private fun acknowledgePurchase(purchase: Purchase) {
+        if (!purchase.isAcknowledged && purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
+            val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
+                .setPurchaseToken(purchase.purchaseToken)
+                .build()
+            billingClient.acknowledgePurchase(acknowledgePurchaseParams) { billingResult ->
+                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                    Log.d(TAG, "Purchase background-acknowledged successfully: ${purchase.products}")
+                } else {
+                    Log.e(TAG, "Failed to background-acknowledge purchase: ${billingResult.responseCode} - ${billingResult.debugMessage}")
                 }
             }
         }
