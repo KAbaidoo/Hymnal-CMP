@@ -35,7 +35,7 @@
 
     <!-- Shared ministry card -->
     <string name="settings_section_shared_ministry_title">Support this Ministry</string>
-    <string name="settings_section_shared_ministry_body">Your your contribution supports hosting, updates, and keeps the Hymnal app ad-free for everyone.</string>
+    <string name="settings_section_shared_ministry_body">Your contribution supports hosting, updates, and keeps the Hymnal app ad-free for everyone.</string>
 
     <!-- Accessibility / content descriptions -->
     <string name="cd_back">Back</string>
