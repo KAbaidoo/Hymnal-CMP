@@ -45,23 +45,30 @@ class PayWallScreen(
             planPrices = planDetails,
             onPurchase = { plan ->
                 if (!isProcessing && !isRestoring) {
-
+                    isProcessing = true
+                    purchaseError = null
+                    successMessage = null
 
                     // Handle purchase with the selected plan
                     purchaseManager.makePurchase(plan) { success ->
+                        isProcessing = false
                         if (success) {
                             // Record donation to reset prompt counters
                             purchaseManager.usageTracker.recordDonationMade()
+                            successMessage = "Thank you for your support!"
 
-                            // Purchase successful, navigate back
-                            if (fromGatedScreen && navigator.canPop) {
-                                // Pop both PayWall and the gated screen
-                                navigator.pop()
-                                if (navigator.canPop) {
+                            // Purchase successful, navigate back after short delay
+                            coroutineScope.launch {
+                                kotlinx.coroutines.delay(1000)
+                                if (fromGatedScreen && navigator.canPop) {
+                                    // Pop both PayWall and the gated screen
+                                    navigator.pop()
+                                    if (navigator.canPop) {
+                                        navigator.pop()
+                                    }
+                                } else {
                                     navigator.pop()
                                 }
-                            } else {
-                                navigator.pop()
                             }
                         } else {
                             // Handle purchase failure
