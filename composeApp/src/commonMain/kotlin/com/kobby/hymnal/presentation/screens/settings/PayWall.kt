@@ -162,7 +162,7 @@ fun PayWallContent(
             // Features card
             FeaturesCard()
             // Shared ministry card just beneath FeaturesCard
-//            SharedMinistryCard()
+            SharedMinistryCard()
 
             PrimaryCTA(
                 text = if (isLoading) {
