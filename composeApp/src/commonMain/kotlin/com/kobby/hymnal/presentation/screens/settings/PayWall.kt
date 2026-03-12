@@ -84,14 +84,14 @@ fun PayWallContent(
 ) {
     var selectedPlan by remember { mutableStateOf(PayPlan.SupportGenerous) }
     // Add a content scroll state for the main content so bottom content can scroll when space is limited
-//    val contentScrollState = rememberScrollState()
+    val contentScrollState = rememberScrollState()
 
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.primary)
-//            .verticalScroll(contentScrollState)
+            .verticalScroll(contentScrollState)
     ) {
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -131,7 +131,7 @@ fun PayWallContent(
                 .clip(RoundedCornerShape(32.dp, 32.dp, 0.dp, 0.dp))
                 .background(MaterialTheme.colorScheme.background)
                 .padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
 
 
