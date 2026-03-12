@@ -67,3 +67,10 @@
 - Add localized price fetching for in-app purchases on Android and iOS.
 - Fix cursor color in SearchTextField.
 - Various UI improvements and icon tinting fixes.
+
+0.9.9
+- Implement loading states and success messages for purchases in `PayWallScreen.kt`.
+- Add a 1-second delay before navigating back after a successful purchase.
+- Add a "Restore Purchase" button to the `PayWall` UI.
+- Update `PayWall` layout by adjusting header height, removing internal scrolling, and hiding the `SharedMinistryCard`.
+- Update support description text for clarity.

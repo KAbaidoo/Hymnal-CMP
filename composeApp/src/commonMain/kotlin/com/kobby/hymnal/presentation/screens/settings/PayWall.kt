@@ -23,6 +23,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonColors
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
@@ -95,7 +96,7 @@ fun PayWallContent(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        Box(modifier = Modifier.height(220.dp).fillMaxWidth()) {
+        Box(modifier = Modifier.height(200.dp).fillMaxWidth()) {
 
             Image(
                 painter = painterResource(Res.drawable.book_leaf),
@@ -130,7 +131,7 @@ fun PayWallContent(
                 .clip(RoundedCornerShape(32.dp, 32.dp, 0.dp, 0.dp))
                 .background(MaterialTheme.colorScheme.background)
                 .padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
 
 
@@ -173,7 +174,21 @@ fun PayWallContent(
                 onClick = { onPurchase(selectedPlan) }
             )
 
+            TextButton(
+                onClick = onRestore,
+                enabled = !isLoading && !isRestoring
+            ) {
+                Text(
+                    modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth(),
+                    text = if (isRestoring) "Restoring..." else "Restore Purchase",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center
+                )
+            }
+
             FooterLinks(onPrivacy = onPrivacy, onTerms = onTerms)
+            Spacer(modifier =Modifier.height(100.dp))
         }
     }
 }
@@ -199,7 +214,7 @@ private fun PaywallHeader() {
 
                 Text(
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    text = "All features are free forever. If you find this app helpful, consider supporting development.",
+                    text = "If you find this app helpful, consider supporting development.",
                     style = MaterialTheme.typography.bodyMedium.copy(
                         lineHeight = MaterialTheme.typography.bodyMedium.fontSize * 1.25f
                     ),
