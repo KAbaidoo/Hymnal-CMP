@@ -174,15 +174,20 @@ fun PayWallContent(
                 onClick = { onPurchase(selectedPlan) }
             )
 
-            TextButton(
+            Button(
+                modifier = Modifier.fillMaxWidth().height(48.dp).border(1.dp, MaterialTheme.colorScheme.onSurface, RoundedCornerShape(12.dp)),
                 onClick = onRestore,
-                enabled = !isLoading && !isRestoring
+                enabled = !isLoading && !isRestoring,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                ),
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Text(
                     modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth(),
-                    text = if (isRestoring) "Restoring..." else "Restore Purchase",
+                    text = if (isRestoring) "Restoring..." else "Restore",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Center
                 )
             }
