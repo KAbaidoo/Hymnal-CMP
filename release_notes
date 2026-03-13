@@ -74,3 +74,6 @@
 - Add a "Restore Purchase" button to the `PayWall` UI.
 - Update `PayWall` layout by adjusting header height, removing internal scrolling, and hiding the `SharedMinistryCard`.
 - Update support description text for clarity.
+
+0.9.10
+- Update restore button styling and label in PayWall screen
