@@ -6,39 +6,20 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.google.firebase.Firebase
-import androidx.compose.runtime.Composable
-import com.google.firebase.initialize
 import com.kobby.hymnal.core.crashlytics.CrashlyticsManager
 import com.kobby.hymnal.core.iap.BillingHelper
 import com.kobby.hymnal.core.iap.PurchaseManager
-import com.kobby.hymnal.di.androidModule
-import com.kobby.hymnal.di.crashlyticsModule
-import com.kobby.hymnal.di.databaseModule
-import com.kobby.hymnal.di.settingsModule
-import com.kobby.hymnal.di.subscriptionModule
 import org.koin.android.ext.android.inject
-import org.koin.android.ext.koin.androidContext
-import org.koin.android.ext.koin.androidLogger
-import org.koin.core.context.startKoin
 
 class MainActivity : ComponentActivity() {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize Koin
-        startKoin {
-            androidLogger()
-            androidContext(this@MainActivity)
-            modules(databaseModule, settingsModule, androidModule, crashlyticsModule, subscriptionModule)
-        }
-
-        Firebase.initialize(this)
-        
         // Initialize subscription manager for trial tracking and entitlement state
         val purchaseManager: PurchaseManager by inject()
         purchaseManager.initialize()

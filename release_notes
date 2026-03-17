@@ -77,3 +77,6 @@
 
 0.9.10
 - Update restore button styling and label in PayWall screen
+
+0.9.11
+- Move Koin and Firebase initialization to new HymnalApplication class to resolve Koin Application has already been started issue
