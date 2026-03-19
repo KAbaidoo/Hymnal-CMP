@@ -163,9 +163,6 @@ class IosPurchaseManager(
     }
 }
 
-actual fun createPurchaseManager(): PurchaseManager {
-    throw IllegalStateException("Use Koin for dependency injection on iOS")
-}
 
 interface NativePurchaseProvider {
     fun fetchProductDetails(callback: (String?) -> Unit)

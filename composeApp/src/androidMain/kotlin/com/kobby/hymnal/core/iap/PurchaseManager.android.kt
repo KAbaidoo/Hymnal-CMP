@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import com.android.billingclient.api.BillingClient
+import com.kobby.hymnal.core.util.ActivityProvider
 import com.kobby.hymnal.presentation.screens.settings.PayPlan
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +15,8 @@ import kotlinx.datetime.Clock
 class AndroidPurchaseManager(
     private val context: Context,
     private val billingHelper: BillingHelper,
-    private val storage: PurchaseStorage
+    private val storage: PurchaseStorage,
+    private val activityProvider: ActivityProvider
 ) : PurchaseManager {
     
     private val _entitlementState = MutableStateFlow(storage.getEntitlementInfo())
@@ -36,7 +38,7 @@ class AndroidPurchaseManager(
     }
 
     override fun makePurchase(plan: PayPlan, callback: (Boolean) -> Unit) {
-        (context as? Activity)?.let { activity ->
+        activityProvider.currentActivity?.let { activity ->
             // Both tiers are one-time purchases (non-consumable in-app products)
             val productId = when (plan) {
                 PayPlan.SupportBasic -> billingHelper.SUPPORT_BASIC
@@ -123,8 +125,4 @@ class AndroidPurchaseManager(
     private fun refreshEntitlementState() {
         _entitlementState.value = storage.getEntitlementInfo()
     }
-}
-
-actual fun createPurchaseManager(): PurchaseManager {
-    throw IllegalStateException("Use Koin for dependency injection on Android")
 }

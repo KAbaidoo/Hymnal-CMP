@@ -10,6 +10,6 @@ import org.koin.dsl.module
 val subscriptionModule = module {
     single { BillingHelper(androidContext()) }
     single { PurchaseStorage(get()) }
-    single<PurchaseManager> { AndroidPurchaseManager(androidContext(), get(), get()) }
+    single<PurchaseManager> { AndroidPurchaseManager(androidContext(), get(), get(), get()) }
 }
 

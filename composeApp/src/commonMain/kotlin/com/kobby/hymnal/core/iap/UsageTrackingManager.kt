@@ -18,6 +18,9 @@ class UsageTrackingManager(private val storage: PurchaseStorage) {
 
     companion object {
         private const val YEAR_IN_MS = 365L * 24 * 60 * 60 * 1000
+        private const val REVIEW_COOLDOWN_MS = 90L * 24 * 60 * 60 * 1000 // 90 days
+        private const val REVIEW_HYMN_THRESHOLD = 5
+        private const val REVIEW_SEARCH_THRESHOLD = 3
     }
 
     /**
@@ -28,14 +31,77 @@ class UsageTrackingManager(private val storage: PurchaseStorage) {
         // Check for yearly reset before processing
         checkYearlyReset(isSupporter)
 
+        // Update donation tracking
         val currentCount = storage.hymnsReadCount
         val newCount = currentCount + 1
         storage.hymnsReadCount = newCount
+
+        // Update review tracking (independent of donation logic)
+        val currentReviewCount = storage.reviewHymnsReadCount
+        val newReviewCount = currentReviewCount + 1
+        storage.reviewHymnsReadCount = newReviewCount
+
+        println("DEBUG: UsageTrackingManager - Hymn read recorded. Total: $newCount, Review count: $newReviewCount")
 
         _usageStats.value = _usageStats.value.copy(hymnsRead = newCount)
 
         // Check if we should show donation prompt
         return shouldShowDonationPrompt(isSupporter)
+    }
+
+    /**
+     * Record that a successful search was performed.
+     */
+    fun recordSearchSuccess() {
+        // Update donation tracking
+        val currentCount = storage.searchCount
+        storage.searchCount = currentCount + 1
+
+        // Update review tracking
+        val currentReviewCount = storage.reviewSearchCount
+        val newReviewCount = currentReviewCount + 1
+        storage.reviewSearchCount = newReviewCount
+        
+        println("DEBUG: UsageTrackingManager - Search success recorded. Review search count: $newReviewCount")
+    }
+
+    /**
+     * Check if we should show the in-app review prompt.
+     * Strategy:
+     * 1. Check Cooldown: 90 days since last prompt.
+     * 2. Check Engagement: 5 fresh reads OR 3 fresh searches.
+     */
+    fun shouldShowReviewPrompt(): Boolean {
+        val now = Clock.System.now().toEpochMilliseconds()
+        val lastPrompt = storage.lastReviewPromptTimestamp
+
+        // 1. Check Cooldown (90 days)
+        if (now - lastPrompt < REVIEW_COOLDOWN_MS) {
+            println("DEBUG: UsageTrackingManager - Cooldown active. Last prompt: $lastPrompt, Current: $now")
+            return false
+        }
+
+        // 2. Check Fresh Engagement
+        val freshReads = storage.reviewHymnsReadCount
+        val freshSearches = storage.reviewSearchCount
+
+        val shouldShow = freshReads >= REVIEW_HYMN_THRESHOLD || freshSearches >= REVIEW_SEARCH_THRESHOLD
+        println("DEBUG: UsageTrackingManager - Review prompt check: $shouldShow (Reads: $freshReads, Searches: $freshSearches)")
+        return shouldShow
+    }
+
+    /**
+     * Record that the in-app review prompt was shown.
+     * Resets engagement counters to require fresh usage for the next prompt.
+     */
+    fun recordReviewPromptShown() {
+        storage.lastReviewPromptTimestamp = Clock.System.now().toEpochMilliseconds()
+        // Reset counters so user must "earn" the next prompt (after cooldown)
+        storage.reviewHymnsReadCount = 0
+        storage.reviewSearchCount = 0
+        
+        // Update legacy flag for backward compatibility (optional, but good practice)
+        storage.hasShownReviewPrompt = true
     }
 
     /**

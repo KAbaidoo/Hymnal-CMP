@@ -14,6 +14,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.composeApp.database.Hymn
 import com.kobby.hymnal.core.database.HymnRepository
 import com.kobby.hymnal.core.iap.PurchaseManager
+import com.kobby.hymnal.core.review.ReviewManager
 import com.kobby.hymnal.core.settings.FontSettingsManager
 import com.kobby.hymnal.core.sharing.ShareManager
 import org.koin.compose.koinInject
@@ -35,6 +36,7 @@ data class HymnDetailScreen(
         val repository: HymnRepository = koinInject()
         val shareManager: ShareManager = koinInject()
         val purchaseManager: PurchaseManager = koinInject()
+        val reviewManager: ReviewManager = koinInject()
         val entitlementInfo by purchaseManager.entitlementState.collectAsState()
 
         var isFavorite by remember { mutableStateOf(false) }
@@ -60,6 +62,10 @@ data class HymnDetailScreen(
                 // Show donation prompt with linear backoff
                 purchaseManager.usageTracker.recordPromptShown()
                 navigator.push(PayWallScreen())
+            } else if (purchaseManager.usageTracker.shouldShowReviewPrompt()) {
+                // If not showing donation prompt, check if we should show review prompt
+                purchaseManager.usageTracker.recordReviewPromptShown()
+                reviewManager.requestReview()
             }
         }
         

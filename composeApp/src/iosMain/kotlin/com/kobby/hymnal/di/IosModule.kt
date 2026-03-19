@@ -4,6 +4,8 @@ import com.kobby.hymnal.core.database.DatabaseHelper
 import com.kobby.hymnal.core.database.DatabaseInitializer
 import com.kobby.hymnal.core.database.DriverFactory
 import com.kobby.hymnal.core.database.createDatabase
+import com.kobby.hymnal.core.review.IosReviewManager
+import com.kobby.hymnal.core.review.ReviewManager
 import com.kobby.hymnal.core.sharing.ShareManager
 import kotlinx.coroutines.runBlocking
 import org.koin.dsl.module
@@ -14,4 +16,5 @@ val iosModule = module {
     single<DatabaseHelper> { DatabaseHelper() }
     single<DatabaseInitializer> { DatabaseInitializer() }
     single<ShareManager> { ShareManager() }
+    single<ReviewManager> { IosReviewManager() }
 }
