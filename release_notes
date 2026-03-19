@@ -83,3 +83,6 @@
 
 0.9.13
 - Implement In-App Review managers for Android and iOS
+
+0.10.0
+- Add in-app review with smart review prompt strategy (Fresh Engagement + 90-day Cooldown)
