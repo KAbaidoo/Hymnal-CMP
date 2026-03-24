@@ -30,6 +30,7 @@ sqldelight = "2.0.1"
 appdistribution = "3.0.1"
 buildkonfig = "0.17.1"
 firebase-crashlytics-plugin = "3.0.2"
+desugar-jdk-libs = "2.1.5"
 
 [libraries]
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
@@ -67,6 +68,7 @@ sqldelight-ios = { module = "app.cash.sqldelight:native-driver", version.ref = "
 sqldelight-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
 sqldelight-jvm = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar-jdk-libs" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
