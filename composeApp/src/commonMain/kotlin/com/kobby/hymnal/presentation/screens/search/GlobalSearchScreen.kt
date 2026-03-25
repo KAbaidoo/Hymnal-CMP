@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.core.database.HymnRepository
@@ -25,6 +26,8 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
 class GlobalSearchScreen : Screen {
+    override val key = uniqueScreenKey
+
     @OptIn(FlowPreview::class)
     @Composable
     override fun Content() {

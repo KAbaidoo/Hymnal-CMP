@@ -64,12 +64,14 @@ import com.kobby.hymnal.theme.HymnalAppTheme
 import com.kobby.hymnal.theme.LightTextColor
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 
 private const val AUTO_NAVIGATION_DELAY_MS = 6000L
 
 class StartScreen : Screen {
+    override val key = uniqueScreenKey
 
     @Composable
     override fun Content() {
