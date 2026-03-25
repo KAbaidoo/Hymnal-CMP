@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.debug.DatabaseInspectorScreen
@@ -16,6 +17,7 @@ import com.kobby.hymnal.core.database.HymnRepository
 import org.koin.compose.koinInject
 
 class TestHymnScreen : Screen {
+    override val key = uniqueScreenKey
     
     @Composable
     override fun Content() {

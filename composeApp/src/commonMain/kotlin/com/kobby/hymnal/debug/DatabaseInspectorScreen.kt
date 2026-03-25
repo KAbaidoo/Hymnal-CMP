@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import com.kobby.hymnal.composeApp.database.Hymn
 import com.kobby.hymnal.core.database.HymnRepository
 import org.koin.compose.koinInject
@@ -22,6 +23,7 @@ import hymnal_cmp.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 
 class DatabaseInspectorScreen : Screen {
+    override val key = uniqueScreenKey
     
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
