@@ -12,6 +12,8 @@ import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.core.database.HymnRepository
+import com.kobby.hymnal.core.iap.PurchaseManager
+import com.kobby.hymnal.core.review.ReviewManager
 import com.kobby.hymnal.presentation.components.ListScreen
 import com.kobby.hymnal.presentation.screens.hymns.HymnDetailScreen
 import hymnal_cmp.composeapp.generated.resources.Res
@@ -33,6 +35,8 @@ class GlobalSearchScreen : Screen {
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val repository: HymnRepository = koinInject()
+        val purchaseManager: PurchaseManager = koinInject()
+        val reviewManager: ReviewManager = koinInject()
         var searchText by remember { mutableStateOf("") }
         val searchFlow = remember { MutableStateFlow("") }
         
@@ -49,6 +53,18 @@ class GlobalSearchScreen : Screen {
                     repository.searchHymns(query)
                 }
         }.collectAsState(initial = emptyList())
+
+        // Track successful searches for review prompt
+        LaunchedEffect(searchResults) {
+            if (searchResults.isNotEmpty()) {
+                purchaseManager.usageTracker.recordSearchSuccess()
+                
+                if (purchaseManager.usageTracker.shouldShowReviewPrompt()) {
+                    purchaseManager.usageTracker.recordReviewPromptShown()
+                    reviewManager.requestReview()
+                }
+            }
+        }
         
         // Show all hymns if search is empty/short
         val allHymns by repository.getAllHymns().collectAsState(initial = emptyList())

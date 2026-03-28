@@ -55,6 +55,3 @@ interface PurchaseManager {
      */
     fun initialize()
 }
-
-expect fun createPurchaseManager(): PurchaseManager
-

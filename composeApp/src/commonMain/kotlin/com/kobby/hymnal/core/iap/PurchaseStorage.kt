@@ -20,6 +20,13 @@ class PurchaseStorage(private val settings: Settings) {
         
         // Usage tracking keys
         private const val KEY_HYMNS_READ_COUNT = "usage_hymns_read_count"
+        private const val KEY_SEARCH_COUNT = "usage_search_count"
+        private const val KEY_HAS_SHOWN_REVIEW_PROMPT = "usage_has_shown_review_prompt" // Deprecated in favor of timestamp
+
+        // Review prompt tracking keys (smart strategy)
+        private const val KEY_REVIEW_HYMNS_READ_COUNT = "usage_review_hymns_read_count"
+        private const val KEY_REVIEW_SEARCH_COUNT = "usage_review_search_count"
+        private const val KEY_LAST_REVIEW_PROMPT_TIMESTAMP = "usage_last_review_prompt_timestamp"
 
         // Donation prompt tracking keys (new model)
         private const val KEY_DONATION_PROMPT_COUNT = "donation_prompt_count"
@@ -219,4 +226,40 @@ class PurchaseStorage(private val settings: Settings) {
     var hymnsReadCount: Int
         get() = settings.getInt(KEY_HYMNS_READ_COUNT, 0)
         set(value) = settings.putInt(KEY_HYMNS_READ_COUNT, value)
+
+    /**
+     * Get or set the number of successful searches performed by the user.
+     */
+    var searchCount: Int
+        get() = settings.getInt(KEY_SEARCH_COUNT, 0)
+        set(value) = settings.putInt(KEY_SEARCH_COUNT, value)
+
+    /**
+     * Get or set whether the user has been shown the in-app review prompt.
+     * @deprecated Use [lastReviewPromptTimestamp] instead.
+     */
+    var hasShownReviewPrompt: Boolean
+        get() = settings.getBoolean(KEY_HAS_SHOWN_REVIEW_PROMPT, false)
+        set(value) = settings.putBoolean(KEY_HAS_SHOWN_REVIEW_PROMPT, value)
+
+    /**
+     * Get or set the number of hymns read since the last review prompt.
+     */
+    var reviewHymnsReadCount: Int
+        get() = settings.getInt(KEY_REVIEW_HYMNS_READ_COUNT, 0)
+        set(value) = settings.putInt(KEY_REVIEW_HYMNS_READ_COUNT, value)
+
+    /**
+     * Get or set the number of successful searches since the last review prompt.
+     */
+    var reviewSearchCount: Int
+        get() = settings.getInt(KEY_REVIEW_SEARCH_COUNT, 0)
+        set(value) = settings.putInt(KEY_REVIEW_SEARCH_COUNT, value)
+
+    /**
+     * Get or set the timestamp of the last review prompt shown.
+     */
+    var lastReviewPromptTimestamp: Long
+        get() = settings.getLong(KEY_LAST_REVIEW_PROMPT_TIMESTAMP, 0L)
+        set(value) = settings.putLong(KEY_LAST_REVIEW_PROMPT_TIMESTAMP, value)
 }

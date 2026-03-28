@@ -38,6 +38,7 @@ fun SearchTextField(
                 style = textStyle.copy(color = DarkTextColor.copy(alpha = 0.6f))
             )
         },
+        singleLine = true,
         textStyle = textStyle,
         leadingIcon = { 
             Icon(
