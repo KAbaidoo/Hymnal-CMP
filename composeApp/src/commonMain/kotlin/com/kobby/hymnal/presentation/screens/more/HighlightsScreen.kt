@@ -46,7 +46,7 @@ class HighlightsScreen : Screen {
             error = null,
             onSearchTextChanged = { searchText = it },
             onItemClick = { hymn ->
-                navigator.push(HymnDetailScreen(hymnId = hymn.id))
+                navigator.push(HymnDetailScreen(hymnId = hymn.id, source = "highlights"))
             },
             onBackClick = { navigator.pop() },
             onHomeClick = {

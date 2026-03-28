@@ -13,6 +13,9 @@ import kotlinx.coroutines.launch
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.core.database.HymnRepository
+import com.kobby.hymnal.core.trace.TraceEvents
+import com.kobby.hymnal.core.trace.TraceManager
+import com.kobby.hymnal.core.trace.traceParams
 import com.kobby.hymnal.presentation.screens.hymns.HymnDetailScreen
 import com.kobby.hymnal.presentation.screens.more.components.HistoryContent
 import org.koin.compose.koinInject
@@ -24,6 +27,7 @@ class HistoryScreen : Screen {
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val repository: HymnRepository = koinInject()
+        val traceManager: TraceManager = koinInject()
         val coroutineScope = rememberCoroutineScope()
         var searchText by remember { mutableStateOf("") }
         
@@ -63,7 +67,11 @@ class HistoryScreen : Screen {
             error = null,
             onSearchTextChanged = { searchText = it },
             onItemClick = { hymn ->
-                navigator.push(HymnDetailScreen(hymnId = hymn.id))
+                traceManager.track(
+                    TraceEvents.HISTORY_MANAGEMENT,
+                    traceParams("action" to "open_item", "hymn_id" to hymn.id)
+                )
+                navigator.push(HymnDetailScreen(hymnId = hymn.id, source = "history"))
             },
             onBackClick = { navigator.pop() },
             onHomeClick = { 
@@ -78,6 +86,10 @@ class HistoryScreen : Screen {
             },
             onClearHistory = {
                 coroutineScope.launch {
+                    traceManager.track(
+                        TraceEvents.HISTORY_MANAGEMENT,
+                        traceParams("action" to "clear_all", "history_count_before_clear" to filteredHymns.size)
+                    )
                     repository.clearHistory()
                 }
             }

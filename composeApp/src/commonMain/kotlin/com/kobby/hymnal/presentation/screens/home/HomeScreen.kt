@@ -57,6 +57,9 @@ import com.kobby.hymnal.presentation.screens.more.MoreScreen
 import com.kobby.hymnal.presentation.screens.search.GlobalSearchScreen
 import com.kobby.hymnal.core.update.UpdateManager
 import com.kobby.hymnal.core.update.UpdateResult
+import com.kobby.hymnal.core.trace.TraceEvents
+import com.kobby.hymnal.core.trace.TraceManager
+import com.kobby.hymnal.core.trace.traceParams
 import com.kobby.hymnal.presentation.components.UpdatePromptDialog
 import com.kobby.hymnal.test.TestHymnScreen
 import org.koin.compose.koinInject
@@ -87,6 +90,7 @@ class HomeScreen : Screen {
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val updateManager: UpdateManager = koinInject()
+        val traceManager: TraceManager = koinInject()
         val uriHandler = LocalUriHandler.current
         var isDeveloperMode by remember { mutableStateOf(false) }
         var updateResult by remember { mutableStateOf<UpdateResult?>(null) }
@@ -97,13 +101,39 @@ class HomeScreen : Screen {
 
         updateResult?.let { result ->
             if (result is UpdateResult.UpdateAvailable) {
+                LaunchedEffect(result.latestVersion, result.isMandatory) {
+                    traceManager.track(
+                        TraceEvents.UPDATE_PROMPT_INTERACTION,
+                        traceParams(
+                            "action" to "shown",
+                            "mandatory" to result.isMandatory,
+                            "latest_version" to result.latestVersion
+                        )
+                    )
+                }
                 UpdatePromptDialog(
                     latestVersion = result.latestVersion,
                     isMandatory = result.isMandatory,
                     onUpdateClick = {
+                        traceManager.track(
+                            TraceEvents.UPDATE_PROMPT_INTERACTION,
+                            traceParams(
+                                "action" to "update_now",
+                                "mandatory" to result.isMandatory,
+                                "latest_version" to result.latestVersion
+                            )
+                        )
                         uriHandler.openUri(updateManager.getUpdateUrl())
                     },
                     onDismissClick = {
+                        traceManager.track(
+                            TraceEvents.UPDATE_PROMPT_INTERACTION,
+                            traceParams(
+                                "action" to "later",
+                                "mandatory" to result.isMandatory,
+                                "latest_version" to result.latestVersion
+                            )
+                        )
                         updateResult = null
                     }
                 )
@@ -111,38 +141,82 @@ class HomeScreen : Screen {
         }
 
         HomeScreenContent(
-            onSearchClick = { navigator.push(GlobalSearchScreen()) },
+            onSearchClick = {
+                traceManager.track(
+                    TraceEvents.HOME_NAVIGATION_CLICK,
+                    traceParams("target" to "search", "screen" to "home")
+                )
+                navigator.push(GlobalSearchScreen())
+            },
             onAncientModernClick = { 
+                traceManager.track(
+                    TraceEvents.HOME_NAVIGATION_CLICK,
+                    traceParams("target" to "category_ancient_modern", "screen" to "home")
+                )
                 navigator.push(HymnListScreen(
                     category = HymnRepository.CATEGORY_ANCIENT_MODERN,
                     titleCollapsed = "Ancient & Modern",
-                    titleExpanded = "Ancient\n& Modern"
+                    titleExpanded = "Ancient\n& Modern",
+                    source = "category_ancient_modern"
                 ))
             },
             onSupplementaryClick = { 
+                traceManager.track(
+                    TraceEvents.HOME_NAVIGATION_CLICK,
+                    traceParams("target" to "category_supplementary", "screen" to "home")
+                )
                 navigator.push(HymnListScreen(
                     category = HymnRepository.CATEGORY_SUPPLEMENTARY,
                     titleCollapsed = "Supplementary",
-                    titleExpanded = "Supplementary"
+                    titleExpanded = "Supplementary",
+                    source = "category_supplementary"
                 ))
             },
-            onFavoritesClick = { navigator.push(FavoritesScreen()) },
+            onFavoritesClick = {
+                traceManager.track(
+                    TraceEvents.HOME_NAVIGATION_CLICK,
+                    traceParams("target" to "favorites", "screen" to "home")
+                )
+                navigator.push(FavoritesScreen())
+            },
             onCanticleClick = { 
+                traceManager.track(
+                    TraceEvents.HOME_NAVIGATION_CLICK,
+                    traceParams("target" to "category_canticles", "screen" to "home")
+                )
                 navigator.push(HymnListScreen(
                     category = HymnRepository.CATEGORY_CANTICLES,
                     titleCollapsed = "Canticles",
-                    titleExpanded = "Canticles"
+                    titleExpanded = "Canticles",
+                    source = "category_canticles"
                 ))
             },
             onPsalmsClick = {
+                traceManager.track(
+                    TraceEvents.HOME_NAVIGATION_CLICK,
+                    traceParams("target" to "category_psalms", "screen" to "home")
+                )
                 navigator.push(HymnListScreen(
                     category = HymnRepository.CATEGORY_PSALMS,
                     titleCollapsed = "The Psalms",
-                    titleExpanded = "The\nPsalms"
+                    titleExpanded = "The\nPsalms",
+                    source = "category_psalms"
                 ))
             },
-            onMoreClick = { navigator.push(MoreScreen()) },
-            onMoreLongClick = { isDeveloperMode = !isDeveloperMode },
+            onMoreClick = {
+                traceManager.track(
+                    TraceEvents.HOME_NAVIGATION_CLICK,
+                    traceParams("target" to "more", "screen" to "home")
+                )
+                navigator.push(MoreScreen())
+            },
+            onMoreLongClick = {
+                isDeveloperMode = !isDeveloperMode
+                traceManager.track(
+                    TraceEvents.HOME_NAVIGATION_CLICK,
+                    traceParams("target" to "developer_mode_toggle", "enabled" to isDeveloperMode, "screen" to "home")
+                )
+            },
             onTestDatabaseClick = { navigator.push(TestHymnScreen()) },
             isDeveloperMode = isDeveloperMode
         )

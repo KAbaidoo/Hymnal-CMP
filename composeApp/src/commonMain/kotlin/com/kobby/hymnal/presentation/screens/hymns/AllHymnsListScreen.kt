@@ -50,7 +50,7 @@ class AllHymnsListScreen : Screen {
             error = error,
             onSearchTextChanged = { searchText = it },
             onItemClick = { hymn ->
-                navigator.push(HymnDetailScreen(hymnId = hymn.id))
+                navigator.push(HymnDetailScreen(hymnId = hymn.id, source = "all_hymns"))
             },
             onBackClick = { navigator.pop() },
             onHomeClick = { 

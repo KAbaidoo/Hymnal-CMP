@@ -9,11 +9,15 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.core.iap.PurchaseManager
+import com.kobby.hymnal.core.trace.TraceEvents
+import com.kobby.hymnal.core.trace.TraceManager
+import com.kobby.hymnal.core.trace.traceParams
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 class PayWallScreen(
-    private val fromGatedScreen: Boolean = false
+    private val fromGatedScreen: Boolean = false,
+    private val entrySource: String = "unknown"
 ) : Screen {
 
     @OptIn(ExperimentalComposeUiApi::class)
@@ -21,6 +25,7 @@ class PayWallScreen(
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val purchaseManager: PurchaseManager = koinInject()
+        val traceManager: TraceManager = koinInject()
         val coroutineScope = rememberCoroutineScope()
         val uriHandler = LocalUriHandler.current
         var isProcessing by remember { mutableStateOf(false) }
@@ -31,6 +36,10 @@ class PayWallScreen(
         var planDetails by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
 
         LaunchedEffect(Unit) {
+            traceManager.track(
+                TraceEvents.SUPPORT_FUNNEL,
+                traceParams("action" to "paywall_viewed", "entry_source" to entrySource)
+            )
             purchaseManager.fetchPlanDetails { details ->
                 planDetails = details.associate { it.id to it.formattedPrice }
             }
@@ -48,6 +57,14 @@ class PayWallScreen(
                     isProcessing = true
                     purchaseError = null
                     successMessage = null
+                    traceManager.track(
+                        TraceEvents.SUPPORT_FUNNEL,
+                        traceParams(
+                            "action" to "purchase_attempted",
+                            "entry_source" to entrySource,
+                            "plan" to plan.name.lowercase()
+                        )
+                    )
 
                     // Handle purchase with the selected plan
                     purchaseManager.makePurchase(plan) { success ->
@@ -56,6 +73,15 @@ class PayWallScreen(
                             // Record donation to reset prompt counters
                             purchaseManager.usageTracker.recordDonationMade()
                             successMessage = "Thank you for your support!"
+                            traceManager.track(
+                                TraceEvents.SUPPORT_FUNNEL,
+                                traceParams(
+                                    "action" to "purchase_result",
+                                    "entry_source" to entrySource,
+                                    "plan" to plan.name.lowercase(),
+                                    "result" to "success"
+                                )
+                            )
 
                             // Purchase successful, navigate back after short delay
                             coroutineScope.launch {
@@ -73,6 +99,15 @@ class PayWallScreen(
                         } else {
                             // Handle purchase failure
                             purchaseError = "Purchase failed. Please try again."
+                            traceManager.track(
+                                TraceEvents.SUPPORT_FUNNEL,
+                                traceParams(
+                                    "action" to "purchase_result",
+                                    "entry_source" to entrySource,
+                                    "plan" to plan.name.lowercase(),
+                                    "result" to "failed"
+                                )
+                            )
                         }
                     }
                 }
@@ -82,11 +117,23 @@ class PayWallScreen(
                     isRestoring = true
                     purchaseError = null
                     successMessage = null
+                    traceManager.track(
+                        TraceEvents.SUPPORT_FUNNEL,
+                        traceParams("action" to "restore_attempted", "entry_source" to entrySource)
+                    )
 
                     purchaseManager.restorePurchases { success ->
                         isRestoring = false
                         if (success) {
                             successMessage = "Support restored — you won't see donation prompts anymore."
+                            traceManager.track(
+                                TraceEvents.SUPPORT_FUNNEL,
+                                traceParams(
+                                    "action" to "restore_result",
+                                    "entry_source" to entrySource,
+                                    "result" to "success"
+                                )
+                            )
                             // Navigate back after a short delay
                             coroutineScope.launch {
                                 kotlinx.coroutines.delay(1500)
@@ -102,9 +149,27 @@ class PayWallScreen(
                             }
                         } else {
                             purchaseError = "No previous purchase found!"
+                            traceManager.track(
+                                TraceEvents.SUPPORT_FUNNEL,
+                                traceParams(
+                                    "action" to "restore_result",
+                                    "entry_source" to entrySource,
+                                    "result" to "failed"
+                                )
+                            )
                         }
                     }
                 }
+            },
+            onPlanSelected = { plan ->
+                traceManager.track(
+                    TraceEvents.SUPPORT_FUNNEL,
+                    traceParams(
+                        "action" to "plan_selected",
+                        "entry_source" to entrySource,
+                        "plan" to plan.name.lowercase()
+                    )
+                )
             },
 
             onCloseClick = {

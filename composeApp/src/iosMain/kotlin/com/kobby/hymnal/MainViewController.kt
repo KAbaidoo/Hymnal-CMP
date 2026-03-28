@@ -7,6 +7,7 @@ import com.kobby.hymnal.di.databaseModule
 import com.kobby.hymnal.di.iosModule
 import com.kobby.hymnal.di.settingsModule
 import com.kobby.hymnal.di.subscriptionModule
+import com.kobby.hymnal.di.traceModule
 import com.kobby.hymnal.di.updateModule
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -19,7 +20,15 @@ fun MainViewController() = ComposeUIViewController {
     try {
         startKoin {
             logger(PrintLogger(Level.DEBUG))
-            modules(databaseModule, settingsModule, iosModule, crashlyticsModule, subscriptionModule, updateModule)
+            modules(
+                databaseModule,
+                settingsModule,
+                iosModule,
+                crashlyticsModule,
+                subscriptionModule,
+                traceModule,
+                updateModule
+            )
         }
     } catch (e: Exception) {
         // Koin already started
@@ -35,4 +44,3 @@ fun MainViewController() = ComposeUIViewController {
 
     HymnalApp()
 }
-

@@ -18,7 +18,8 @@ import org.koin.compose.koinInject
 class HymnListScreen(
     private val category: String,
     private val titleCollapsed: String,
-    private val titleExpanded: String
+    private val titleExpanded: String,
+    private val source: String = "category_list"
 ) : Screen {
     override val key = uniqueScreenKey
     
@@ -54,7 +55,12 @@ class HymnListScreen(
             error = error,
             onSearchTextChanged = { searchText = it },
             onItemClick = { hymn ->
-                navigator.push(HymnDetailScreen(hymnId = hymn.id))
+                navigator.push(
+                    HymnDetailScreen(
+                        hymnId = hymn.id,
+                        source = source
+                    )
+                )
             },
             onBackClick = { navigator.pop() },
             onHomeClick = { 

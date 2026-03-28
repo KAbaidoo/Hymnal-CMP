@@ -14,6 +14,9 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.core.database.HymnRepository
 import com.kobby.hymnal.core.iap.PurchaseManager
 import com.kobby.hymnal.core.review.ReviewManager
+import com.kobby.hymnal.core.trace.TraceEvents
+import com.kobby.hymnal.core.trace.TraceManager
+import com.kobby.hymnal.core.trace.traceParams
 import com.kobby.hymnal.presentation.components.ListScreen
 import com.kobby.hymnal.presentation.screens.hymns.HymnDetailScreen
 import hymnal_cmp.composeapp.generated.resources.Res
@@ -37,7 +40,9 @@ class GlobalSearchScreen : Screen {
         val repository: HymnRepository = koinInject()
         val purchaseManager: PurchaseManager = koinInject()
         val reviewManager: ReviewManager = koinInject()
+        val traceManager: TraceManager = koinInject()
         var searchText by remember { mutableStateOf("") }
+        var lastTrackedSearchState by remember { mutableStateOf("") }
         val searchFlow = remember { MutableStateFlow("") }
         
         // Update search flow when text changes
@@ -65,6 +70,24 @@ class GlobalSearchScreen : Screen {
                 }
             }
         }
+
+        LaunchedEffect(searchText, searchResults.size) {
+            val isSearching = searchText.length >= 2
+            if (isSearching) {
+                val currentState = "${searchText.length}|${searchResults.size}"
+                if (currentState != lastTrackedSearchState) {
+                    lastTrackedSearchState = currentState
+                    traceManager.track(
+                        TraceEvents.SEARCH_BEHAVIOR,
+                        traceParams(
+                            "action" to "performed",
+                            "query_length" to searchText.length,
+                            "results_count" to searchResults.size
+                        )
+                    )
+                }
+            }
+        }
         
         // Show all hymns if search is empty/short
         val allHymns by repository.getAllHymns().collectAsState(initial = emptyList())
@@ -82,7 +105,17 @@ class GlobalSearchScreen : Screen {
             searchText = searchText,
             onSearchTextChanged = { searchText = it },
             onItemClick = { hymn ->
-                navigator.push(HymnDetailScreen(hymnId = hymn.id))
+                traceManager.track(
+                    TraceEvents.SEARCH_BEHAVIOR,
+                    traceParams(
+                        "action" to "result_opened",
+                        "query_length" to searchText.length,
+                        "results_count" to searchResults.size,
+                        "hymn_id" to hymn.id,
+                        "hymn_category" to hymn.category
+                    )
+                )
+                navigator.push(HymnDetailScreen(hymnId = hymn.id, source = "search"))
             },
             onBackClick = { navigator.pop() },
             onHomeClick = { 

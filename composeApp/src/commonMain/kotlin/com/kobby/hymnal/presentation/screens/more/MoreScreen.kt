@@ -7,6 +7,9 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.kobby.hymnal.core.trace.TraceEvents
+import com.kobby.hymnal.core.trace.TraceManager
+import com.kobby.hymnal.core.trace.traceParams
 import com.kobby.hymnal.presentation.screens.more.components.MoreScreenContent
 import com.kobby.hymnal.presentation.screens.settings.PayWallScreen
 import com.kobby.hymnal.core.iap.PurchaseManager
@@ -19,16 +22,21 @@ class MoreScreen : Screen {
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val purchaseManager: PurchaseManager = koinInject()
+        val traceManager: TraceManager = koinInject()
         val entitlementInfo by purchaseManager.entitlementState.collectAsState()
         val showSupport = !entitlementInfo.hasSupported
 
         MoreScreenContent(
             onItemClick = { item ->
+                traceManager.track(
+                    TraceEvents.MORE_MENU_NAVIGATION,
+                    traceParams("item" to item)
+                )
                 when (item) {
                     "Favorites" -> navigator.push(FavoritesScreen())
                     "History" -> navigator.push(HistoryScreen())
                     "Highlights" -> navigator.push(HighlightsScreen())
-                    "Support Development" -> navigator.push(PayWallScreen())
+                    "Support Development" -> navigator.push(PayWallScreen(entrySource = "more_menu"))
                 }
             },
             onBackClick = { navigator.pop() },

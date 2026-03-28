@@ -41,6 +41,9 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.geometry.Offset
 import com.kobby.hymnal.composeApp.database.Hymn
 import com.kobby.hymnal.core.database.HymnRepository
+import com.kobby.hymnal.core.trace.TraceEvents
+import com.kobby.hymnal.core.trace.TraceManager
+import com.kobby.hymnal.core.trace.traceParams
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import com.kobby.hymnal.core.settings.FontSettings
@@ -87,6 +90,7 @@ fun DetailScreen(
     fontSettings: FontSettings = FontSettings()
 ) {
     val repository: HymnRepository = koinInject()
+    val traceManager: TraceManager = koinInject()
     val coroutineScope = rememberCoroutineScope()
     
     var showHighlightBottomSheet by remember { mutableStateOf(false) }
@@ -327,6 +331,15 @@ fun DetailScreen(
                                 coroutineScope.launch {
                                     try {
                                         repository.updateHighlightColor(dbId, colorIndex.toLong())
+                                        traceManager.track(
+                                            TraceEvents.HIGHLIGHT_ACTION,
+                                            traceParams(
+                                                "action" to "color_change",
+                                                "hymn_id" to hymn.id,
+                                                "highlight_id" to dbId,
+                                                "color_index" to colorIndex
+                                            )
+                                        )
                                     } catch (e: Exception) {
                                         // Handle error - could revert memory change
                                     }
@@ -343,6 +356,15 @@ fun DetailScreen(
                                 coroutineScope.launch {
                                     try {
                                         repository.addHighlight(hymn.id, range.start.toLong(), range.end.toLong(), colorIndex.toLong())
+                                        traceManager.track(
+                                            TraceEvents.HIGHLIGHT_ACTION,
+                                            traceParams(
+                                                "action" to "add",
+                                                "hymn_id" to hymn.id,
+                                                "selection_length" to (range.end - range.start),
+                                                "color_index" to colorIndex
+                                            )
+                                        )
                                     } catch (e: Exception) {
                                         // Handle error - could remove from memory if database save fails
                                         highlights.removeLastOrNull()
@@ -365,6 +387,14 @@ fun DetailScreen(
                                 coroutineScope.launch {
                                     try {
                                         repository.removeHighlight(dbId)
+                                        traceManager.track(
+                                            TraceEvents.HIGHLIGHT_ACTION,
+                                            traceParams(
+                                                "action" to "remove",
+                                                "hymn_id" to hymn.id,
+                                                "highlight_id" to dbId
+                                            )
+                                        )
                                     } catch (e: Exception) {
                                         // Handle error - could re-add to memory if database removal fails
                                     }
