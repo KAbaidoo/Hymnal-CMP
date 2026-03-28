@@ -41,6 +41,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalUriHandler
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -53,6 +55,9 @@ import com.kobby.hymnal.core.database.HymnRepository
 import com.kobby.hymnal.presentation.screens.more.FavoritesScreen
 import com.kobby.hymnal.presentation.screens.more.MoreScreen
 import com.kobby.hymnal.presentation.screens.search.GlobalSearchScreen
+import com.kobby.hymnal.core.update.UpdateManager
+import com.kobby.hymnal.core.update.UpdateResult
+import com.kobby.hymnal.presentation.components.UpdatePromptDialog
 import com.kobby.hymnal.test.TestHymnScreen
 import org.koin.compose.koinInject
 import com.kobby.hymnal.theme.Shapes
@@ -81,7 +86,29 @@ class HomeScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val updateManager: UpdateManager = koinInject()
+        val uriHandler = LocalUriHandler.current
         var isDeveloperMode by remember { mutableStateOf(false) }
+        var updateResult by remember { mutableStateOf<UpdateResult?>(null) }
+
+        LaunchedEffect(Unit) {
+            updateResult = updateManager.checkForUpdates()
+        }
+
+        updateResult?.let { result ->
+            if (result is UpdateResult.UpdateAvailable) {
+                UpdatePromptDialog(
+                    latestVersion = result.latestVersion,
+                    isMandatory = result.isMandatory,
+                    onUpdateClick = {
+                        uriHandler.openUri(updateManager.getUpdateUrl())
+                    },
+                    onDismissClick = {
+                        updateResult = null
+                    }
+                )
+            }
+        }
 
         HomeScreenContent(
             onSearchClick = { navigator.push(GlobalSearchScreen()) },
