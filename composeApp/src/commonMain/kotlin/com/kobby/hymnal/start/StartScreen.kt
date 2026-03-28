@@ -45,6 +45,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.BoxWithConstraints
 import com.kobby.hymnal.composeApp.database.Hymn
 import com.kobby.hymnal.core.database.HymnRepository
+import com.kobby.hymnal.core.trace.TraceEvents
+import com.kobby.hymnal.core.trace.TraceManager
+import com.kobby.hymnal.core.trace.traceParams
 import com.kobby.hymnal.presentation.components.ScreenBackground
 import com.kobby.hymnal.presentation.screens.home.HomeScreen
 import com.kobby.hymnal.presentation.screens.hymns.HymnDetailScreen
@@ -77,6 +80,7 @@ class StartScreen : Screen {
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val repository: HymnRepository = koinInject()
+        val traceManager: TraceManager = koinInject()
         var randomHymn by remember { mutableStateOf<Hymn?>(null) }
         var hasNavigated by remember { mutableStateOf(false) }
 
@@ -95,6 +99,10 @@ class StartScreen : Screen {
             delay(AUTO_NAVIGATION_DELAY_MS)
             if (!hasNavigated) {
                 hasNavigated = true
+                traceManager.track(
+                    TraceEvents.START_SCREEN_OUTCOME,
+                    traceParams("outcome" to "auto_home", "delay_ms" to AUTO_NAVIGATION_DELAY_MS)
+                )
                 navigator.push(HomeScreen())
             }
         }
@@ -104,13 +112,27 @@ class StartScreen : Screen {
             onStartButtonClicked = {
                 if (!hasNavigated) {
                     hasNavigated = true
+                    traceManager.track(
+                        TraceEvents.START_SCREEN_OUTCOME,
+                        traceParams("outcome" to "cta_home", "delay_ms" to AUTO_NAVIGATION_DELAY_MS)
+                    )
                     navigator.push(HomeScreen())
                 }
             },
             onRandomHymnClicked = { hymn ->
                 if (!hasNavigated) {
                     hasNavigated = true
-                    navigator.push(HymnDetailScreen(hymnId = hymn.id, fromStartScreen = true))
+                    traceManager.track(
+                        TraceEvents.START_SCREEN_OUTCOME,
+                        traceParams("outcome" to "random_hymn_open", "delay_ms" to AUTO_NAVIGATION_DELAY_MS)
+                    )
+                    navigator.push(
+                        HymnDetailScreen(
+                            hymnId = hymn.id,
+                            fromStartScreen = true,
+                            source = "start_random"
+                        )
+                    )
                 }
             }
         )

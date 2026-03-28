@@ -78,6 +78,7 @@ fun PayWallContent(
     planPrices: Map<String, String> = emptyMap(),
     onPurchase: (PayPlan) -> Unit = {},
     onRestore: () -> Unit = {},
+    onPlanSelected: (PayPlan) -> Unit = {},
     onCloseClick: () -> Unit = {},
     onPrivacy: () -> Unit = {},
     onTerms: () -> Unit = {}
@@ -139,7 +140,10 @@ fun PayWallContent(
             PurchaseOptions(
                 selected = selectedPlan,
                 prices = planPrices,
-                onSelected = { selectedPlan = it }
+                onSelected = {
+                    selectedPlan = it
+                    onPlanSelected(it)
+                }
             )
 
             if (errorMsg != null) {

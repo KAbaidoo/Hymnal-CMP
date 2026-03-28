@@ -3,6 +3,7 @@ import FirebaseCore
 import FirebaseCrashlytics
 import ComposeApp
 
+
 @main
 struct iOSApp: App {
     
@@ -17,6 +18,17 @@ struct iOSApp: App {
         #endif
         
         CrashlyticsManager_iosKt.initializeNativeCrashlyticsProvider(provider: IosCrashlyticsProvider())
+        #if DEBUG
+        TraceManager_iosKt.initializeNativeTraceProvider(
+            provider: IosTraceProvider(),
+            debugLoggingEnabled: true
+        )
+        #else
+        TraceManager_iosKt.initializeNativeTraceProvider(
+            provider: IosTraceProvider(),
+            debugLoggingEnabled: false
+        )
+        #endif
         
         PurchaseManager_iosKt.initializeNativePurchaseProvider(provider: IosPurchaseProvider())
 

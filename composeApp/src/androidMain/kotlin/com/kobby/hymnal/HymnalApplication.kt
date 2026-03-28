@@ -9,6 +9,7 @@ import com.kobby.hymnal.di.crashlyticsModule
 import com.kobby.hymnal.di.databaseModule
 import com.kobby.hymnal.di.settingsModule
 import com.kobby.hymnal.di.subscriptionModule
+import com.kobby.hymnal.di.traceModule
 import com.kobby.hymnal.di.updateModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -34,6 +35,7 @@ class HymnalApplication : Application() {
                 androidModule,
                 crashlyticsModule,
                 subscriptionModule,
+                traceModule,
                 updateModule,
                 module { single { activityProvider } } // Register ActivityProvider in Koin
             )

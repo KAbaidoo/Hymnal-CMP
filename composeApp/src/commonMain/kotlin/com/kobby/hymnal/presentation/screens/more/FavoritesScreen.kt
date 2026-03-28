@@ -46,7 +46,7 @@ class FavoritesScreen : Screen {
             error = null,
             onSearchTextChanged = { searchText = it },
             onItemClick = { hymn ->
-                navigator.push(HymnDetailScreen(hymnId = hymn.id))
+                navigator.push(HymnDetailScreen(hymnId = hymn.id, source = "favorites"))
             },
             onBackClick = { navigator.pop() },
             onHomeClick = {

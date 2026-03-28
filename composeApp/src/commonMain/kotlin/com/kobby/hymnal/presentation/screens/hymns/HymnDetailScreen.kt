@@ -18,6 +18,9 @@ import com.kobby.hymnal.core.iap.PurchaseManager
 import com.kobby.hymnal.core.review.ReviewManager
 import com.kobby.hymnal.core.settings.FontSettingsManager
 import com.kobby.hymnal.core.sharing.ShareManager
+import com.kobby.hymnal.core.trace.TraceEvents
+import com.kobby.hymnal.core.trace.TraceManager
+import com.kobby.hymnal.core.trace.traceParams
 import org.koin.compose.koinInject
 import com.kobby.hymnal.presentation.components.DetailScreen
 import com.kobby.hymnal.presentation.components.FontSettingsModal
@@ -28,7 +31,8 @@ import kotlinx.coroutines.launch
 // Accept only primitive/serializable arguments to keep Screen serializable
 data class HymnDetailScreen(
     private val hymnId: Long,
-    private val fromStartScreen: Boolean = false
+    private val fromStartScreen: Boolean = false,
+    private val source: String = "unknown"
 ) : Screen {
     override val key = uniqueScreenKey
 
@@ -40,6 +44,7 @@ data class HymnDetailScreen(
         val shareManager: ShareManager = koinInject()
         val purchaseManager: PurchaseManager = koinInject()
         val reviewManager: ReviewManager = koinInject()
+        val traceManager: TraceManager = koinInject()
         val entitlementInfo by purchaseManager.entitlementState.collectAsState()
 
         var isFavorite by remember { mutableStateOf(false) }
@@ -57,6 +62,18 @@ data class HymnDetailScreen(
             // Add to history once we navigate here
             repository.addToHistory(hymnId)
 
+            hymn?.let { loaded ->
+                traceManager.track(
+                    TraceEvents.HYMN_OPENED,
+                    traceParams(
+                        "hymn_id" to loaded.id,
+                        "hymn_category" to loaded.category,
+                        "source" to source,
+                        "is_supporter" to entitlementInfo.hasSupported
+                    )
+                )
+            }
+
             // Track hymn read and check if donation prompt should show
             val isSupporter = entitlementInfo.hasSupported
             val shouldShowPrompt = purchaseManager.usageTracker.recordHymnRead(isSupporter)
@@ -64,7 +81,7 @@ data class HymnDetailScreen(
             if (shouldShowPrompt) {
                 // Show donation prompt with linear backoff
                 purchaseManager.usageTracker.recordPromptShown()
-                navigator.push(PayWallScreen())
+                navigator.push(PayWallScreen(entrySource = "usage_prompt"))
             } else if (purchaseManager.usageTracker.shouldShowReviewPrompt()) {
                 // If not showing donation prompt, check if we should show review prompt
                 purchaseManager.usageTracker.recordReviewPromptShown()
@@ -101,8 +118,24 @@ data class HymnDetailScreen(
                         repository.let { repo ->
                             if (isFavorite) {
                                 repo.removeFromFavorites(hymnId)
+                                traceManager.track(
+                                    TraceEvents.HYMN_DETAIL_ACTION,
+                                    traceParams(
+                                        "action" to "favorite_remove",
+                                        "hymn_id" to hymnId,
+                                        "hymn_category" to loadedHymn.category
+                                    )
+                                )
                             } else {
                                 repo.addToFavorites(hymnId)
+                                traceManager.track(
+                                    TraceEvents.HYMN_DETAIL_ACTION,
+                                    traceParams(
+                                        "action" to "favorite_add",
+                                        "hymn_id" to hymnId,
+                                        "hymn_category" to loadedHymn.category
+                                    )
+                                )
                             }
                             isFavorite = !isFavorite
                         }
@@ -110,9 +143,25 @@ data class HymnDetailScreen(
                 },
                 onFontSettingsClick = {
                     // All users can customize fonts now - no gates!
+                    traceManager.track(
+                        TraceEvents.HYMN_DETAIL_ACTION,
+                        traceParams(
+                            "action" to "font_settings_open",
+                            "hymn_id" to hymnId,
+                            "hymn_category" to loadedHymn.category
+                        )
+                    )
                     showFontSettings = true
                 },
                 onShareClick = {
+                    traceManager.track(
+                        TraceEvents.HYMN_DETAIL_ACTION,
+                        traceParams(
+                            "action" to "share",
+                            "hymn_id" to hymnId,
+                            "hymn_category" to loadedHymn.category
+                        )
+                    )
                     shareManager.shareHymn(loadedHymn)
                 },
                 fontSettings = fontSettings
