@@ -9,7 +9,7 @@ expect class ShareManager {
 object ShareConstants {
     // App Store URLs - Update these when publishing to stores
     const val ANDROID_PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.kobby.hymnal"
-    const val IOS_APP_STORE_URL = "https://apps.apple.com/app/anglican-hymnal/id123456789" // TODO: Replace with actual App Store ID
+    const val IOS_APP_STORE_URL = "https://apps.apple.com/us/app/anglican-hymnal-a-m/id6755648517"
     
     // Fallback landing page
     const val LANDING_PAGE_URL = "https://mypockethymnal.com" // Updated to official landing page

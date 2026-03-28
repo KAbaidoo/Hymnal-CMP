@@ -14,7 +14,7 @@ class CrashlyticsManagerTest {
         val exceptions = mutableListOf<Throwable>()
         val customKeys = mutableMapOf<String, Any>()
         val logs = mutableListOf<String>()
-        var userId: String? = null
+        var storedUserId: String? = null
         
         override fun recordException(throwable: Throwable) {
             exceptions.add(throwable)
@@ -33,7 +33,7 @@ class CrashlyticsManagerTest {
         }
         
         override fun setUserId(userId: String) {
-            this.userId = userId
+            this.storedUserId = userId
         }
         
         override fun log(message: String) {
@@ -85,7 +85,7 @@ class CrashlyticsManagerTest {
         
         manager.setUserId("user123")
         
-        assertEquals("user123", manager.userId)
+        assertEquals("user123", manager.storedUserId)
     }
     
     @Test
@@ -111,7 +111,7 @@ class CrashlyticsManagerTest {
         assertEquals(1, manager.exceptions.size)
         assertEquals(2, manager.customKeys.size)
         assertEquals(1, manager.logs.size)
-        assertNotNull(manager.userId)
+        assertNotNull(manager.storedUserId)
     }
     
     @Test

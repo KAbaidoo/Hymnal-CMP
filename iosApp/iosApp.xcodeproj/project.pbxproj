@@ -15,11 +15,13 @@
 		CE1E25342EFE302C00CF55D2 /* MyProducts.storekit in Resources */ = {isa = PBXBuildFile; fileRef = CE1E25332EFE302C00CF55D2 /* MyProducts.storekit */; };
 		CE1E253A2EFEA21F00CF55D2 /* StoreKitTestCertificate.cer in Resources */ = {isa = PBXBuildFile; fileRef = CE1E25392EFEA21F00CF55D2 /* StoreKitTestCertificate.cer */; };
 		CE27C6D42DB7433F00B4C7D0 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CE27C6D32DB7433F00B4C7D0 /* LaunchScreen.storyboard */; };
+		CE4685602F781D3E00CE22C2 /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = CE46855F2F781D3E00CE22C2 /* FirebaseRemoteConfig */; };
 		CE559BEF2ED99A140019BBAE /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = CE559BEE2ED99A140019BBAE /* FirebaseAnalytics */; };
 		CE559BF12ED99A1B0019BBAE /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = CE559BF02ED99A1B0019BBAE /* FirebaseCrashlytics */; };
 		CE559BF42ED9A1100019BBAE /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = CE559BF32ED9A1100019BBAE /* FirebaseAnalytics */; };
 		CE559BF62ED9A1100019BBAE /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = CE559BF52ED9A1100019BBAE /* FirebaseCrashlytics */; };
 		CE559BFB2ED9B3B50019BBAE /* IosCrashlyticsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE559BFA2ED9B36D0019BBAE /* IosCrashlyticsProvider.swift */; };
+		CEA93E322F77EFBA00A203C7 /* IosUpdateProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEA93E312F77EFBA00A203C7 /* IosUpdateProvider.swift */; };
 		CEEF7E732DC0B82E00345ABE /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = CEEF7E722DC0B82E00345ABE /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
@@ -36,6 +38,7 @@
 		CE1E25392EFEA21F00CF55D2 /* StoreKitTestCertificate.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = StoreKitTestCertificate.cer; sourceTree = "<group>"; };
 		CE27C6D32DB7433F00B4C7D0 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		CE559BFA2ED9B36D0019BBAE /* IosCrashlyticsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IosCrashlyticsProvider.swift; sourceTree = "<group>"; };
+		CEA93E312F77EFBA00A203C7 /* IosUpdateProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IosUpdateProvider.swift; sourceTree = "<group>"; };
 		CEEF7E722DC0B82E00345ABE /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -48,6 +51,7 @@
 				CE559BF62ED9A1100019BBAE /* FirebaseCrashlytics in Frameworks */,
 				CE559BF12ED99A1B0019BBAE /* FirebaseCrashlytics in Frameworks */,
 				CE559BF42ED9A1100019BBAE /* FirebaseAnalytics in Frameworks */,
+				CE4685602F781D3E00CE22C2 /* FirebaseRemoteConfig in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -106,6 +110,7 @@
 		CE41E3CC2EFCE5880093BCC2 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				CEA93E2F2F77EFA400A203C7 /* update */,
 				CE41E3CE2EFCE5BB0093BCC2 /* crashlytics */,
 				CE41E3CD2EFCE59F0093BCC2 /* iap */,
 			);
@@ -135,6 +140,14 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		CEA93E2F2F77EFA400A203C7 /* update */ = {
+			isa = PBXGroup;
+			children = (
+				CEA93E312F77EFBA00A203C7 /* IosUpdateProvider.swift */,
+			);
+			path = update;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -262,6 +275,7 @@
 			files = (
 				2152FB042600AC8F00CF470E /* iOSApp.swift in Sources */,
 				CE559BFB2ED9B3B50019BBAE /* IosCrashlyticsProvider.swift in Sources */,
+				CEA93E322F77EFBA00A203C7 /* IosUpdateProvider.swift in Sources */,
 				7555FF83242A565900829871 /* ContentView.swift in Sources */,
 				617C45D24CDCD459D052F71A /* IosPurchaseProvider.swift in Sources */,
 			);
@@ -499,6 +513,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		CE46855F2F781D3E00CE22C2 /* FirebaseRemoteConfig */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE559BF22ED9A1100019BBAE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseRemoteConfig;
+		};
 		CE559BEE2ED99A140019BBAE /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = CE559BEC2ED999D30019BBAE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
