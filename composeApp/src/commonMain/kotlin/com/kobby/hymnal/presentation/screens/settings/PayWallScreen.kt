@@ -6,6 +6,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalUriHandler
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.core.iap.PurchaseManager
@@ -19,6 +20,7 @@ class PayWallScreen(
     private val fromGatedScreen: Boolean = false,
     private val entrySource: String = "unknown"
 ) : Screen {
+    override val key = uniqueScreenKey
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
