@@ -9,7 +9,6 @@ import kotlinx.datetime.Clock
  * Tracks app usage to determine when to show donation prompts.
  * Uses a milestone-based backoff to show prompts at regular intervals.
  *
- * Non-supporters: 10, 30, 60, 100, 150 (capped) hymns
  */
 class UsageTrackingManager(private val storage: PurchaseStorage) {
 
@@ -107,7 +106,7 @@ class UsageTrackingManager(private val storage: PurchaseStorage) {
     /**
      * Check if donation prompt should be shown based on milestone-based logic.
      * Updated behavior: supporters NEVER see the paywall again (no yearly reminders).
-     * Non-supporters: 10, 30, 60, 100, 150 hymns read (capped).
+     * Non-supporters:  50 hymns read (capped).
      */
     fun shouldShowDonationPrompt(isSupporter: Boolean): Boolean {
         // Supporters should not be shown donation prompts anymore
@@ -115,7 +114,7 @@ class UsageTrackingManager(private val storage: PurchaseStorage) {
             return false
         }
 
-        // For non-supporters, use milestones (10, 30, 60, 100, 150) with a hard cap at 150
+
         val hymnsRead = storage.hymnsReadCount
         if (hymnsRead > PurchaseStorage.PROMPT_CAP_THRESHOLD) {
             return false
@@ -170,7 +169,7 @@ class UsageTrackingManager(private val storage: PurchaseStorage) {
         storage.donationPromptCount += 1
 
         // Calculate and store next threshold based on new prompt count (no supporter branch)
-        val nextThreshold = storage.calculateNextThreshold()
+        val nextThreshold = storage.getNextThreshold()
         storage.nextPromptThreshold = nextThreshold
     }
 
