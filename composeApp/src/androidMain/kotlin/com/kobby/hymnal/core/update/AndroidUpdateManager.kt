@@ -1,5 +1,6 @@
 package com.kobby.hymnal.core.update
 
+import android.content.Context
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.kobby.hymnal.BuildKonfig
@@ -9,10 +10,8 @@ import android.util.Log
 import com.kobby.hymnal.BuildConfig
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.UpdateAvailability
-import com.google.firebase.Firebase
-import com.google.firebase.app
 
-class AndroidUpdateManager : UpdateManager {
+class AndroidUpdateManager(private val context: Context) : UpdateManager {
 
     private val remoteConfig: FirebaseRemoteConfig by lazy {
         FirebaseRemoteConfig.getInstance().apply {
@@ -24,7 +23,8 @@ class AndroidUpdateManager : UpdateManager {
             setConfigSettingsAsync(configSettings)
             // Default values
             setDefaultsAsync(mapOf(
-                KEY_MIN_REQUIRED_VERSION to BuildKonfig.VERSION_NAME
+                KEY_MIN_REQUIRED_VERSION to BuildKonfig.VERSION_NAME,
+                KEY_LATEST_VERSION to BuildKonfig.VERSION_NAME
             ))
         }
     }
@@ -32,19 +32,21 @@ class AndroidUpdateManager : UpdateManager {
     override suspend fun checkForUpdates(): UpdateResult {
         val currentVersion = BuildKonfig.VERSION_NAME
 
-        val minRequiredVersion = try {
+        try {
             remoteConfig.fetchAndActivate().await()
-            remoteConfig.getString(KEY_MIN_REQUIRED_VERSION)
         } catch (e: Exception) {
-            Log.w("UpdateManager", "Remote Config fetch failed, using defaults", e)
-            BuildKonfig.VERSION_NAME
+            Log.w("UpdateManager", "Remote Config fetch failed", e)
         }
+
+        val minRequiredVersion = remoteConfig.getString(KEY_MIN_REQUIRED_VERSION)
+        val latestRemoteVersion = remoteConfig.getString(KEY_LATEST_VERSION)
 
         val isMandatory = VersionUtils.isUpdateAvailable(currentVersion, minRequiredVersion)
         val playStoreUpdate = getPlayStoreUpdateInfo()
         val isUpdateAvailable = isMandatory || playStoreUpdate.isUpdateAvailable
 
         val latestVersionDisplay = when {
+            latestRemoteVersion.isNotEmpty() && latestRemoteVersion != currentVersion -> latestRemoteVersion
             playStoreUpdate.availableVersionCode != null -> "build ${playStoreUpdate.availableVersionCode}"
             isMandatory -> minRequiredVersion
             else -> currentVersion
@@ -69,7 +71,7 @@ class AndroidUpdateManager : UpdateManager {
 
     private suspend fun getPlayStoreUpdateInfo(): PlayStoreUpdateInfo {
         return try {
-            val appUpdateManager = AppUpdateManagerFactory.create(Firebase.app.applicationContext)
+            val appUpdateManager = AppUpdateManagerFactory.create(context)
             val appUpdateInfo = appUpdateManager.appUpdateInfo.await()
 
             val availability = appUpdateInfo.updateAvailability()
@@ -94,7 +96,6 @@ class AndroidUpdateManager : UpdateManager {
 
     companion object {
         private const val KEY_MIN_REQUIRED_VERSION = "min_required_version"
+        private const val KEY_LATEST_VERSION = "latest_version"
     }
 }
-
-actual fun createUpdateManager(): UpdateManager = AndroidUpdateManager()

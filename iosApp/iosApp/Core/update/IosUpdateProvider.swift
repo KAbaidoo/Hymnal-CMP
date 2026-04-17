@@ -43,8 +43,8 @@ class IosUpdateProvider: NativeUpdateProvider {
                 }
 
                 // 1. Resolve versions from Remote Config + App Store
-                let minRequiredVersion = remoteConfig.configValue(forKey: "min_required_version").stringValue
                 let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"
+                let minRequiredVersion = remoteConfig.configValue(forKey: "min_required_version").stringValue ?? currentVersion
                 let bundleId = Bundle.main.bundleIdentifier ?? ""
 
                 Self.fetchLatestAppStoreVersion(bundleId: bundleId) { appStoreVersion in

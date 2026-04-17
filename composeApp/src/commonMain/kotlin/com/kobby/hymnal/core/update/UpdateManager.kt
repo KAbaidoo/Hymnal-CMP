@@ -40,8 +40,3 @@ interface UpdateManager {
      */
     fun getUpdateUrl(): String
 }
-
-/**
- * Expect declaration for platform-specific UpdateManager implementation.
- */
-expect fun createUpdateManager(): UpdateManager

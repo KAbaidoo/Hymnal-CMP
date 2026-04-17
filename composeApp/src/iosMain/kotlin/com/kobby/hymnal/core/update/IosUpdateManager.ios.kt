@@ -15,8 +15,6 @@ class IosUpdateManager : UpdateManager {
     }
 }
 
-actual fun createUpdateManager(): UpdateManager = IosUpdateManager()
-
 interface NativeUpdateProvider {
     suspend fun checkForUpdates(): UpdateResult
 }
