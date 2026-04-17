@@ -8,9 +8,7 @@
 
 import ComposeApp
 import Foundation
-import FirebaseRemoteConfig
-
-
+@preconcurrency import FirebaseRemoteConfig
 
 class IosUpdateProvider: NativeUpdateProvider {
     
@@ -29,7 +27,6 @@ class IosUpdateProvider: NativeUpdateProvider {
         
         let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"
         let defaults: [String: NSObject] = [
-            "latest_version": currentVersion as NSString,
             "min_required_version": currentVersion as NSString
             ]
         
@@ -39,37 +36,87 @@ class IosUpdateProvider: NativeUpdateProvider {
     func checkForUpdates() async throws -> UpdateResult {
         
         return try await withCheckedThrowingContinuation { continuation in
-            remoteConfig.fetchAndActivate { [weak self] status, error in
-                guard let self = self else { return }
-                
+            let remoteConfig = self.remoteConfig
+            remoteConfig.fetchAndActivate { _, error in
                 if let error = error {
-                    continuation.resume(returning: UpdateResult.Error(message: error.localizedDescription))
-                    return
+                    print("Remote Config fetch failed (iOS), proceeding with defaults: \(error.localizedDescription)")
                 }
-                
-                // 1. Fetch values from Firebase
-                let latestVersion = self.remoteConfig.configValue(forKey: "latest_version").stringValue ?? "0.0.0"
-                let minRequiredVersion = self.remoteConfig.configValue(forKey: "min_required_version").stringValue ?? "0.0.0"
-                
-                // 2. Get current version
+
+                // 1. Resolve versions from Remote Config + App Store
                 let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"
-                
-                print("Checking for updates (iOS): current=\(currentVersion), latest=\(latestVersion), minRequired=\(minRequiredVersion)")
-                
-                // 3. Use shared VersionUtils logic
-                let isUpdateAvailable = VersionUtils.shared.isUpdateAvailable(current: currentVersion, latest: latestVersion)
-                let isMandatory = VersionUtils.shared.isUpdateAvailable(current: currentVersion, latest: minRequiredVersion)
-                
-                // 4. Map back to Kotlin Sealed Class types
-                if isUpdateAvailable {
-                    continuation.resume(returning: UpdateResult.UpdateAvailable(latestVersion: latestVersion, isMandatory: isMandatory))
-                } else {
-                    continuation.resume(returning: UpdateResult.UpToDate())
+                let minRequiredVersion = remoteConfig.configValue(forKey: "min_required_version").stringValue ?? currentVersion
+                let bundleId = Bundle.main.bundleIdentifier ?? ""
+
+                Self.fetchLatestAppStoreVersion(bundleId: bundleId) { appStoreVersion in
+                    // 2. Compute update state
+                    let isMandatory = VersionUtils.shared.isUpdateAvailable(current: currentVersion, latest: minRequiredVersion)
+                    let isStoreUpdateAvailable = appStoreVersion.map {
+                        VersionUtils.shared.isUpdateAvailable(current: currentVersion, latest: $0)
+                    } ?? false
+
+                    let latestVersionForPrompt = appStoreVersion ?? minRequiredVersion
+
+                    print(
+                        "Checking for updates (iOS): current=\(currentVersion), appStore=\(appStoreVersion ?? "n/a"), " +
+                        "minRequired=\(minRequiredVersion), mandatory=\(isMandatory)"
+                    )
+
+                    if isMandatory || isStoreUpdateAvailable {
+                        continuation.resume(
+                            returning: UpdateResult.UpdateAvailable(
+                                latestVersion: latestVersionForPrompt,
+                                isMandatory: isMandatory
+                            )
+                        )
+                    } else {
+                        continuation.resume(returning: UpdateResult.UpToDate())
+                    }
                 }
             }
         }
     }
 
+    private static func fetchLatestAppStoreVersion(bundleId: String, completion: @escaping (String?) -> Void) {
+        guard !bundleId.isEmpty else {
+            completion(nil)
+            return
+        }
+
+        let endpoint = "https://itunes.apple.com/lookup?bundleId=\(bundleId)"
+        guard let encoded = endpoint.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+              let url = URL(string: encoded) else {
+            completion(nil)
+            return
+        }
+
+        URLSession.shared.dataTask(with: url) { data, _, error in
+            if let error = error {
+                print("App Store lookup failed (iOS): \(error.localizedDescription)")
+                completion(nil)
+                return
+            }
+
+            guard let data = data else {
+                completion(nil)
+                return
+            }
+
+            do {
+                let response = try JSONDecoder().decode(AppStoreLookupResponse.self, from: data)
+                completion(response.results.first?.version)
+            } catch {
+                print("App Store lookup decode failed (iOS): \(error.localizedDescription)")
+                completion(nil)
+            }
+        }.resume()
+    }
+    
+    private struct AppStoreLookupResponse: Decodable {
+        let results: [AppStoreLookupResult]
+    }
+    
+    private struct AppStoreLookupResult: Decodable {
+        let version: String
+    }
     
 }
-

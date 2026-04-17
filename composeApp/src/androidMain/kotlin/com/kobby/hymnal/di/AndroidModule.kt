@@ -7,6 +7,8 @@ import com.kobby.hymnal.core.database.createDatabase
 import com.kobby.hymnal.core.review.AndroidReviewManager
 import com.kobby.hymnal.core.review.ReviewManager
 import com.kobby.hymnal.core.sharing.ShareManager
+import com.kobby.hymnal.core.update.AndroidUpdateManager
+import com.kobby.hymnal.core.update.UpdateManager
 import kotlinx.coroutines.runBlocking
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
@@ -18,4 +20,5 @@ val androidModule = module {
     single<DatabaseInitializer> { DatabaseInitializer(androidContext()) }
     single<ShareManager> { ShareManager(androidContext()) }
     single<ReviewManager> { AndroidReviewManager(androidContext(), get()) }
+    single<UpdateManager> { AndroidUpdateManager(androidContext()) }
 }

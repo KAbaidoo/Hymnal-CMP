@@ -48,6 +48,7 @@ kotlin {
             implementation(libs.koin.androidx.compose)
             implementation(libs.billing.ktx)
             implementation(libs.play.review)
+            implementation(libs.play.app.update)
         }
 
         commonMain.dependencies {
