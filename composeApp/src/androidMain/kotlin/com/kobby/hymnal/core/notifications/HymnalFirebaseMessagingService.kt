@@ -7,14 +7,14 @@ import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.kobby.hymnal.MainActivity
-import com.kobby.hymnal.core.trace.AndroidTraceManager
 import com.kobby.hymnal.core.trace.TraceEvents
+import com.kobby.hymnal.core.trace.TraceManager
 import com.kobby.hymnal.core.trace.traceParams
 import com.russhwolf.settings.Settings
 
 class HymnalFirebaseMessagingService : FirebaseMessagingService() {
 
-    private val traceManager = AndroidTraceManager()
+    private val traceManager: TraceManager by lazy { org.koin.core.context.GlobalContext.get().get() }
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
@@ -63,6 +63,6 @@ class HymnalFirebaseMessagingService : FirebaseMessagingService() {
             .build()
 
         val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        manager.notify(2001, notification)
+        manager.notify(message.messageId?.hashCode() ?: 2001, notification)
     }
 }
