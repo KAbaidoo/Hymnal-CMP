@@ -13,16 +13,24 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.kobby.hymnal.core.crashlytics.CrashlyticsManager
 import com.kobby.hymnal.core.iap.BillingHelper
 import com.kobby.hymnal.core.iap.PurchaseManager
+import com.kobby.hymnal.core.trace.TraceEvents
+import com.kobby.hymnal.core.trace.TraceManager
+import com.kobby.hymnal.core.trace.traceParams
 import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
     
+    private val traceManager: TraceManager by inject()
+    private val purchaseManager: PurchaseManager by inject()
+    private val crashlytics: CrashlyticsManager by inject()
+    private val billingHelper: BillingHelper by inject()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // Initialize subscription manager for trial tracking and entitlement state
-        val purchaseManager: PurchaseManager by inject()
         purchaseManager.initialize()
+        logNotificationOpenIfPresent()
 
         // Set custom keys for Crashlytics context (release builds only)
         setupCrashlyticsKeys()
@@ -48,11 +56,22 @@ class MainActivity : ComponentActivity() {
             HymnalApp()
         }
     }
+
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        logNotificationOpenIfPresent(intent)
+    }
+
+    private fun logNotificationOpenIfPresent(currentIntent: android.content.Intent? = intent) {
+        val category = currentIntent?.getStringExtra("notification_category") ?: return
+        traceManager.track(
+            TraceEvents.NOTIFICATION_OPENED,
+            traceParams("category" to category)
+        )
+    }
     
     private fun setupCrashlyticsKeys() {
-        // Get crashlytics from Koin after initialization
-        val crashlytics: CrashlyticsManager by inject()
-        
         // Set app version
         crashlytics.setCustomKey("app_version", BuildKonfig.VERSION_NAME)
         crashlytics.setCustomKey("version_code", BuildKonfig.VERSION_CODE)
@@ -65,7 +84,6 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         // Clean up billing client connection
-        val billingHelper: BillingHelper by inject()
         billingHelper.endConnection()
     }
 }
@@ -75,4 +93,3 @@ class MainActivity : ComponentActivity() {
 fun AppAndroidPreview() {
     HymnalApp()
 }
-

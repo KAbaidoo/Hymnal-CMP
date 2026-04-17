@@ -43,6 +43,8 @@ kotlin {
             implementation(libs.firebase.analytics)
             implementation(libs.firebase.crashlytics)
             implementation(libs.firebase.config)
+            implementation(libs.firebase.messaging)
+            implementation(libs.androidx.work.runtime)
             implementation(libs.sqldelight.android)
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)

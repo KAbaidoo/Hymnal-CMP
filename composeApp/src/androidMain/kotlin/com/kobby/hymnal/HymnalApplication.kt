@@ -7,6 +7,7 @@ import com.kobby.hymnal.core.util.ActivityProvider
 import com.kobby.hymnal.di.androidModule
 import com.kobby.hymnal.di.crashlyticsModule
 import com.kobby.hymnal.di.databaseModule
+import com.kobby.hymnal.di.notificationModule
 import com.kobby.hymnal.di.settingsModule
 import com.kobby.hymnal.di.subscriptionModule
 import com.kobby.hymnal.di.traceModule
@@ -37,6 +38,7 @@ class HymnalApplication : Application() {
                 subscriptionModule,
                 traceModule,
                 updateModule,
+                notificationModule,
                 module { single { activityProvider } } // Register ActivityProvider in Koin
             )
         }

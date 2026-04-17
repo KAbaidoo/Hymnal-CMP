@@ -33,6 +33,7 @@ appdistribution = "3.0.1"
 buildkonfig = "0.17.1"
 firebase-crashlytics-plugin = "3.0.2"
 desugar-jdk-libs = "2.1.5"
+work-runtime = "2.9.0"
 
 [libraries]
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
@@ -62,6 +63,8 @@ firebase-common = { module = "com.google.firebase:firebase-common-ktx" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics-ktx" }
 firebase-config = { module = "com.google.firebase:firebase-config-ktx" }
+firebase-messaging = { module = "com.google.firebase:firebase-messaging-ktx" }
+androidx-work-runtime = { module = "androidx.work:work-runtime-ktx", version.ref = "work-runtime" }
 kotlinx-coroutines = {group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kolinx-coroutines"}
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
 koin-core = { module = "io.insert-koin:koin-core" }

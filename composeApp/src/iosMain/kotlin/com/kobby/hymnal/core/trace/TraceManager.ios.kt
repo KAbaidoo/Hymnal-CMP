@@ -1,5 +1,6 @@
 package com.kobby.hymnal.core.trace
 
+import com.kobby.hymnal.core.notifications.NotificationCategory
 import platform.Foundation.NSLog
 
 /**
@@ -36,4 +37,39 @@ fun initializeNativeTraceProvider(
 ) {
     nativeTraceProvider = provider
     isTraceDebugLoggingEnabled = debugLoggingEnabled
+}
+
+fun trackIosNotificationReceived(
+    category: String,
+    messageId: String? = null,
+    source: String? = null
+) {
+    val traceManager = createTraceManager()
+    traceManager.track(
+        TraceEvents.NOTIFICATION_RECEIVED,
+        traceParams("category" to category)
+    )
+
+    if (category == NotificationCategory.CAMPAIGN.name.lowercase()) {
+        traceManager.track(
+            TraceEvents.CAMPAIGN_RECEIVED,
+            traceParams(
+                "message_id" to (messageId ?: "unknown"),
+                "from" to (source ?: "unknown")
+            )
+        )
+    }
+}
+
+fun trackIosNotificationOpened(
+    category: String,
+    notificationId: String? = null
+) {
+    createTraceManager().track(
+        TraceEvents.NOTIFICATION_OPENED,
+        traceParams(
+            "category" to category,
+            "notification_id" to notificationId
+        )
+    )
 }
