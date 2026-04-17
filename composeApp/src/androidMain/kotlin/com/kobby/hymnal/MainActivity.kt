@@ -13,6 +13,9 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.kobby.hymnal.core.crashlytics.CrashlyticsManager
 import com.kobby.hymnal.core.iap.BillingHelper
 import com.kobby.hymnal.core.iap.PurchaseManager
+import com.kobby.hymnal.core.trace.TraceEvents
+import com.kobby.hymnal.core.trace.TraceManager
+import com.kobby.hymnal.core.trace.traceParams
 import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
@@ -23,6 +26,7 @@ class MainActivity : ComponentActivity() {
         // Initialize subscription manager for trial tracking and entitlement state
         val purchaseManager: PurchaseManager by inject()
         purchaseManager.initialize()
+        logNotificationOpenIfPresent()
 
         // Set custom keys for Crashlytics context (release builds only)
         setupCrashlyticsKeys()
@@ -47,6 +51,15 @@ class MainActivity : ComponentActivity() {
 
             HymnalApp()
         }
+    }
+
+    private fun logNotificationOpenIfPresent() {
+        val category = intent?.getStringExtra("notification_category") ?: return
+        val traceManager: TraceManager by inject()
+        traceManager.track(
+            TraceEvents.NOTIFICATION_OPENED,
+            traceParams("category" to category)
+        )
     }
     
     private fun setupCrashlyticsKeys() {
@@ -75,4 +88,3 @@ class MainActivity : ComponentActivity() {
 fun AppAndroidPreview() {
     HymnalApp()
 }
-

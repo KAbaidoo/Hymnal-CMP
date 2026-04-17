@@ -9,6 +9,7 @@ import com.kobby.hymnal.di.settingsModule
 import com.kobby.hymnal.di.subscriptionModule
 import com.kobby.hymnal.di.traceModule
 import com.kobby.hymnal.di.updateModule
+import com.kobby.hymnal.di.notificationModule
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.context.startKoin
@@ -27,7 +28,8 @@ fun MainViewController() = ComposeUIViewController {
                 crashlyticsModule,
                 subscriptionModule,
                 traceModule,
-                updateModule
+                updateModule,
+                notificationModule
             )
         }
     } catch (e: Exception) {

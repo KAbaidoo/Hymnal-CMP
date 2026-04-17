@@ -11,6 +11,11 @@ object TraceEvents {
     const val MORE_MENU_NAVIGATION = "more_menu_navigation"
     const val HISTORY_MANAGEMENT = "history_management"
     const val SUPPORT_FUNNEL = "support_funnel"
+    const val NOTIFICATION_SCHEDULED = "notification_scheduled"
+    const val NOTIFICATION_RECEIVED = "notification_received"
+    const val NOTIFICATION_OPENED = "notification_opened"
+    const val NOTIFICATION_OPT_CHANGED = "notification_opt_changed"
+    const val CAMPAIGN_RECEIVED = "campaign_received"
 }
 
 fun traceParams(vararg pairs: Pair<String, Any?>): Map<String, String> {
@@ -22,4 +27,3 @@ fun traceParams(vararg pairs: Pair<String, Any?>): Map<String, String> {
         }
     }
 }
-
