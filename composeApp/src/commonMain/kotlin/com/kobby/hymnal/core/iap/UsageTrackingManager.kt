@@ -106,7 +106,7 @@ class UsageTrackingManager(private val storage: PurchaseStorage) {
     /**
      * Check if donation prompt should be shown based on milestone-based logic.
      * Updated behavior: supporters NEVER see the paywall again (no yearly reminders).
-     * Non-supporters:  50 hymns read (capped).
+     * Non-supporters: 10, 20, 30, 38, 45, 50 hymns read (capped).
      */
     fun shouldShowDonationPrompt(isSupporter: Boolean): Boolean {
         // Supporters should not be shown donation prompts anymore
@@ -114,7 +114,7 @@ class UsageTrackingManager(private val storage: PurchaseStorage) {
             return false
         }
 
-
+        // For non-supporters, use milestones (10, 20, 30, 38, 45, 50) with a hard cap at 50
         val hymnsRead = storage.hymnsReadCount
         if (hymnsRead > PurchaseStorage.PROMPT_CAP_THRESHOLD) {
             return false
