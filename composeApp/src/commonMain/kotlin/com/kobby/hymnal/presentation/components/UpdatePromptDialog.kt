@@ -31,9 +31,9 @@ fun UpdatePromptDialog(
         text = {
             Text(
                 text = if (isMandatory) {
-                    "A critical update (v$latestVersion) is available. You must update the app to continue using it."
+                    "A critical update ($latestVersion) is available. You must update the app to continue using it."
                 } else {
-                    "A new version (v$latestVersion) of the Anglican Hymnal is available. Update now to get the latest features and bug fixes!"
+                    "An update ($latestVersion) of the Anglican Hymnal is available. Update now to get the latest features and bug fixes!"
                 },
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface
