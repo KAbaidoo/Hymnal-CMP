@@ -34,7 +34,7 @@ class PurchaseStorage(private val settings: Settings) {
         private const val KEY_NEXT_PROMPT_THRESHOLD = "next_prompt_threshold"
         private const val KEY_LAST_RESET_TIMESTAMP = "last_reset_timestamp"
 
-        const val PROMPT_CAP_THRESHOLD = 150
+        const val PROMPT_CAP_THRESHOLD = 60
     }
 
     /**
@@ -205,16 +205,15 @@ class PurchaseStorage(private val settings: Settings) {
     }
 
     /**
-     * Calculate the next prompt threshold based on prompt count.
-     * Milestones: 10, 30 (10+20), 60 (30+30), 100 (60+40), 150 (100+50)
+     * Get the next prompt threshold based on prompt count.
      */
-    fun calculateNextThreshold(): Int {
+    fun getNextThreshold(): Int {
         return when (donationPromptCount) {
-            1 -> 30
-            2 -> 60
-            3 -> 100
-            4 -> 150
-            else -> 200 // Cap handled in UsageTrackingManager
+            1 -> 20
+            2 -> 30
+            3 -> 40
+            4 -> 50
+            else -> PROMPT_CAP_THRESHOLD // Cap handled in UsageTrackingManager
         }
     }
 
