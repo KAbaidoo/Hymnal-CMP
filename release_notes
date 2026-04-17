@@ -86,3 +86,8 @@
 
 0.10.0
 - Add in-app review with smart review prompt strategy (Fresh Engagement + 90-day Cooldown)
+
+0.11.0
+- Adjust donation prompt threshold and caps.
+- Add notification nudges
+- Add update prompt.
