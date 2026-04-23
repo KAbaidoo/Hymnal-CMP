@@ -54,17 +54,14 @@ class IosUpdateProvider: NativeUpdateProvider {
                         VersionUtils.shared.isUpdateAvailable(current: currentVersion, latest: $0)
                     } ?? false
 
-                    let latestVersionForPrompt = appStoreVersion ?? minRequiredVersion
-
                     print(
                         "Checking for updates (iOS): current=\(currentVersion), appStore=\(appStoreVersion ?? "n/a"), " +
                         "minRequired=\(minRequiredVersion), mandatory=\(isMandatory)"
                     )
 
-                    if isMandatory || isStoreUpdateAvailable {
+                    if (isMandatory || isStoreUpdateAvailable) {
                         continuation.resume(
                             returning: UpdateResult.UpdateAvailable(
-                                latestVersion: latestVersionForPrompt,
                                 isMandatory: isMandatory
                             )
                         )

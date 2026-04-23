@@ -10,7 +10,6 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun UpdatePromptDialog(
-    latestVersion: String,
     isMandatory: Boolean,
     onUpdateClick: () -> Unit,
     onDismissClick: () -> Unit
@@ -31,9 +30,9 @@ fun UpdatePromptDialog(
         text = {
             Text(
                 text = if (isMandatory) {
-                    "A critical update ($latestVersion) is available. You must update the app to continue using it."
+                    "A critical update is available. You must update the app to continue using it."
                 } else {
-                    "An update ($latestVersion) of the Anglican Hymnal is available. Update now to get the latest features and bug fixes!"
+                    "An update of the Anglican Hymnal is available. Update now to get the latest features and bug fixes!"
                 },
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface
@@ -67,7 +66,6 @@ fun UpdatePromptDialog(
 fun UpdatePromptDialogDarkPreview(){
     HymnalAppTheme() {
         UpdatePromptDialog(
-            latestVersion = "1.0.0",
             isMandatory = false,
             onUpdateClick = {},
             onDismissClick = {}
@@ -79,7 +77,6 @@ fun UpdatePromptDialogDarkPreview(){
 fun UpdatePromptDialogLightPreview(){
     HymnalAppTheme(darkTheme = true) {
         UpdatePromptDialog(
-            latestVersion = "1.0.0",
             isMandatory = true,
             onUpdateClick = {},
             onDismissClick = {}

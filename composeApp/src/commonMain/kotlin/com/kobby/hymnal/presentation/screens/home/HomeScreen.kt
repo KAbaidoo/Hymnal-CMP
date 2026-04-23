@@ -101,26 +101,23 @@ class HomeScreen : Screen {
 
         updateResult?.let { result ->
             if (result is UpdateResult.UpdateAvailable) {
-                LaunchedEffect(result.latestVersion, result.isMandatory) {
+                LaunchedEffect(result.isMandatory) {
                     traceManager.track(
                         TraceEvents.UPDATE_PROMPT_INTERACTION,
                         traceParams(
                             "action" to "shown",
-                            "mandatory" to result.isMandatory,
-                            "latest_version" to result.latestVersion
+                            "mandatory" to result.isMandatory
                         )
                     )
                 }
                 UpdatePromptDialog(
-                    latestVersion = result.latestVersion,
                     isMandatory = result.isMandatory,
                     onUpdateClick = {
                         traceManager.track(
                             TraceEvents.UPDATE_PROMPT_INTERACTION,
                             traceParams(
                                 "action" to "update_now",
-                                "mandatory" to result.isMandatory,
-                                "latest_version" to result.latestVersion
+                                "mandatory" to result.isMandatory
                             )
                         )
                         uriHandler.openUri(updateManager.getUpdateUrl())
@@ -130,8 +127,7 @@ class HomeScreen : Screen {
                             TraceEvents.UPDATE_PROMPT_INTERACTION,
                             traceParams(
                                 "action" to "later",
-                                "mandatory" to result.isMandatory,
-                                "latest_version" to result.latestVersion
+                                "mandatory" to result.isMandatory
                             )
                         )
                         updateResult = null

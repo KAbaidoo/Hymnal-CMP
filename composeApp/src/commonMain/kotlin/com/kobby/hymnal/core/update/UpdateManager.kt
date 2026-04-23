@@ -11,11 +11,9 @@ sealed class UpdateResult {
 
     /**
      * A new version is available.
-     * @property latestVersion The version name of the latest update.
      * @property isMandatory True if the user must update to continue using the app.
      */
     data class UpdateAvailable(
-        val latestVersion: String,
         val isMandatory: Boolean
     ) : UpdateResult()
 

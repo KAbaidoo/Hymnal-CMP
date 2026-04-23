@@ -23,8 +23,7 @@ class AndroidUpdateManager(private val context: Context) : UpdateManager {
             setConfigSettingsAsync(configSettings)
             // Default values
             setDefaultsAsync(mapOf(
-                KEY_MIN_REQUIRED_VERSION to BuildKonfig.VERSION_NAME,
-                KEY_LATEST_VERSION to BuildKonfig.VERSION_NAME
+                KEY_MIN_REQUIRED_VERSION to BuildKonfig.VERSION_NAME
             ))
         }
     }
@@ -39,18 +38,10 @@ class AndroidUpdateManager(private val context: Context) : UpdateManager {
         }
 
         val minRequiredVersion = remoteConfig.getString(KEY_MIN_REQUIRED_VERSION)
-        val latestRemoteVersion = remoteConfig.getString(KEY_LATEST_VERSION)
 
         val isMandatory = VersionUtils.isUpdateAvailable(currentVersion, minRequiredVersion)
         val playStoreUpdate = getPlayStoreUpdateInfo()
         val isUpdateAvailable = isMandatory || playStoreUpdate.isUpdateAvailable
-
-        val latestVersionDisplay = when {
-            latestRemoteVersion.isNotEmpty() && latestRemoteVersion != currentVersion -> latestRemoteVersion
-            playStoreUpdate.availableVersionCode != null -> "build ${playStoreUpdate.availableVersionCode}"
-            isMandatory -> minRequiredVersion
-            else -> currentVersion
-        }
 
         Log.d(
             "UpdateManager",
@@ -59,7 +50,7 @@ class AndroidUpdateManager(private val context: Context) : UpdateManager {
         )
 
         return if (isUpdateAvailable) {
-            UpdateResult.UpdateAvailable(latestVersionDisplay, isMandatory)
+            UpdateResult.UpdateAvailable(isMandatory)
         } else {
             UpdateResult.UpToDate
         }
@@ -96,6 +87,5 @@ class AndroidUpdateManager(private val context: Context) : UpdateManager {
 
     companion object {
         private const val KEY_MIN_REQUIRED_VERSION = "min_required_version"
-        private const val KEY_LATEST_VERSION = "latest_version"
     }
 }
