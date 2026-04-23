@@ -10,29 +10,33 @@ import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.UpdateAvailability
 import kotlinx.coroutines.tasks.await
 
-class AndroidUpdateManager(
-    private val context: Context,
-    private val remoteConfigManager: RemoteConfigManager
-) : UpdateManager {
+class AndroidUpdateManager(private val context: Context) : UpdateManager {
+
+    private val remoteConfig: FirebaseRemoteConfig by lazy {
+        FirebaseRemoteConfig.getInstance().apply {
+
+            val minFetchInterval = if (BuildConfig.DEBUG) 0L else  43200L // 12 hours
+            val configSettings = FirebaseRemoteConfigSettings.Builder()
+                .setMinimumFetchIntervalInSeconds(minFetchInterval)
+                .build()
+            setConfigSettingsAsync(configSettings)
+            // Default values
+            setDefaultsAsync(mapOf(
+                KEY_MIN_REQUIRED_VERSION to BuildKonfig.VERSION_NAME
+            ))
+        }
+    }
 
     override suspend fun checkForUpdates(): UpdateResult {
         val currentVersion = BuildKonfig.VERSION_NAME
 
         remoteConfigManager.fetchAndActivate()
 
-        val minRequiredVersion = remoteConfigManager.getString(KEY_MIN_REQUIRED_VERSION, currentVersion)
-        val latestRemoteVersion = remoteConfigManager.getString(KEY_LATEST_VERSION, currentVersion)
+        val minRequiredVersion = remoteConfig.getString(KEY_MIN_REQUIRED_VERSION)
 
         val isMandatory = VersionUtils.isUpdateAvailable(currentVersion, minRequiredVersion)
         val playStoreUpdate = getPlayStoreUpdateInfo()
         val isUpdateAvailable = isMandatory || playStoreUpdate.isUpdateAvailable
-
-        val latestVersionDisplay = when {
-            latestRemoteVersion.isNotEmpty() && latestRemoteVersion != currentVersion -> latestRemoteVersion
-            playStoreUpdate.availableVersionCode != null -> "build ${playStoreUpdate.availableVersionCode}"
-            isMandatory -> minRequiredVersion
-            else -> currentVersion
-        }
 
         Log.d(
             "UpdateManager",
@@ -41,7 +45,7 @@ class AndroidUpdateManager(
         )
 
         return if (isUpdateAvailable) {
-            UpdateResult.UpdateAvailable(latestVersionDisplay, isMandatory)
+            UpdateResult.UpdateAvailable(isMandatory)
         } else {
             UpdateResult.UpToDate
         }
@@ -78,6 +82,5 @@ class AndroidUpdateManager(
 
     companion object {
         private const val KEY_MIN_REQUIRED_VERSION = "min_required_version"
-        private const val KEY_LATEST_VERSION = "latest_version"
     }
 }
