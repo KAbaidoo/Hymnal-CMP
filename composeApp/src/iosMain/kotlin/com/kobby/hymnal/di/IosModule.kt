@@ -1,5 +1,7 @@
 package com.kobby.hymnal.di
 
+import com.kobby.hymnal.core.config.IosRemoteConfigManager
+import com.kobby.hymnal.core.config.RemoteConfigManager
 import com.kobby.hymnal.core.database.DatabaseHelper
 import com.kobby.hymnal.core.database.DatabaseInitializer
 import com.kobby.hymnal.core.database.DriverFactory
@@ -20,4 +22,5 @@ val iosModule = module {
     single<ShareManager> { ShareManager() }
     single<ReviewManager> { IosReviewManager() }
     single<UpdateManager> { IosUpdateManager() }
+    single<RemoteConfigManager> { IosRemoteConfigManager() }
 }

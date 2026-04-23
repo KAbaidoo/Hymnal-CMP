@@ -15,6 +15,13 @@ class SeasonalReminderWorker(
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
+        val preferences = NotificationPreferences(com.russhwolf.settings.Settings())
+        val settings = preferences.notificationSettings.value
+
+        if (!settings.enabled || !settings.seasonalEnabled) {
+            return Result.success()
+        }
+
         if (ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.POST_NOTIFICATIONS
@@ -27,18 +34,33 @@ class SeasonalReminderWorker(
             ?: "Seasonal hymns"
         val body = inputData.getString(AndroidNotificationWorkScheduler.KEY_BODY)
             ?: "Open Hymnal for today’s service."
+        val eventId = inputData.getString(AndroidNotificationWorkScheduler.KEY_EVENT_ID) ?: "301"
 
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
+            flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra("notification_category", NotificationCategory.SEASONAL.name.lowercase())
+            putExtra("event_id", eventId)
+        }
+
+        val pendingIntent = android.app.PendingIntent.getActivity(
+            context,
+            eventId.hashCode(),
+            intent,
+            android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+        )
 
         val notification = NotificationCompat.Builder(context, NotificationChannels.SEASONAL)
             .setContentTitle(title)
             .setContentText(body)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
             .build()
 
-        notificationManager.notify(inputData.getString(AndroidNotificationWorkScheduler.KEY_EVENT_ID)?.hashCode() ?: 301, notification)
+        notificationManager.notify(eventId.hashCode(), notification)
         return Result.success()
     }
 }

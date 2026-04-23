@@ -1,45 +1,27 @@
 package com.kobby.hymnal.core.update
 
 import android.content.Context
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.kobby.hymnal.BuildKonfig
+import com.kobby.hymnal.core.config.RemoteConfigManager
 import com.kobby.hymnal.core.sharing.ShareConstants
-import kotlinx.coroutines.tasks.await
 import android.util.Log
 import com.kobby.hymnal.BuildConfig
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.UpdateAvailability
+import kotlinx.coroutines.tasks.await
 
-class AndroidUpdateManager(private val context: Context) : UpdateManager {
-
-    private val remoteConfig: FirebaseRemoteConfig by lazy {
-        FirebaseRemoteConfig.getInstance().apply {
-
-            val minFetchInterval = if (BuildConfig.DEBUG) 0L else  43200L // 12 hours
-            val configSettings = FirebaseRemoteConfigSettings.Builder()
-                .setMinimumFetchIntervalInSeconds(minFetchInterval)
-                .build()
-            setConfigSettingsAsync(configSettings)
-            // Default values
-            setDefaultsAsync(mapOf(
-                KEY_MIN_REQUIRED_VERSION to BuildKonfig.VERSION_NAME,
-                KEY_LATEST_VERSION to BuildKonfig.VERSION_NAME
-            ))
-        }
-    }
+class AndroidUpdateManager(
+    private val context: Context,
+    private val remoteConfigManager: RemoteConfigManager
+) : UpdateManager {
 
     override suspend fun checkForUpdates(): UpdateResult {
         val currentVersion = BuildKonfig.VERSION_NAME
 
-        try {
-            remoteConfig.fetchAndActivate().await()
-        } catch (e: Exception) {
-            Log.w("UpdateManager", "Remote Config fetch failed", e)
-        }
+        remoteConfigManager.fetchAndActivate()
 
-        val minRequiredVersion = remoteConfig.getString(KEY_MIN_REQUIRED_VERSION)
-        val latestRemoteVersion = remoteConfig.getString(KEY_LATEST_VERSION)
+        val minRequiredVersion = remoteConfigManager.getString(KEY_MIN_REQUIRED_VERSION, currentVersion)
+        val latestRemoteVersion = remoteConfigManager.getString(KEY_LATEST_VERSION, currentVersion)
 
         val isMandatory = VersionUtils.isUpdateAvailable(currentVersion, minRequiredVersion)
         val playStoreUpdate = getPlayStoreUpdateInfo()

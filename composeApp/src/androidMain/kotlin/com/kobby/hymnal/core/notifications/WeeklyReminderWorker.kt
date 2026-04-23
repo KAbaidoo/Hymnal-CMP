@@ -18,7 +18,7 @@ class WeeklyReminderWorker(
         val preferences = NotificationPreferences(com.russhwolf.settings.Settings())
         val settings = preferences.notificationSettings.value
 
-        if (!settings.enabled) {
+        if (!settings.enabled || !settings.weeklyEnabled) {
             return Result.success()
         }
 
@@ -33,11 +33,24 @@ class WeeklyReminderWorker(
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
+        val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
+            flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra("notification_category", NotificationCategory.WEEKLY.name.lowercase())
+        }
+
+        val pendingIntent = android.app.PendingIntent.getActivity(
+            context,
+            101,
+            intent,
+            android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+        )
+
         val notification = NotificationCompat.Builder(context, NotificationChannels.WEEKLY)
-            .setContentTitle(NotificationDefaults.WEEKLY_TITLE)
-            .setContentText(NotificationDefaults.WEEKLY_BODY)
+            .setContentTitle(settings.weeklyTitle)
+            .setContentText(settings.weeklyBody)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
             .build()
 
         notificationManager.notify(101, notification)
