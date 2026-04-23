@@ -91,3 +91,10 @@
 - Adjust donation prompt threshold and caps.
 - Add notification nudges
 - Add update prompt.
+
+0.11.1
+- Android Notification Fix: Added PendingIntent to all notification workers so tapping a notification correctly launches the app.
+- Firebase Remote Config Integration: Created a shared RemoteConfigManager to dynamically control notification settings (enabled/disabled, messages, and inactivity duration).
+- Preference Storage: Updated NotificationPreferences to persist Remote Config values for reliable offline access by background workers.
+- Documentation: Added a detailed Remote Config Setup Guide (docs/REMOTE_CONFIG_SETUP_GUIDE.md) for configuring keys in the Firebase Console.
+- DI & Refactoring: Updated Koin modules and refactored AndroidUpdateManager to use the new config infrastructure.
