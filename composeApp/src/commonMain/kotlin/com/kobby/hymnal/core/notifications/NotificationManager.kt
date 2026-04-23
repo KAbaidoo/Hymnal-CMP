@@ -1,9 +1,9 @@
 package com.kobby.hymnal.core.notifications
 
 interface NotificationManager {
-    fun scheduleWeekly()
-    fun scheduleInactivity()
-    fun scheduleSeasonal()
+    fun scheduleWeekly(settings: NotificationSettings)
+    fun scheduleInactivity(settings: NotificationSettings)
+    fun scheduleSeasonal(settings: NotificationSettings)
     fun syncCampaignSubscription()
     fun cancelAll()
     fun requestPermission()

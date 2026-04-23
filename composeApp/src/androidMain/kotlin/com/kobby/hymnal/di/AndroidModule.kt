@@ -1,5 +1,7 @@
 package com.kobby.hymnal.di
 
+import com.kobby.hymnal.core.config.AndroidRemoteConfigManager
+import com.kobby.hymnal.core.config.RemoteConfigManager
 import com.kobby.hymnal.core.database.DatabaseHelper
 import com.kobby.hymnal.core.database.DatabaseInitializer
 import com.kobby.hymnal.core.database.DriverFactory
@@ -20,5 +22,6 @@ val androidModule = module {
     single<DatabaseInitializer> { DatabaseInitializer(androidContext()) }
     single<ShareManager> { ShareManager(androidContext()) }
     single<ReviewManager> { AndroidReviewManager(androidContext(), get()) }
-    single<UpdateManager> { AndroidUpdateManager(androidContext()) }
+    single<UpdateManager> { AndroidUpdateManager(androidContext(), get()) }
+    single<RemoteConfigManager> { AndroidRemoteConfigManager() }
 }

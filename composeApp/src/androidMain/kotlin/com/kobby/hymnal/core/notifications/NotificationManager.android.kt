@@ -69,9 +69,8 @@ class AndroidNotificationManagerImpl(
         )
     }
 
-    override fun scheduleWeekly() {
-        val settings = preferences.notificationSettings.value
-        if (!settings.enabled) {
+    override fun scheduleWeekly(settings: NotificationSettings) {
+        if (!settings.enabled || !settings.weeklyEnabled) {
             WorkManager.getInstance(context).cancelUniqueWork(NotificationWorkNames.WEEKLY_ONE_TIME)
             return
         }
@@ -83,9 +82,8 @@ class AndroidNotificationManagerImpl(
         )
     }
 
-    override fun scheduleInactivity() {
-        val settings = preferences.notificationSettings.value
-        if (!settings.enabled) {
+    override fun scheduleInactivity(settings: NotificationSettings) {
+        if (!settings.enabled || !settings.inactivityEnabled) {
             WorkManager.getInstance(context).cancelUniqueWork(NotificationWorkNames.INACTIVITY_ONE_TIME)
             return
         }
@@ -93,13 +91,12 @@ class AndroidNotificationManagerImpl(
         AndroidNotificationWorkScheduler.scheduleInactivity(
             context = context,
             lastActiveMillis = settings.lastActiveTimestampMs,
-            inactivityDays = NotificationDefaults.INACTIVITY_DAYS
+            inactivityDays = settings.inactivityDays
         )
     }
 
-    override fun scheduleSeasonal() {
-        val settings = preferences.notificationSettings.value
-        if (!settings.enabled) {
+    override fun scheduleSeasonal(settings: NotificationSettings) {
+        if (!settings.enabled || !settings.seasonalEnabled) {
             WorkManager.getInstance(context).cancelAllWorkByTag(NotificationWorkNames.TAG_SEASONAL)
             return
         }

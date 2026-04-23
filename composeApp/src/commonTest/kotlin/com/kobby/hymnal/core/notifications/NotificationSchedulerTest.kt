@@ -1,8 +1,10 @@
 package com.kobby.hymnal.core.notifications
 
+import com.kobby.hymnal.core.config.RemoteConfigManager
 import com.kobby.hymnal.core.trace.TraceEvents
 import com.kobby.hymnal.core.trace.TraceManager
 import com.russhwolf.settings.MapSettings
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -10,13 +12,14 @@ import kotlin.test.assertTrue
 class NotificationSchedulerTest {
 
     @Test
-    fun `syncSchedules when disabled cancels notifications and still syncs campaign`() {
+    fun `syncSchedules when disabled cancels notifications and still syncs campaign`() = runTest {
         val manager = FakeNotificationManager()
         val preferences = NotificationPreferences(MapSettings()).apply {
             setEnabled(false)
         }
+        val config = FakeRemoteConfigManager()
         val trace = FakeTraceManager()
-        val scheduler = NotificationScheduler(manager, preferences, trace)
+        val scheduler = NotificationScheduler(manager, preferences, config, trace)
 
         scheduler.syncSchedules()
 
@@ -33,13 +36,14 @@ class NotificationSchedulerTest {
     }
 
     @Test
-    fun `syncSchedules when enabled schedules all categories and records schedule traces`() {
+    fun `syncSchedules when enabled schedules all categories and records schedule traces`() = runTest {
         val manager = FakeNotificationManager()
         val preferences = NotificationPreferences(MapSettings()).apply {
             setEnabled(true)
         }
+        val config = FakeRemoteConfigManager()
         val trace = FakeTraceManager()
-        val scheduler = NotificationScheduler(manager, preferences, trace)
+        val scheduler = NotificationScheduler(manager, preferences, config, trace)
 
         scheduler.syncSchedules()
 
@@ -50,28 +54,22 @@ class NotificationSchedulerTest {
         assertEquals(1, manager.syncCampaignSubscriptionCalls)
 
         val scheduleEvents = trace.events.filter { it.event == TraceEvents.NOTIFICATION_SCHEDULED }
-        assertEquals(3, scheduleEvents.size)
-        val categories = scheduleEvents.mapNotNull { it.params["category"] }.toSet()
-        assertTrue(categories.contains(NotificationCategory.INACTIVITY.name.lowercase()))
-        assertTrue(categories.contains(NotificationCategory.WEEKLY.name.lowercase()))
-        assertTrue(categories.contains(NotificationCategory.SEASONAL.name.lowercase()))
+        assertEquals(1, scheduleEvents.size) // Now only one "synced_all" trace on successful sync
+        assertEquals("synced_all", scheduleEvents[0].params["action"])
     }
 
     @Test
-    fun `onAppLaunched requests permission and marks app active`() {
+    fun `onAppLaunched requests permission and marks app active`() = runTest {
         val manager = FakeNotificationManager()
         val preferences = NotificationPreferences(MapSettings())
+        val config = FakeRemoteConfigManager()
         val trace = FakeTraceManager()
-        val scheduler = NotificationScheduler(manager, preferences, trace)
+        val scheduler = NotificationScheduler(manager, preferences, config, trace)
 
         scheduler.onAppLaunched()
 
         assertEquals(1, manager.requestPermissionCalls)
         assertTrue(preferences.notificationSettings.value.lastActiveTimestampMs > 0L)
-        assertEquals(1, manager.scheduleWeeklyCalls)
-        assertEquals(1, manager.scheduleInactivityCalls)
-        assertEquals(1, manager.scheduleSeasonalCalls)
-        assertEquals(1, manager.syncCampaignSubscriptionCalls)
     }
 }
 
@@ -83,15 +81,15 @@ private class FakeNotificationManager : NotificationManager {
     var cancelAllCalls = 0
     var requestPermissionCalls = 0
 
-    override fun scheduleWeekly() {
+    override fun scheduleWeekly(settings: NotificationSettings) {
         scheduleWeeklyCalls++
     }
 
-    override fun scheduleInactivity() {
+    override fun scheduleInactivity(settings: NotificationSettings) {
         scheduleInactivityCalls++
     }
 
-    override fun scheduleSeasonal() {
+    override fun scheduleSeasonal(settings: NotificationSettings) {
         scheduleSeasonalCalls++
     }
 
@@ -106,6 +104,20 @@ private class FakeNotificationManager : NotificationManager {
     override fun requestPermission() {
         requestPermissionCalls++
     }
+}
+
+private class FakeRemoteConfigManager : RemoteConfigManager {
+    var fetchCalls = 0
+    var activated = true
+
+    override suspend fun fetchAndActivate(): Boolean {
+        fetchCalls++
+        return activated
+    }
+
+    override fun getString(key: String, defaultValue: String): String = defaultValue
+    override fun getBoolean(key: String, defaultValue: Boolean): Boolean = defaultValue
+    override fun getLong(key: String, defaultValue: Long): Long = defaultValue
 }
 
 private class FakeTraceManager : TraceManager {
