@@ -7,9 +7,9 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 interface NativeNotificationProvider {
-    fun scheduleWeekly()
-    fun scheduleInactivity()
-    fun scheduleSeasonal(events: List<SeasonalNotificationEvent>)
+    fun scheduleWeekly(settings: NotificationSettings)
+    fun scheduleInactivity(settings: NotificationSettings)
+    fun scheduleSeasonal(settings: NotificationSettings)
     fun syncCampaignSubscription(enabled: Boolean)
     fun cancelAll()
     fun requestPermission()
@@ -23,25 +23,19 @@ fun initializeNativeNotificationProvider(provider: NativeNotificationProvider) {
 
 class IosNotificationManagerImpl(private val preferences: NotificationPreferences) : NotificationManager {
 
-    override fun scheduleWeekly() {
-        val settings = preferences.notificationSettings.value
-        if (!settings.enabled) return
-        nativeNotificationProvider?.scheduleWeekly()
+    override fun scheduleWeekly(settings: NotificationSettings) {
+        if (!settings.enabled || !settings.weeklyEnabled) return
+        nativeNotificationProvider?.scheduleWeekly(settings)
     }
 
-    override fun scheduleInactivity() {
-        val settings = preferences.notificationSettings.value
-        if (!settings.enabled) return
-        nativeNotificationProvider?.scheduleInactivity()
+    override fun scheduleInactivity(settings: NotificationSettings) {
+        if (!settings.enabled || !settings.inactivityEnabled) return
+        nativeNotificationProvider?.scheduleInactivity(settings)
     }
 
-    override fun scheduleSeasonal() {
-        val settings = preferences.notificationSettings.value
-        if (!settings.enabled) return
-        
-        val currentYear = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).year
-        val events = SeasonalEventCalculator.eventsForYear(currentYear) + SeasonalEventCalculator.eventsForYear(currentYear + 1)
-        nativeNotificationProvider?.scheduleSeasonal(events)
+    override fun scheduleSeasonal(settings: NotificationSettings) {
+        if (!settings.enabled || !settings.seasonalEnabled) return
+        nativeNotificationProvider?.scheduleSeasonal(settings)
     }
 
     override fun syncCampaignSubscription() {

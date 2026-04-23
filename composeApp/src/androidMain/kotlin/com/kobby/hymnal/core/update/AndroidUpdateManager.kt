@@ -1,15 +1,14 @@
 package com.kobby.hymnal.core.update
 
 import android.content.Context
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.kobby.hymnal.BuildKonfig
+import com.kobby.hymnal.core.config.RemoteConfigManager
 import com.kobby.hymnal.core.sharing.ShareConstants
-import kotlinx.coroutines.tasks.await
 import android.util.Log
 import com.kobby.hymnal.BuildConfig
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.UpdateAvailability
+import kotlinx.coroutines.tasks.await
 
 class AndroidUpdateManager(private val context: Context) : UpdateManager {
 
@@ -31,11 +30,7 @@ class AndroidUpdateManager(private val context: Context) : UpdateManager {
     override suspend fun checkForUpdates(): UpdateResult {
         val currentVersion = BuildKonfig.VERSION_NAME
 
-        try {
-            remoteConfig.fetchAndActivate().await()
-        } catch (e: Exception) {
-            Log.w("UpdateManager", "Remote Config fetch failed", e)
-        }
+        remoteConfigManager.fetchAndActivate()
 
         val minRequiredVersion = remoteConfig.getString(KEY_MIN_REQUIRED_VERSION)
 

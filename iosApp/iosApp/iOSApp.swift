@@ -33,6 +33,7 @@ struct iOSApp: App {
 
         PurchaseManager_iosKt.initializeNativePurchaseProvider(provider: IosPurchaseProvider())
         IosUpdateManager_iosKt.initializeNativeUpdateProvider(provider: IosUpdateProvider())
+        IosRemoteConfigManager_iosKt.initializeNativeRemoteConfigProvider(provider: IosRemoteConfigProvider())
         NotificationManager_iosKt.initializeNativeNotificationProvider(provider: IosNotificationProvider())
     }
 

@@ -7,10 +7,15 @@ class IosNotificationProvider: NativeNotificationProvider {
     private let weeklyIdentifier = "weekly_reminders"
     private let inactivityIdentifier = "inactivity_nudges"
 
-    func scheduleWeekly() {
+    func scheduleWeekly(settings: NotificationSettings) {
+        guard settings.weeklyEnabled else {
+            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [weeklyIdentifier])
+            return
+        }
+        
         let content = UNMutableNotificationContent()
-        content.title = "Your hymns are right here in your pocket"
-        content.body = "Open Hymnal and prepare for Sunday worship."
+        content.title = settings.weeklyTitle
+        content.body = settings.weeklyBody
 
         var dateComponents = DateComponents()
         dateComponents.weekday = 1 // Sunday
@@ -21,28 +26,47 @@ class IosNotificationProvider: NativeNotificationProvider {
         let request = UNNotificationRequest(identifier: weeklyIdentifier, content: content, trigger: trigger)
 
         UNUserNotificationCenter.current().add(request) { error in
-            if let error {
+            if let error = error {
                 print("Error scheduling weekly reminder: \(error.localizedDescription)")
             }
         }
     }
 
-    func scheduleInactivity() {
+    func scheduleInactivity(settings: NotificationSettings) {
+        guard settings.inactivityEnabled else {
+            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [inactivityIdentifier])
+            return
+        }
+        
         let content = UNMutableNotificationContent()
-        content.title = "Start your morning with a hymn"
-        content.body = "Discover a hymn for today."
+        content.title = settings.inactivityTitle
+        content.body = settings.inactivityBody
 
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 3 * 24 * 60 * 60, repeats: false)
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(settings.inactivityDays * 24 * 60 * 60), repeats: false)
         let request = UNNotificationRequest(identifier: inactivityIdentifier, content: content, trigger: trigger)
 
         UNUserNotificationCenter.current().add(request) { error in
-            if let error {
+            if let error = error {
                 print("Error scheduling inactivity nudge: \(error.localizedDescription)")
             }
         }
     }
 
-    func scheduleSeasonal(events: [SeasonalNotificationEvent]) {
+    func scheduleSeasonal(settings: NotificationSettings) {
+        guard settings.seasonalEnabled else {
+            UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
+                let seasonalIds = requests
+                    .map { $0.identifier }
+                    .filter { $0.hasPrefix("seasonal_") }
+                UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: seasonalIds)
+            }
+            return
+        }
+        
+        let currentYear = Calendar.current.component(.year, from: Date())
+        let events = SeasonalEventCalculator.shared.eventsForYear(year: Int32(currentYear)) +
+                     SeasonalEventCalculator.shared.eventsForYear(year: Int32(currentYear + 1))
+        
         events.forEach { event in
             let content = UNMutableNotificationContent()
             content.title = event.title
@@ -63,7 +87,7 @@ class IosNotificationProvider: NativeNotificationProvider {
             let request = UNNotificationRequest(identifier: event.id, content: content, trigger: trigger)
 
             UNUserNotificationCenter.current().add(request) { error in
-                if let error {
+                if let error = error {
                     print("Error scheduling seasonal reminder \(event.id): \(error.localizedDescription)")
                 }
             }
