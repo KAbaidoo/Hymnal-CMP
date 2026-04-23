@@ -59,7 +59,7 @@ class IosUpdateProvider: NativeUpdateProvider {
                         "minRequired=\(minRequiredVersion), mandatory=\(isMandatory)"
                     )
 
-                    if (isMandatory || isStoreUpdateAvailable) {
+                    if isMandatory || isStoreUpdateAvailable {
                         continuation.resume(
                             returning: UpdateResult.UpdateAvailable(
                                 isMandatory: isMandatory
