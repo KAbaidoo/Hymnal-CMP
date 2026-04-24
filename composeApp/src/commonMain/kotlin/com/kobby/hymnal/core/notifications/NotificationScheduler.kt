@@ -6,6 +6,7 @@ import com.kobby.hymnal.core.trace.TraceManager
 import com.kobby.hymnal.core.trace.traceParams
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 class NotificationScheduler(
@@ -16,7 +17,7 @@ class NotificationScheduler(
 ) {
 
     private var hasSyncedThisSession = false
-    private val scope = CoroutineScope(Dispatchers.Default)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     fun onAppLaunched() {
         preferences.markAppActive()
