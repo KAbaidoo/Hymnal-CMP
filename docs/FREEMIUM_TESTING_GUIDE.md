@@ -205,9 +205,28 @@ storage.clearAll() // Resets trial, purchase, and usage data
 - Verify pricing displays correctly
 - Verify feature list shows only premium features
 
+## Troubleshooting & Common Issues
+
+### Android: Billing Flow Crashes (NullPointerException)
+If you encounter a crash in `ProxyBillingActivity` when attempting a purchase, it is often due to a transient disconnection between the app and the Google Play Store.
+- **Fix applied**: The app now uses Billing Library 8.3.0 and explicitly verifies `isReady` immediately before launching the flow.
+- **Device-specific**: On some devices (e.g., OnePlus, Xiaomi), aggressive battery optimization may kill the Play Store process.
+- **Solution**: 
+  1. Clear the cache and storage of the **Google Play Store** app on your device.
+  2. Ensure you are signed into a valid Google account with a payment method.
+  3. Restart the app and try again.
+
+### Android: "Product not found"
+- Ensure you have joined the Internal Test track and installed the app via the Play Store link.
+- Verify your tester email is added to the "License testers" list in the Play Console.
+
+### iOS: "Restore Failed"
+- If testing with StoreKit local config, ensure the `.storekit` file is selected in the Xcode scheme.
+- If testing in Sandbox, ensure you are using a valid Sandbox Tester account (Settings → App Store → Sandbox Account).
+
 ---
 
-**Last Updated**: January 6, 2026  
+**Last Updated**: April 29, 2026  
 **Model**: Generous Freemium  
 **Target Market**: Ghana
 

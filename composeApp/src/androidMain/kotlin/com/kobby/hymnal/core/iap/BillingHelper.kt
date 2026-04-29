@@ -226,10 +226,17 @@ class BillingHelper(private val context: Context) {
                         .build()
 
                     purchaseCallback = callback
-                    val launchResult = billingClient.launchBillingFlow(activity, billingParamsBuilder)
+                    
+                    if (billingClient.isReady) {
+                        val launchResult = billingClient.launchBillingFlow(activity, billingParamsBuilder)
 
-                    if (launchResult.responseCode != BillingClient.BillingResponseCode.OK) {
-                        Log.e(TAG, "Failed to launch billing flow: ${launchResult.responseCode} - ${launchResult.debugMessage}")
+                        if (launchResult.responseCode != BillingClient.BillingResponseCode.OK) {
+                            Log.e(TAG, "Failed to launch billing flow: ${launchResult.responseCode} - ${launchResult.debugMessage}")
+                            purchaseCallback = null
+                            callback(false)
+                        }
+                    } else {
+                        Log.e(TAG, "BillingClient is not ready right before launching flow")
                         purchaseCallback = null
                         callback(false)
                     }
@@ -252,17 +259,24 @@ class BillingHelper(private val context: Context) {
                         val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
                             .setPurchaseToken(purchase.purchaseToken)
                             .build()
-                        billingClient.acknowledgePurchase(acknowledgePurchaseParams) { billingResult ->
-                            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                                Log.d(TAG, "Purchase acknowledged successfully: ${purchase.products}")
-                                purchaseCallback?.invoke(true)
-                                purchaseCallback = null
-                            } else {
-                                Log.e(TAG, "Failed to acknowledge purchase: ${billingResult.responseCode} - ${billingResult.debugMessage}")
-                                // Still grant benefit if state is PURCHASED, even if acknowledgment failed (might succeed later or via restore)
-                                purchaseCallback?.invoke(true)
-                                purchaseCallback = null
+                        
+                        if (billingClient.isReady) {
+                            billingClient.acknowledgePurchase(acknowledgePurchaseParams) { billingResult ->
+                                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                                    Log.d(TAG, "Purchase acknowledged successfully: ${purchase.products}")
+                                    purchaseCallback?.invoke(true)
+                                    purchaseCallback = null
+                                } else {
+                                    Log.e(TAG, "Failed to acknowledge purchase: ${billingResult.responseCode} - ${billingResult.debugMessage}")
+                                    // Still grant benefit if state is PURCHASED, even if acknowledgment failed (might succeed later or via restore)
+                                    purchaseCallback?.invoke(true)
+                                    purchaseCallback = null
+                                }
                             }
+                        } else {
+                            Log.e(TAG, "BillingClient is not ready for acknowledgment")
+                            purchaseCallback?.invoke(true)
+                            purchaseCallback = null
                         }
                     } else {
                         Log.d(TAG, "Purchase already acknowledged: ${purchase.products}")
@@ -289,12 +303,17 @@ class BillingHelper(private val context: Context) {
             val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
                 .setPurchaseToken(purchase.purchaseToken)
                 .build()
-            billingClient.acknowledgePurchase(acknowledgePurchaseParams) { billingResult ->
-                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                    Log.d(TAG, "Purchase background-acknowledged successfully: ${purchase.products}")
-                } else {
-                    Log.e(TAG, "Failed to background-acknowledge purchase: ${billingResult.responseCode} - ${billingResult.debugMessage}")
+            
+            if (billingClient.isReady) {
+                billingClient.acknowledgePurchase(acknowledgePurchaseParams) { billingResult ->
+                    if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                        Log.d(TAG, "Purchase background-acknowledged successfully: ${purchase.products}")
+                    } else {
+                        Log.e(TAG, "Failed to background-acknowledge purchase: ${billingResult.responseCode} - ${billingResult.debugMessage}")
+                    }
                 }
+            } else {
+                Log.e(TAG, "BillingClient is not ready for background acknowledgment")
             }
         }
     }
