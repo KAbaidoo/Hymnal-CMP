@@ -8,9 +8,14 @@ import android.util.Log
 import com.kobby.hymnal.BuildConfig
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.UpdateAvailability
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import kotlinx.coroutines.tasks.await
 
-class AndroidUpdateManager(private val context: Context) : UpdateManager {
+class AndroidUpdateManager(
+    private val context: Context,
+    private val remoteConfigManager: RemoteConfigManager
+) : UpdateManager {
 
     private val remoteConfig: FirebaseRemoteConfig by lazy {
         FirebaseRemoteConfig.getInstance().apply {

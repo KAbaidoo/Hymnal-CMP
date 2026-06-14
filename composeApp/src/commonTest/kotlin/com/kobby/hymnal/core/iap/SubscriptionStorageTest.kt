@@ -94,7 +94,7 @@ class SubscriptionStorageTest {
     }
 
     @Test
-    fun `hasAccess is false for no purchase`() = runTest {
+    fun `hasAccess is true for no purchase`() = runTest {
         // Given
         val storage = createTestStorage()
 
@@ -102,7 +102,8 @@ class SubscriptionStorageTest {
         val info = storage.getEntitlementInfo()
         
         // Then
-        assertFalse(info.hasAccess)
+        // In the new model, everyone has access because features are free
+        assertTrue(info.hasAccess)
     }
 
     @Test
