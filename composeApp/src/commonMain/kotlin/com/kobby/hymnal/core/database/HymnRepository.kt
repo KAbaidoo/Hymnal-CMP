@@ -11,87 +11,87 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
-open class HymnRepository(private val database: HymnDatabase) {
+class HymnRepository(private val database: HymnDatabase) {
     
     // Hymn queries
-    open fun getAllHymns(): Flow<List<Hymn>> {
+    fun getAllHymns(): Flow<List<Hymn>> {
         return database.hymnsQueries.getAllHymns()
             .asFlow()
             .mapToList(Dispatchers.Default)
     }
     
-    open fun getHymnsByCategory(category: String): Flow<List<Hymn>> {
+    fun getHymnsByCategory(category: String): Flow<List<Hymn>> {
         return database.hymnsQueries.getHymnsByCategory(category)
             .asFlow()
             .mapToList(Dispatchers.Default)
     }
     
-    open suspend fun getHymnById(id: Long): Hymn? = withContext(Dispatchers.Default) {
+    suspend fun getHymnById(id: Long): Hymn? = withContext(Dispatchers.Default) {
         database.hymnsQueries.getHymnById(id)
             .executeAsOneOrNull()
     }
     
-    open suspend fun getHymnByNumber(number: Long, category: String): Hymn? = withContext(Dispatchers.Default) {
+    suspend fun getHymnByNumber(number: Long, category: String): Hymn? = withContext(Dispatchers.Default) {
         database.hymnsQueries.getHymnByNumber(number, category)
             .executeAsOneOrNull()
     }
     
-    open suspend fun getRandomHymn(): Hymn? = withContext(Dispatchers.Default) {
+    suspend fun getRandomHymn(): Hymn? = withContext(Dispatchers.Default) {
         database.hymnsQueries.getRandomHymn()
             .executeAsOneOrNull()
     }
     
-    open fun searchHymns(query: String): Flow<List<Hymn>> {
+    fun searchHymns(query: String): Flow<List<Hymn>> {
         return database.hymnsQueries.searchHymns(query)
             .asFlow()
             .mapToList(Dispatchers.Default)
     }
     
     // Favorite queries
-    open fun getFavoriteHymns(): Flow<List<Hymn>> {
+    fun getFavoriteHymns(): Flow<List<Hymn>> {
         return database.hymnsQueries.getFavoriteHymns()
             .asFlow()
             .mapToList(Dispatchers.Default)
     }
     
-    open suspend fun addToFavorites(hymnId: Long) = withContext(Dispatchers.Default) {
+    suspend fun addToFavorites(hymnId: Long) = withContext(Dispatchers.Default) {
         database.hymnsQueries.addToFavorites(hymnId)
     }
     
-    open suspend fun removeFromFavorites(hymnId: Long) = withContext(Dispatchers.Default) {
+    suspend fun removeFromFavorites(hymnId: Long) = withContext(Dispatchers.Default) {
         database.hymnsQueries.removeFromFavorites(hymnId)
     }
     
-    open suspend fun isFavorite(hymnId: Long): Boolean = withContext(Dispatchers.Default) {
+    suspend fun isFavorite(hymnId: Long): Boolean = withContext(Dispatchers.Default) {
         database.hymnsQueries.isFavorite(hymnId)
             .executeAsOne()
     }
     
     // History queries
-    open fun getRecentHymns(limit: Long = 20) = database.hymnsQueries.getRecentHymns(limit)
+    fun getRecentHymns(limit: Long = 20) = database.hymnsQueries.getRecentHymns(limit)
         .asFlow()
         .mapToList(Dispatchers.Default)
     
-    open suspend fun addToHistory(hymnId: Long) = withContext(Dispatchers.Default) {
+    suspend fun addToHistory(hymnId: Long) = withContext(Dispatchers.Default) {
         database.hymnsQueries.addToHistory(hymnId)
         trimHistoryToLimit()
     }
     
-    open suspend fun clearHistory() = withContext(Dispatchers.Default) {
+    suspend fun clearHistory() = withContext(Dispatchers.Default) {
         database.hymnsQueries.clearHistory()
     }
     
-    protected open suspend fun trimHistoryToLimit() = withContext(Dispatchers.Default) {
+    private suspend fun trimHistoryToLimit() = withContext(Dispatchers.Default) {
         database.hymnsQueries.trimHistoryToLimit(HISTORY_LIMIT)
     }
     
     // Highlight queries
-    open suspend fun getHighlightsForHymn(hymnId: Long) = withContext(Dispatchers.Default) {
+    suspend fun getHighlightsForHymn(hymnId: Long) = withContext(Dispatchers.Default) {
         database.hymnsQueries.getHighlightsForHymn(hymnId)
             .executeAsList()
     }
     
-    open fun getHymnsWithHighlights(): Flow<List<Hymn>> {
+    fun getHymnsWithHighlights(): Flow<List<Hymn>> {
         return database.hymnsQueries.getHymnsWithHighlights()
             .asFlow()
             .mapToList(Dispatchers.Default)

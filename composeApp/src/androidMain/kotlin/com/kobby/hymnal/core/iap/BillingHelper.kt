@@ -20,6 +20,18 @@ class BillingHelper(private val context: Context) {
     val SUPPORT_GENEROUS = "support_generous"
     val TAG = BillingHelper::class.simpleName
     var purchaseCallback:((isSuccess:Boolean)->Unit)? = null
+    private val callbackLock = Any()
+    private var purchasingProductId: String? = null
+
+    private fun invokePurchaseCallback(isSuccess: Boolean) {
+        val callback = synchronized(callbackLock) {
+            purchasingProductId = null
+            val cb = purchaseCallback
+            purchaseCallback = null
+            cb
+        }
+        callback?.invoke(isSuccess)
+    }
 
 
     var params: PendingPurchasesParams = PendingPurchasesParams.newBuilder()
@@ -43,18 +55,15 @@ class BillingHelper(private val context: Context) {
                     }
                     BillingClient.BillingResponseCode.USER_CANCELED -> {
                         Log.d(TAG, "User canceled the purchase")
-                        purchaseCallback?.invoke(false)
-                        purchaseCallback = null
+                        invokePurchaseCallback(false)
                     }
                     BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED -> {
                         Log.d(TAG, "Item already owned")
-                        purchaseCallback?.invoke(true)
-                        purchaseCallback = null
+                        invokePurchaseCallback(true)
                     }
                     else -> {
                         Log.e(TAG, "Purchase failed: ${billingResult.responseCode} - ${billingResult.debugMessage}")
-                        purchaseCallback?.invoke(false)
-                        purchaseCallback = null
+                        invokePurchaseCallback(false)
                     }
                 }
             }
@@ -181,15 +190,25 @@ class BillingHelper(private val context: Context) {
     }
 
     fun purchaseProduct(productId: String, productType: String, activity: Activity, callback: (Boolean) -> Unit) {
+        synchronized(callbackLock) {
+            if (purchaseCallback != null || purchasingProductId != null) {
+                Log.e(TAG, "A purchase is already in progress")
+                callback(false)
+                return
+            }
+            purchaseCallback = callback
+            purchasingProductId = productId
+        }
+
         // First, ensure we're connected to the Play Store
         connectPlayStore { isConnected ->
             if (!isConnected) {
                 Log.e(TAG, "Failed to connect to Play Store")
-                callback(false)
+                invokePurchaseCallback(false)
                 return@connectPlayStore
             }
 
-            val params = QueryProductDetailsParams.newBuilder()
+            val queryParams = QueryProductDetailsParams.newBuilder()
                 .setProductList(
                     listOf(
                         QueryProductDetailsParams.Product.newBuilder()
@@ -200,9 +219,10 @@ class BillingHelper(private val context: Context) {
                 )
                 .build()
 
-            billingClient.queryProductDetailsAsync(params) { billingResult, queryProductDetailsResult ->
-                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && queryProductDetailsResult.productDetailsList.isNotEmpty()) {
-                    val productDetails = queryProductDetailsResult.productDetailsList.first()
+            billingClient.queryProductDetailsAsync(queryParams) { billingResult, queryProductDetailsResult ->
+                val detailsList = queryProductDetailsResult?.productDetailsList
+                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && !detailsList.isNullOrEmpty()) {
+                    val productDetails = detailsList.first()
 
                     val billingParamsBuilder = BillingFlowParams.newBuilder()
                         .setProductDetailsParamsList(
@@ -214,7 +234,7 @@ class BillingHelper(private val context: Context) {
                                             val offerToken = productDetails.subscriptionOfferDetails?.first()?.offerToken
                                             if (offerToken == null) {
                                                 Log.e(TAG, "No offer token found for subscription product")
-                                                callback(false)
+                                                invokePurchaseCallback(false)
                                                 return@queryProductDetailsAsync
                                             }
                                             setOfferToken(offerToken)
@@ -224,82 +244,91 @@ class BillingHelper(private val context: Context) {
                             )
                         )
                         .build()
-
-                    purchaseCallback = callback
                     
                     var launchSuccessful = false
                     if (billingClient.isReady) {
-                        val launchResult = billingClient.launchBillingFlow(activity, billingParamsBuilder)
-                        if (launchResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                            launchSuccessful = true
-                        } else {
-                            Log.e(TAG, "Failed to launch billing flow: ${launchResult.responseCode} - ${launchResult.debugMessage}")
+                        try {
+                            val launchResult = billingClient.launchBillingFlow(activity, billingParamsBuilder)
+                            if (launchResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                                launchSuccessful = true
+                            } else {
+                                Log.e(TAG, "Failed to launch billing flow: ${launchResult.responseCode} - ${launchResult.debugMessage}")
+                            }
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Exception launching billing flow", e)
                         }
                     } else {
                         Log.e(TAG, "BillingClient is not ready right before launching flow")
                     }
 
                     if (!launchSuccessful) {
-                        purchaseCallback = null
-                        callback(false)
+                        invokePurchaseCallback(false)
                     }
                 } else {
                     Log.e(TAG, "Failed to query product details: ${billingResult.responseCode} - ${billingResult.debugMessage}")
-                    callback(false)
+                    invokePurchaseCallback(false)
                 }
             }
         }
     }
 
     private fun handlePurchase(purchases: List<Purchase>) {
-        for (purchase in purchases) {
-            when (purchase.purchaseState) {
-                Purchase.PurchaseState.PURCHASED -> {
-                    // Grant support benefits for one-time purchases
-                    Log.d(TAG, "Purchase is active: ${purchase.products}")
+        // Find if there is a purchase matching the purchasingProductId
+        val targetPurchase = purchases.find { purchase ->
+            purchasingProductId?.let { purchase.products.contains(it) } ?: true
+        }
 
-                    if (!purchase.isAcknowledged) {
-                        val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
-                            .setPurchaseToken(purchase.purchaseToken)
-                            .build()
-                        
-                        var shouldInvokeCallbackNow = true
-                        if (billingClient.isReady) {
-                            billingClient.acknowledgePurchase(acknowledgePurchaseParams) { billingResult ->
-                                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                                    Log.d(TAG, "Purchase acknowledged successfully: ${purchase.products}")
-                                } else {
-                                    Log.e(TAG, "Failed to acknowledge purchase: ${billingResult.responseCode} - ${billingResult.debugMessage}")
-                                }
-                                // Still grant benefit if state is PURCHASED, even if acknowledgment failed
-                                purchaseCallback?.invoke(true)
-                                purchaseCallback = null
+        if (targetPurchase != null) {
+            processSinglePurchase(targetPurchase)
+        } else if (purchases.isNotEmpty()) {
+            // Fallback: process the first purchase if no match is found
+            processSinglePurchase(purchases.first())
+        }
+    }
+
+    private fun processSinglePurchase(purchase: Purchase) {
+        when (purchase.purchaseState) {
+            Purchase.PurchaseState.PURCHASED -> {
+                // Grant support benefits for one-time purchases
+                Log.d(TAG, "Purchase is active: ${purchase.products}")
+
+                if (!purchase.isAcknowledged) {
+                    val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
+                        .setPurchaseToken(purchase.purchaseToken)
+                        .build()
+                    
+                    var shouldInvokeCallbackNow = true
+                    if (billingClient.isReady) {
+                        billingClient.acknowledgePurchase(acknowledgePurchaseParams) { billingResult ->
+                            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                                Log.d(TAG, "Purchase acknowledged successfully: ${purchase.products}")
+                            } else {
+                                Log.e(TAG, "Failed to acknowledge purchase: ${billingResult.responseCode} - ${billingResult.debugMessage}")
                             }
-                            shouldInvokeCallbackNow = false
-                        } else {
-                            Log.e(TAG, "BillingClient is not ready for acknowledgment")
+                            // Still grant benefit if state is PURCHASED, even if acknowledgment failed
+                            invokePurchaseCallback(true)
                         }
-                        
-                        if (shouldInvokeCallbackNow) {
-                            purchaseCallback?.invoke(true)
-                            purchaseCallback = null
-                        }
+                        shouldInvokeCallbackNow = false
                     } else {
-                        Log.d(TAG, "Purchase already acknowledged: ${purchase.products}")
-                        purchaseCallback?.invoke(true)
-                        purchaseCallback = null
+                        Log.e(TAG, "BillingClient is not ready for acknowledgment")
                     }
+                    
+                    if (shouldInvokeCallbackNow) {
+                        invokePurchaseCallback(true)
+                    }
+                } else {
+                    Log.d(TAG, "Purchase already acknowledged: ${purchase.products}")
+                    invokePurchaseCallback(true)
                 }
-                Purchase.PurchaseState.PENDING -> {
-                    Log.d(TAG, "Purchase is pending: ${purchase.products}")
-                    // Optionally notify user that purchase is pending
-                    // Don't invoke callback yet - wait for final state
-                }
-                else -> {
-                    Log.w(TAG, "Purchase state is unsuccessful (${purchase.purchaseState}): ${purchase.products}")
-                    purchaseCallback?.invoke(false)
-                    purchaseCallback = null
-                }
+            }
+            Purchase.PurchaseState.PENDING -> {
+                Log.d(TAG, "Purchase is pending: ${purchase.products}")
+                // Optionally notify user that purchase is pending
+                // Don't invoke callback yet - wait for final state
+            }
+            else -> {
+                Log.w(TAG, "Purchase state is unsuccessful (${purchase.purchaseState}): ${purchase.products}")
+                invokePurchaseCallback(false)
             }
         }
     }
@@ -330,7 +359,10 @@ class BillingHelper(private val context: Context) {
      */
     fun endConnection() {
         Log.d(TAG, "Ending billing client connection")
-        purchaseCallback = null
+        synchronized(callbackLock) {
+            purchaseCallback = null
+            purchasingProductId = null
+        }
         billingClient.endConnection()
     }
 
