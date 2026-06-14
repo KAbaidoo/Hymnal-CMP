@@ -65,7 +65,11 @@ class PurchaseStorage(private val settings: Settings) {
      * Get or set the product ID of the active purchase.
      */
     var productId: String?
-        get() = settings.getString(KEY_PRODUCT_ID, "")
+
+        get() {
+            val id = settings.getString(KEY_PRODUCT_ID, "")
+            return if (id.isEmpty()) null else id
+        }
         set(value) {
             if (value != null) {
                 settings.putString(KEY_PRODUCT_ID, value)

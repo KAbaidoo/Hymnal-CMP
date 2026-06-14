@@ -5,34 +5,21 @@ import com.kobby.hymnal.BuildKonfig
 import com.kobby.hymnal.core.config.RemoteConfigManager
 import com.kobby.hymnal.core.sharing.ShareConstants
 import android.util.Log
-import com.kobby.hymnal.BuildConfig
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.UpdateAvailability
 import kotlinx.coroutines.tasks.await
 
-class AndroidUpdateManager(private val context: Context) : UpdateManager {
-
-    private val remoteConfig: FirebaseRemoteConfig by lazy {
-        FirebaseRemoteConfig.getInstance().apply {
-
-            val minFetchInterval = if (BuildConfig.DEBUG) 0L else  43200L // 12 hours
-            val configSettings = FirebaseRemoteConfigSettings.Builder()
-                .setMinimumFetchIntervalInSeconds(minFetchInterval)
-                .build()
-            setConfigSettingsAsync(configSettings)
-            // Default values
-            setDefaultsAsync(mapOf(
-                KEY_MIN_REQUIRED_VERSION to BuildKonfig.VERSION_NAME
-            ))
-        }
-    }
+class AndroidUpdateManager(
+    private val context: Context,
+    private val remoteConfigManager: RemoteConfigManager
+) : UpdateManager {
 
     override suspend fun checkForUpdates(): UpdateResult {
         val currentVersion = BuildKonfig.VERSION_NAME
 
         remoteConfigManager.fetchAndActivate()
 
-        val minRequiredVersion = remoteConfig.getString(KEY_MIN_REQUIRED_VERSION)
+        val minRequiredVersion = remoteConfigManager.getString(KEY_MIN_REQUIRED_VERSION, BuildKonfig.VERSION_NAME)
 
         val isMandatory = VersionUtils.isUpdateAvailable(currentVersion, minRequiredVersion)
         val playStoreUpdate = getPlayStoreUpdateInfo()

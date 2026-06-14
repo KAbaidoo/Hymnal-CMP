@@ -1,10 +1,11 @@
 package com.kobby.hymnal.core.database
 
+import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import com.kobby.hymnal.composeApp.database.HymnDatabase
 import com.kobby.hymnal.composeApp.database.Hymn
 import com.kobby.hymnal.core.crashlytics.CrashlyticsManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -50,58 +51,48 @@ class SafeHymnRepositoryTest {
         }
     }
     
-    // Test double that mimics HymnRepository behavior without requiring actual database
-    // Note: This is a simplified test implementation. In production code, consider using:
-    // - A proper in-memory test database
-    // - A mocking framework like MockK for better type safety
-    // - Extracting an interface for easier testing
-    private class TestHymnRepository(
-        private val shouldThrow: Boolean = false,
-        @Suppress("UNUSED_PARAMETER") database: Any? = null
-    ) : HymnRepository(
-        // Workaround: Cast to HymnDatabase for testing purposes
-        // The methods are overridden, so the database is never actually used
-        @Suppress("UNCHECKED_CAST")
-        (object : Any() {} as com.kobby.hymnal.composeApp.database.HymnDatabase)
-    ) {
+    private fun createRepository(shouldThrow: Boolean = false): Pair<HymnRepository, JdbcSqliteDriver> {
+        val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
+        HymnDatabase.Schema.create(driver)
+        val database = HymnDatabase(driver)
         
-        override fun getAllHymns(): Flow<List<Hymn>> {
-            if (shouldThrow) throw RuntimeException("Test error")
-            return flowOf(emptyList())
-        }
+        // Insert a test hymn so there's always at least one valid hymn for queries
+        database.hymnsQueries.insertHymn(
+            number = 1,
+            title = "Amazing Grace",
+            category = "ancient_modern",
+            content = "Amazing grace, how sweet the sound"
+        )
         
-        override suspend fun getHymnById(id: Long): Hymn? {
-            if (shouldThrow) throw RuntimeException("Test error")
-            return null
+        val repository = HymnRepository(database)
+        if (shouldThrow) {
+            driver.close()
         }
-        
-        override suspend fun addToFavorites(hymnId: Long) {
-            if (shouldThrow) throw RuntimeException("Test error")
-        }
-        
-        override fun searchHymns(query: String): Flow<List<Hymn>> {
-            if (shouldThrow) throw RuntimeException("Test error")
-            return flowOf(emptyList())
-        }
+        return Pair(repository, driver)
     }
     
     @Test
     fun testGetHymnByIdSuccess() = runTest {
         val crashlytics = TestCrashlyticsManager()
-        val repository = TestHymnRepository(shouldThrow = false)
-        val safeRepository = SafeHymnRepository(repository, crashlytics)
-        
-        val result = safeRepository.getHymnById(1L)
-        
-        assertNull(result)
-        assertEquals(0, crashlytics.exceptions.size)
-        assertEquals(0, crashlytics.logs.size)
+        val (repository, driver) = createRepository(shouldThrow = false)
+        try {
+            val safeRepository = SafeHymnRepository(repository, crashlytics)
+            
+            val result = safeRepository.getHymnById(1L)
+            
+            assertNotNull(result)
+            assertEquals(1L, result.id)
+            assertEquals(0, crashlytics.exceptions.size)
+            assertEquals(0, crashlytics.logs.size)
+        } finally {
+            driver.close()
+        }
     }
     
     @Test
     fun testGetHymnByIdFailure() = runTest {
         val crashlytics = TestCrashlyticsManager()
-        val repository = TestHymnRepository(shouldThrow = true)
+        val (repository, driver) = createRepository(shouldThrow = true)
         val safeRepository = SafeHymnRepository(repository, crashlytics)
         
         val result = safeRepository.getHymnById(123L)
@@ -110,47 +101,51 @@ class SafeHymnRepositoryTest {
         assertEquals(1, crashlytics.exceptions.size)
         assertEquals(1, crashlytics.logs.size)
         assertEquals("Error in getHymnById: 123", crashlytics.logs[0])
-        assertEquals(123, crashlytics.customKeys["hymn_id"])
+        assertEquals("123", crashlytics.customKeys["hymn_id"])
     }
     
     @Test
     fun testAddToFavoritesSuccess() = runTest {
         val crashlytics = TestCrashlyticsManager()
-        val repository = TestHymnRepository(shouldThrow = false)
-        val safeRepository = SafeHymnRepository(repository, crashlytics)
-        
-        safeRepository.addToFavorites(1L)
-        
-        assertEquals(0, crashlytics.exceptions.size)
+        val (repository, driver) = createRepository(shouldThrow = false)
+        try {
+            val safeRepository = SafeHymnRepository(repository, crashlytics)
+            
+            safeRepository.addToFavorites(1L)
+            
+            assertEquals(0, crashlytics.exceptions.size)
+        } finally {
+            driver.close()
+        }
     }
     
     @Test
     fun testAddToFavoritesFailure() = runTest {
         val crashlytics = TestCrashlyticsManager()
-        val repository = TestHymnRepository(shouldThrow = true)
+        val (repository, driver) = createRepository(shouldThrow = true)
         val safeRepository = SafeHymnRepository(repository, crashlytics)
         
         try {
             safeRepository.addToFavorites(456L)
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             // Expected to throw after logging
         }
         
         assertEquals(1, crashlytics.exceptions.size)
         assertEquals(1, crashlytics.logs.size)
         assertEquals("Error in addToFavorites: 456", crashlytics.logs[0])
-        assertEquals(456, crashlytics.customKeys["hymn_id"])
+        assertEquals("456", crashlytics.customKeys["hymn_id"])
     }
     
     @Test
     fun testSearchHymnsReportsExceptionOnError() = runTest {
         val crashlytics = TestCrashlyticsManager()
-        val repository = TestHymnRepository(shouldThrow = true)
+        val (repository, driver) = createRepository(shouldThrow = true)
         val safeRepository = SafeHymnRepository(repository, crashlytics)
         
         try {
             safeRepository.searchHymns("test query").first()
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             // Expected - exception is logged and re-thrown
         }
         
@@ -162,19 +157,23 @@ class SafeHymnRepositoryTest {
     @Test
     fun testGetAllHymnsSuccess() = runTest {
         val crashlytics = TestCrashlyticsManager()
-        val repository = TestHymnRepository(shouldThrow = false)
-        val safeRepository = SafeHymnRepository(repository, crashlytics)
-        
-        val result = safeRepository.getAllHymns().first()
-        
-        assertEquals(emptyList(), result)
-        assertEquals(0, crashlytics.exceptions.size)
+        val (repository, driver) = createRepository(shouldThrow = false)
+        try {
+            val safeRepository = SafeHymnRepository(repository, crashlytics)
+            
+            val result = safeRepository.getAllHymns().first()
+            
+            assertEquals(1, result.size)
+            assertEquals(0, crashlytics.exceptions.size)
+        } finally {
+            driver.close()
+        }
     }
     
     @Test
     fun testMultipleOperationsRecordsSeparateExceptions() = runTest {
         val crashlytics = TestCrashlyticsManager()
-        val repository = TestHymnRepository(shouldThrow = true)
+        val (repository, driver) = createRepository(shouldThrow = true)
         val safeRepository = SafeHymnRepository(repository, crashlytics)
         
         // First operation
@@ -188,6 +187,6 @@ class SafeHymnRepositoryTest {
         assertEquals(2, crashlytics.exceptions.size)
         
         // Verify custom keys were set for both
-        assertEquals(2, crashlytics.customKeys["hymn_id"]) // Last value
+        assertEquals("2", crashlytics.customKeys["hymn_id"]) // Last value
     }
 }

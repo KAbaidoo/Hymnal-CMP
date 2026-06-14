@@ -80,8 +80,7 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.multiplatform.settings.test)
-            // Removed sqldelight.jvm to fix iOS test compilation
-            // Add platform-specific test drivers if needed
+            implementation(libs.sqldelight.jvm)
         }
 
         iosMain.dependencies {
