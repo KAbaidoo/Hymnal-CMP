@@ -21,10 +21,11 @@
 		CE559BF12ED99A1B0019BBAE /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = CE559BF02ED99A1B0019BBAE /* FirebaseCrashlytics */; };
 		CE559BF42ED9A1100019BBAE /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = CE559BF32ED9A1100019BBAE /* FirebaseAnalytics */; };
 		CE559BF62ED9A1100019BBAE /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = CE559BF52ED9A1100019BBAE /* FirebaseCrashlytics */; };
-		CE9A10062F90000100AA0001 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = CE9A10072F90000100AA0001 /* FirebaseMessaging */; };
 		CE559BFB2ED9B3B50019BBAE /* IosCrashlyticsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE559BFA2ED9B36D0019BBAE /* IosCrashlyticsProvider.swift */; };
 		CE9A10012F90000100AA0001 /* IosNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE9A10022F90000100AA0001 /* IosNotificationProvider.swift */; };
 		CE9A10052F90000100AA0001 /* IosPushNotificationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE9A10042F90000100AA0001 /* IosPushNotificationCoordinator.swift */; };
+		CE9A10062F90000100AA0001 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = CE9A10072F90000100AA0001 /* FirebaseMessaging */; };
+		CEA84E8F2F9E679900335875 /* IosRemoteConfigProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEA84E8E2F9E679900335875 /* IosRemoteConfigProvider.swift */; };
 		CEA93E322F77EFBA00A203C7 /* IosUpdateProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEA93E312F77EFBA00A203C7 /* IosUpdateProvider.swift */; };
 		CEEF7E732DC0B82E00345ABE /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = CEEF7E722DC0B82E00345ABE /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
@@ -45,6 +46,7 @@
 		CE559BFA2ED9B36D0019BBAE /* IosCrashlyticsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IosCrashlyticsProvider.swift; sourceTree = "<group>"; };
 		CE9A10022F90000100AA0001 /* IosNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IosNotificationProvider.swift; sourceTree = "<group>"; };
 		CE9A10042F90000100AA0001 /* IosPushNotificationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IosPushNotificationCoordinator.swift; sourceTree = "<group>"; };
+		CEA84E8E2F9E679900335875 /* IosRemoteConfigProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IosRemoteConfigProvider.swift; sourceTree = "<group>"; };
 		CEA93E312F77EFBA00A203C7 /* IosUpdateProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IosUpdateProvider.swift; sourceTree = "<group>"; };
 		CEEF7E722DC0B82E00345ABE /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -127,15 +129,6 @@
 			path = Core;
 			sourceTree = "<group>";
 		};
-		CE9A10032F90000100AA0001 /* notifications */ = {
-			isa = PBXGroup;
-			children = (
-				CE9A10022F90000100AA0001 /* IosNotificationProvider.swift */,
-				CE9A10042F90000100AA0001 /* IosPushNotificationCoordinator.swift */,
-			);
-			path = notifications;
-			sourceTree = "<group>";
-		};
 		CE41E3CD2EFCE59F0093BCC2 /* iap */ = {
 			isa = PBXGroup;
 			children = (
@@ -169,9 +162,19 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		CE9A10032F90000100AA0001 /* notifications */ = {
+			isa = PBXGroup;
+			children = (
+				CE9A10022F90000100AA0001 /* IosNotificationProvider.swift */,
+				CE9A10042F90000100AA0001 /* IosPushNotificationCoordinator.swift */,
+			);
+			path = notifications;
+			sourceTree = "<group>";
+		};
 		CEA93E2F2F77EFA400A203C7 /* update */ = {
 			isa = PBXGroup;
 			children = (
+				CEA84E8E2F9E679900335875 /* IosRemoteConfigProvider.swift */,
 				CEA93E312F77EFBA00A203C7 /* IosUpdateProvider.swift */,
 			);
 			path = update;
@@ -299,15 +302,16 @@
 		7555FF77242A565900829871 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
-				files = (
-					2152FB042600AC8F00CF470E /* iOSApp.swift in Sources */,
-					CE9A10012F90000100AA0001 /* IosNotificationProvider.swift in Sources */,
-					CE9A10052F90000100AA0001 /* IosPushNotificationCoordinator.swift in Sources */,
-					CE559BFB2ED9B3B50019BBAE /* IosCrashlyticsProvider.swift in Sources */,
-					CEA93E322F77EFBA00A203C7 /* IosUpdateProvider.swift in Sources */,
-					7555FF83242A565900829871 /* ContentView.swift in Sources */,
+			files = (
+				2152FB042600AC8F00CF470E /* iOSApp.swift in Sources */,
+				CE9A10012F90000100AA0001 /* IosNotificationProvider.swift in Sources */,
+				CE9A10052F90000100AA0001 /* IosPushNotificationCoordinator.swift in Sources */,
+				CE559BFB2ED9B3B50019BBAE /* IosCrashlyticsProvider.swift in Sources */,
+				CEA93E322F77EFBA00A203C7 /* IosUpdateProvider.swift in Sources */,
+				7555FF83242A565900829871 /* ContentView.swift in Sources */,
 				CE4685642F7862A700CE22C2 /* IosTraceProvider.swift in Sources */,
 				617C45D24CDCD459D052F71A /* IosPurchaseProvider.swift in Sources */,
+				CEA84E8F2F9E679900335875 /* IosRemoteConfigProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -19,7 +19,7 @@ class NotificationSchedulerTest {
         }
         val config = FakeRemoteConfigManager()
         val trace = FakeTraceManager()
-        val scheduler = NotificationScheduler(manager, preferences, config, trace)
+        val scheduler = NotificationScheduler(manager, preferences, config, trace, this)
 
         scheduler.syncSchedules()
 
@@ -43,7 +43,7 @@ class NotificationSchedulerTest {
         }
         val config = FakeRemoteConfigManager()
         val trace = FakeTraceManager()
-        val scheduler = NotificationScheduler(manager, preferences, config, trace)
+        val scheduler = NotificationScheduler(manager, preferences, config, trace, this)
 
         scheduler.syncSchedules()
 
@@ -64,7 +64,7 @@ class NotificationSchedulerTest {
         val preferences = NotificationPreferences(MapSettings())
         val config = FakeRemoteConfigManager()
         val trace = FakeTraceManager()
-        val scheduler = NotificationScheduler(manager, preferences, config, trace)
+        val scheduler = NotificationScheduler(manager, preferences, config, trace, this)
 
         scheduler.onAppLaunched()
 

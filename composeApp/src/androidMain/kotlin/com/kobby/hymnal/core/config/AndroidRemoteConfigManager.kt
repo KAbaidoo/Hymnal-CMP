@@ -33,13 +33,20 @@ class AndroidRemoteConfigManager : RemoteConfigManager {
     }
 
     override fun getBoolean(key: String, defaultValue: Boolean): Boolean {
-        // Firebase Remote Config returns false if key doesn't exist, which might not be our default.
-        // We can check if the key exists or just use the value if it's explicitly set.
-        // However, standard RC behavior is to use defaults set via setDefaultsAsync.
-        return remoteConfig.getBoolean(key)
+        val configValue = remoteConfig.getValue(key)
+        return if (configValue.source != FirebaseRemoteConfig.VALUE_SOURCE_STATIC) {
+            configValue.asBoolean()
+        } else {
+            defaultValue
+        }
     }
 
     override fun getLong(key: String, defaultValue: Long): Long {
-        return remoteConfig.getLong(key)
+        val configValue = remoteConfig.getValue(key)
+        return if (configValue.source != FirebaseRemoteConfig.VALUE_SOURCE_STATIC) {
+            configValue.asLong()
+        } else {
+            defaultValue
+        }
     }
 }

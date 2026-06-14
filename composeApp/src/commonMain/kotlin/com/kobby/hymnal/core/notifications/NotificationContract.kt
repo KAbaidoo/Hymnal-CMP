@@ -20,7 +20,7 @@ object NotificationWorkNames {
 object NotificationDefaults {
     const val SUNDAY_HOUR = 7
     const val SUNDAY_MINUTE = 30
-    const val INACTIVITY_DAYS = 3
+    const val INACTIVITY_DAYS = 14
     const val SEASONAL_HOUR = 8
     const val SEASONAL_MINUTE = 0
 

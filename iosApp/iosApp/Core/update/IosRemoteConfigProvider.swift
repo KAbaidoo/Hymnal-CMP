@@ -37,10 +37,12 @@ class IosRemoteConfigProvider: NativeRemoteConfigProvider {
     }
     
     func getBoolean(key: String, defaultValue: Bool) -> Bool {
-        return self.remoteConfig.configValue(forKey: key).boolValue
+        let value = self.remoteConfig.configValue(forKey: key)
+        return value.source == .static ? defaultValue : value.boolValue
     }
     
     func getLong(key: String, defaultValue: Int64) -> Int64 {
-        return self.remoteConfig.configValue(forKey: key).numberValue.int64Value
+        let value = self.remoteConfig.configValue(forKey: key)
+        return value.source == .static ? defaultValue : value.numberValue.int64Value
     }
 }
