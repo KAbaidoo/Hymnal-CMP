@@ -1,6 +1,7 @@
 package com.kobby.hymnal.core.database
 
 import android.content.Context
+import com.russhwolf.settings.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -9,18 +10,29 @@ import java.io.InputStream
 
 actual class DatabaseHelper(private val context: Context) {
     
+    private val settings = Settings()
+    
     private val databaseName = DATABASE_NAME
     private val prepackagedDatabasePath = "composeResources/hymnal_cmp.composeapp.generated.resources/files/$databaseName"
     
     actual suspend fun initializeDatabase(): String = withContext(Dispatchers.IO) {
         val databaseFile = File(context.getDatabasePath(databaseName).absolutePath)
+        val installedDbVersion = settings.getInt("installed_db_version", 1)
         
-        if (!isDatabaseInitialized()) {
+        if (!isDatabaseInitialized() || installedDbVersion < CURRENT_DATABASE_VERSION) {
             // Create database directory if it doesn't exist
             databaseFile.parentFile?.mkdirs()
             
+            // Delete existing file if we are updating
+            if (databaseFile.exists()) {
+                databaseFile.delete()
+            }
+            
             // Copy prepackaged database from assets
             copyDatabaseFromAssets(databaseFile)
+            
+            // Update installed version
+            settings.putInt("installed_db_version", CURRENT_DATABASE_VERSION)
         }
         
         databaseFile.absolutePath
