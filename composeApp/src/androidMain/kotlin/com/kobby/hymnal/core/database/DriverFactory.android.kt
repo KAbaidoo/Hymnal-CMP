@@ -7,11 +7,12 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.kobby.hymnal.composeApp.database.HymnDatabase
 import java.io.File
 
-actual class DriverFactory(private val context: Context) {
+actual class DriverFactory(
+    private val context: Context,
+    private val databaseHelper: DatabaseHelper
+) {
     
     actual suspend fun createDriver(): SqlDriver {
-        val databaseHelper = DatabaseHelper(context)
-        
         // Initialize the database (copy from assets if needed)
         val databasePath = databaseHelper.initializeDatabase()
         

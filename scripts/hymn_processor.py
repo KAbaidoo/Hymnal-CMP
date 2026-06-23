@@ -83,18 +83,15 @@ def create_database_schema(cursor):
 def parse_hymn_file(file_path, category):
     """Parse a single hymn file and extract hymn data"""
     try:
-        # Try different encodings to handle various text files
-        encodings = ['utf-8', 'latin-1', 'cp1252']
         content = None
-        
-        for encoding in encodings:
+        for encoding in ['utf-8', 'cp1252', 'latin-1']:
             try:
                 with open(file_path, 'r', encoding=encoding) as f:
                     content = f.read().strip()
                 break
             except UnicodeDecodeError:
                 continue
-        
+
         if content is None:
             print(f"Could not decode file {file_path} with any encoding")
             return None

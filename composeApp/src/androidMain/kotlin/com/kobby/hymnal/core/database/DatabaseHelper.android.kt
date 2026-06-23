@@ -8,9 +8,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 
-actual class DatabaseHelper(private val context: Context) {
-    
-    private val settings = Settings()
+actual class DatabaseHelper(private val context: Context, private val settings: Settings) {
     
     private val databaseName = DATABASE_NAME
     private val prepackagedDatabasePath = "composeResources/hymnal_cmp.composeapp.generated.resources/files/$databaseName"

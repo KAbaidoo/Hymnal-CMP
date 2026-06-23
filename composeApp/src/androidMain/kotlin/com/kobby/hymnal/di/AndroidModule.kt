@@ -16,9 +16,9 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 val androidModule = module {
-    single<DriverFactory> { DriverFactory(androidContext()) }
+    single<DatabaseHelper> { DatabaseHelper(androidContext(), get()) }
+    single<DriverFactory> { DriverFactory(androidContext(), get()) }
     single { runBlocking { createDatabase(get<DriverFactory>()) } }
-    single<DatabaseHelper> { DatabaseHelper(androidContext()) }
     single<DatabaseInitializer> { DatabaseInitializer(androidContext()) }
     single<ShareManager> { ShareManager(androidContext()) }
     single<ReviewManager> { AndroidReviewManager(androidContext(), get()) }

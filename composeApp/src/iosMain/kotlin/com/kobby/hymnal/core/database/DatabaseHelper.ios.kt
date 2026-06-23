@@ -8,9 +8,7 @@ import platform.Foundation.*
 import kotlinx.cinterop.*
 import com.russhwolf.settings.Settings
 
-actual class DatabaseHelper() {
-    
-    private val settings = Settings()
+actual class DatabaseHelper(private val settings: Settings) {
     
     @OptIn(ExperimentalResourceApi::class)
     actual suspend fun initializeDatabase(): String = withContext(Dispatchers.Default) {

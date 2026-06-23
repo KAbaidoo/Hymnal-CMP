@@ -4,11 +4,11 @@ import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.native.NativeSqliteDriver
 import com.kobby.hymnal.composeApp.database.HymnDatabase
 
-actual class DriverFactory {
+actual class DriverFactory(
+    private val databaseHelper: DatabaseHelper
+) {
     
     actual suspend fun createDriver(): SqlDriver {
-        val databaseHelper = DatabaseHelper()
-        
         // Initialize the database (copy from Compose resources if needed)
         databaseHelper.initializeDatabase()
         
