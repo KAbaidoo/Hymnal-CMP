@@ -98,3 +98,8 @@
 - Preference Storage: Updated NotificationPreferences to persist Remote Config values for reliable offline access by background workers.
 - Documentation: Added a detailed Remote Config Setup Guide (docs/REMOTE_CONFIG_SETUP_GUIDE.md) for configuring keys in the Firebase Console.
 - DI & Refactoring: Updated Koin modules and refactored AndroidUpdateManager to use the new config infrastructure.
+
+0.12.0
+- Update hymns DB.
+- Refactor DB helper DI and fix parser encoding.
+- Update source hymns and supplementary.
