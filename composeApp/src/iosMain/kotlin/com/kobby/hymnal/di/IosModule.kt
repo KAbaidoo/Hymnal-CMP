@@ -15,9 +15,9 @@ import kotlinx.coroutines.runBlocking
 import org.koin.dsl.module
 
 val iosModule = module {
-    single<DriverFactory> { DriverFactory() }
+    single<DatabaseHelper> { DatabaseHelper(get()) }
+    single<DriverFactory> { DriverFactory(get()) }
     single { runBlocking { createDatabase(get<DriverFactory>()) } }
-    single<DatabaseHelper> { DatabaseHelper() }
     single<DatabaseInitializer> { DatabaseInitializer() }
     single<ShareManager> { ShareManager() }
     single<ReviewManager> { IosReviewManager() }

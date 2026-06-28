@@ -6,15 +6,18 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import platform.Foundation.*
 import kotlinx.cinterop.*
+import com.russhwolf.settings.Settings
 
-actual class DatabaseHelper() {
+actual class DatabaseHelper(private val settings: Settings) {
     
     @OptIn(ExperimentalResourceApi::class)
     actual suspend fun initializeDatabase(): String = withContext(Dispatchers.Default) {
         val databasePath = getDatabasePath()
+        val installedDbVersion = settings.getInt("installed_db_version", 1)
         
-        if (!isDatabaseInitialized()) {
+        if (!isDatabaseInitialized() || installedDbVersion < CURRENT_DATABASE_VERSION) {
             copyDatabaseFromComposeResources(databasePath)
+            settings.putInt("installed_db_version", CURRENT_DATABASE_VERSION)
         }
         
         databasePath
