@@ -171,22 +171,26 @@ class AndroidNotificationManagerImpl(
             putExtra("notification_category", "test")
         }
 
-        val pendingIntent = android.app.PendingIntent.getActivity(
-            context,
-            999,
-            intent,
-            android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
-        )
+        val pendingIntent = intent?.let {
+            android.app.PendingIntent.getActivity(
+                context,
+                999,
+                it,
+                android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+            )
+        }
 
-        val notification = NotificationCompat.Builder(context, NotificationChannels.WEEKLY)
+        val notificationBuilder = NotificationCompat.Builder(context, NotificationChannels.WEEKLY)
             .setContentTitle("Hymnal Test Notification")
             .setContentText("This is a test notification to verify reminders are working!")
-            .setSmallIcon(R.drawable.anglican)
+            .setSmallIcon(R.drawable.ic_notification)
             .setAutoCancel(true)
-            .setContentIntent(pendingIntent)
-            .build()
 
-        notificationManager.notify(999, notification)
+        pendingIntent?.let {
+            notificationBuilder.setContentIntent(it)
+        }
+
+        notificationManager.notify(999, notificationBuilder.build())
     }
 }
 

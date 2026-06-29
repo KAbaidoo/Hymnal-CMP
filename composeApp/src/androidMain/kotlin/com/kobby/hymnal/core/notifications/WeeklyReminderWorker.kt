@@ -8,6 +8,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.kobby.hymnal.R
 
 class WeeklyReminderWorker(
     private val context: Context,
@@ -38,22 +39,26 @@ class WeeklyReminderWorker(
             putExtra("notification_category", NotificationCategory.WEEKLY.name.lowercase())
         }
 
-        val pendingIntent = android.app.PendingIntent.getActivity(
-            context,
-            101,
-            intent,
-            android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
-        )
+        val pendingIntent = intent?.let {
+            android.app.PendingIntent.getActivity(
+                context,
+                101,
+                it,
+                android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+            )
+        }
 
-        val notification = NotificationCompat.Builder(context, NotificationChannels.WEEKLY)
+        val notificationBuilder = NotificationCompat.Builder(context, NotificationChannels.WEEKLY)
             .setContentTitle(settings.weeklyTitle)
             .setContentText(settings.weeklyBody)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(R.drawable.ic_notification)
             .setAutoCancel(true)
-            .setContentIntent(pendingIntent)
-            .build()
 
-        notificationManager.notify(101, notification)
+        pendingIntent?.let {
+            notificationBuilder.setContentIntent(it)
+        }
+
+        notificationManager.notify(101, notificationBuilder.build())
 
         AndroidNotificationWorkScheduler.scheduleNextWeekly(
             context = context,
