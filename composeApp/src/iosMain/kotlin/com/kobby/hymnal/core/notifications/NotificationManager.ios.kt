@@ -13,6 +13,7 @@ interface NativeNotificationProvider {
     fun syncCampaignSubscription(enabled: Boolean)
     fun cancelAll()
     fun requestPermission()
+    fun sendTestNotification()
 }
 
 private var nativeNotificationProvider: NativeNotificationProvider? = null
@@ -49,6 +50,10 @@ class IosNotificationManagerImpl(private val preferences: NotificationPreference
 
     override fun requestPermission() {
         nativeNotificationProvider?.requestPermission()
+    }
+
+    override fun sendTestNotification() {
+        nativeNotificationProvider?.sendTestNotification()
     }
 }
 

@@ -254,7 +254,7 @@ private fun HomeScreenContent(
         ) { paddingValues ->
             Column(modifier = Modifier.fillMaxWidth()
                 .padding( paddingValues)
-                .offset(y = (80).dp)
+                .offset(y = (60).dp)
                 .verticalScroll(rememberScrollState())
 
             ) {

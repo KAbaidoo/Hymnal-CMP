@@ -121,4 +121,20 @@ class IosNotificationProvider: NativeNotificationProvider {
             }
         }
     }
+
+    func sendTestNotification() {
+        let content = UNMutableNotificationContent()
+        content.title = "Hymnal Test Notification"
+        content.body = "This is a test notification to verify reminders are working!"
+        content.sound = UNNotificationSound.default
+        
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1.0, repeats: false)
+        let request = UNNotificationRequest(identifier: "test_notification", content: content, trigger: trigger)
+        
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Error scheduling test notification: \(error.localizedDescription)")
+            }
+        }
+    }
 }
