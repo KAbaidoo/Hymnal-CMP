@@ -80,7 +80,6 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.multiplatform.settings.test)
-            implementation(libs.sqldelight.jvm)
         }
 
         iosMain.dependencies {
