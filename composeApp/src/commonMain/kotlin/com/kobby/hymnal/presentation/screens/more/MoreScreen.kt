@@ -47,6 +47,9 @@ class MoreScreen : Screen {
                 }
                 notificationScheduler.syncSchedules()
             },
+            onTestNotification = {
+                notificationManager.sendTestNotification()
+            },
             onItemClick = { item ->
                 traceManager.track(
                     TraceEvents.MORE_MENU_NAVIGATION,

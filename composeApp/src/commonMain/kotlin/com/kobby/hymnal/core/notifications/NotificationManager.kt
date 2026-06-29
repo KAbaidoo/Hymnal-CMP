@@ -7,6 +7,7 @@ interface NotificationManager {
     fun syncCampaignSubscription()
     fun cancelAll()
     fun requestPermission()
+    fun sendTestNotification()
 }
 
 expect fun createNotificationManager(): NotificationManager

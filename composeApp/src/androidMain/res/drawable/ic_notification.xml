@@ -1,0 +1,34 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+
+    <group
+        android:name="logo_group"
+        android:pivotX="256"
+        android:pivotY="100"
+        android:scaleX="1.5"
+        android:scaleY="1.5">
+
+        <!-- Clip path to carve out the page lines from the solid white shapes -->
+        <clip-path
+            android:fillType="evenOdd"
+            android:pathData="M-1000,-1000 L2000,-1000 L2000,2000 L-1000,2000 Z M253.31,292.47C253.31,292.47 266.01,237.18 354.1,213.21C354.1,213.21 273.88,209.3 253.31,292.47Z M249.4,291.51C249.4,291.51 246.44,221.38 160.39,176.54L162.31,195.52C162.31,195.52 217.97,214.62 249.4,291.51Z" />
+
+        <!-- Book main body -->
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M116.44,244.97C221.66,249.7 251.5,321.94 251.5,321.94C251.5,321.94 281.34,249.7 386.56,244.97L383.97,298.75C394.83,278.03 401,254.5 401,229.5C401,146.96 334.08,80 251.5,80C168.92,80 102,146.92 102,229.5C102,254.5 108.17,278.07 119.03,298.75L116.44,244.97Z" />
+
+        <!-- Right swoop -->
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M251.5,321.94C251.5,321.94 278.13,257.64 369.53,246.41L366.95,215.91C250.72,257.53 251.5,321.94 251.5,321.94Z" />
+
+        <!-- Left swoop -->
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M135.98,215.69L133.35,246.41C221.7,257.2 249.58,317.55 251.39,321.72C251.39,321.72 252.16,257.31 135.94,215.69H135.98Z" />
+    </group>
+</vector>

@@ -66,6 +66,7 @@
     <string name="settings">Settings</string>
     <string name="dark_mode">Dark mode</string>
     <string name="version">Version</string>
+    <string name="test_notification">Test Notification</string>
 
     <!-- Favorites/Highlights/History empty and actions -->
     <string name="no_favorite_hymns">No favorite hymns yet</string>
