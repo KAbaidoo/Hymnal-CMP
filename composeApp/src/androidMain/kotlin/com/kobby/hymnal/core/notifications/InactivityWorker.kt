@@ -8,6 +8,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.kobby.hymnal.R
 import java.util.concurrent.TimeUnit
 
 class InactivityWorker(
@@ -47,22 +48,26 @@ class InactivityWorker(
             putExtra("notification_category", NotificationCategory.INACTIVITY.name.lowercase())
         }
 
-        val pendingIntent = android.app.PendingIntent.getActivity(
-            context,
-            102,
-            intent,
-            android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
-        )
+        val pendingIntent = intent?.let {
+            android.app.PendingIntent.getActivity(
+                context,
+                102,
+                it,
+                android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+            )
+        }
 
-        val notification = NotificationCompat.Builder(context, NotificationChannels.INACTIVITY)
+        val notificationBuilder = NotificationCompat.Builder(context, NotificationChannels.INACTIVITY)
             .setContentTitle(settings.inactivityTitle)
             .setContentText(settings.inactivityBody)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(R.drawable.ic_notification)
             .setAutoCancel(true)
-            .setContentIntent(pendingIntent)
-            .build()
 
-        notificationManager.notify(102, notification)
+        pendingIntent?.let {
+            notificationBuilder.setContentIntent(it)
+        }
+
+        notificationManager.notify(102, notificationBuilder.build())
         return Result.success()
     }
 }

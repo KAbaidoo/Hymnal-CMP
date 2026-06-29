@@ -8,6 +8,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.kobby.hymnal.R
 
 class SeasonalReminderWorker(
     private val context: Context,
@@ -45,22 +46,26 @@ class SeasonalReminderWorker(
             putExtra("event_id", eventId)
         }
 
-        val pendingIntent = android.app.PendingIntent.getActivity(
-            context,
-            eventId.hashCode(),
-            intent,
-            android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
-        )
+        val pendingIntent = intent?.let {
+            android.app.PendingIntent.getActivity(
+                context,
+                eventId.hashCode(),
+                it,
+                android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+            )
+        }
 
-        val notification = NotificationCompat.Builder(context, NotificationChannels.SEASONAL)
+        val notificationBuilder = NotificationCompat.Builder(context, NotificationChannels.SEASONAL)
             .setContentTitle(title)
             .setContentText(body)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(R.drawable.ic_notification)
             .setAutoCancel(true)
-            .setContentIntent(pendingIntent)
-            .build()
 
-        notificationManager.notify(eventId.hashCode(), notification)
+        pendingIntent?.let {
+            notificationBuilder.setContentIntent(it)
+        }
+
+        notificationManager.notify(eventId.hashCode(), notificationBuilder.build())
         return Result.success()
     }
 }

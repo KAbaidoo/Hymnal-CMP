@@ -6,9 +6,11 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.work.WorkManager
 import com.google.firebase.messaging.FirebaseMessaging
+import com.kobby.hymnal.R
 import com.kobby.hymnal.core.util.ActivityProvider
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -144,6 +146,51 @@ class AndroidNotificationManagerImpl(
                 5001
             )
         }
+    }
+
+    override fun sendTestNotification() {
+        val hasPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        } else {
+            true
+        }
+
+        if (!hasPermission) {
+            requestPermission()
+            return
+        }
+
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as AndroidNotificationManager
+
+        val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
+            flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra("notification_category", "test")
+        }
+
+        val pendingIntent = intent?.let {
+            android.app.PendingIntent.getActivity(
+                context,
+                999,
+                it,
+                android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+            )
+        }
+
+        val notificationBuilder = NotificationCompat.Builder(context, NotificationChannels.WEEKLY)
+            .setContentTitle("Hymnal Test Notification")
+            .setContentText("This is a test notification to verify reminders are working!")
+            .setSmallIcon(R.drawable.ic_notification)
+            .setAutoCancel(true)
+
+        pendingIntent?.let {
+            notificationBuilder.setContentIntent(it)
+        }
+
+        notificationManager.notify(999, notificationBuilder.build())
     }
 }
 

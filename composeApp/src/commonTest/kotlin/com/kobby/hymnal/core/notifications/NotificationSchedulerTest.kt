@@ -80,6 +80,7 @@ private class FakeNotificationManager : NotificationManager {
     var syncCampaignSubscriptionCalls = 0
     var cancelAllCalls = 0
     var requestPermissionCalls = 0
+    var sendTestNotificationCalls = 0
 
     override fun scheduleWeekly(settings: NotificationSettings) {
         scheduleWeeklyCalls++
@@ -103,6 +104,10 @@ private class FakeNotificationManager : NotificationManager {
 
     override fun requestPermission() {
         requestPermissionCalls++
+    }
+
+    override fun sendTestNotification() {
+        sendTestNotificationCalls++
     }
 }
 

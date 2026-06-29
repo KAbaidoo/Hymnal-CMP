@@ -15,12 +15,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kobby.hymnal.BuildKonfig
+import com.kobby.hymnal.core.config.isDebug
 import com.kobby.hymnal.presentation.components.ContentScreen
 import com.kobby.hymnal.presentation.components.ListItem
 import com.kobby.hymnal.presentation.components.ToggleListItem
 import com.kobby.hymnal.theme.HymnalAppTheme
 import hymnal_cmp.composeapp.generated.resources.Res
 import hymnal_cmp.composeapp.generated.resources.more
+import hymnal_cmp.composeapp.generated.resources.test_notification
 import hymnal_cmp.composeapp.generated.resources.version
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -29,6 +31,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 fun MoreScreenContent(
     notificationsEnabled: Boolean,
     onNotificationsToggle: (Boolean) -> Unit,
+    onTestNotification: () -> Unit,
     onItemClick: (String) -> Unit,
     onBackClick: () -> Unit,
     onHomeClick: () -> Unit,
@@ -63,6 +66,13 @@ fun MoreScreenContent(
                     onCheckedChange = onNotificationsToggle
                 )
 
+                if (notificationsEnabled && isDebug) {
+                    ListItem(
+                        title = stringResource(Res.string.test_notification),
+                        onClick = onTestNotification
+                    )
+                }
+
                 Spacer(modifier = Modifier.weight(1f))
 
                 Text(
@@ -87,6 +97,7 @@ fun MoreScreenContentPreview() {
         MoreScreenContent(
             notificationsEnabled = true,
             onNotificationsToggle = {},
+            onTestNotification = {},
             onItemClick = {},
             onBackClick = {},
             onHomeClick = {}
@@ -101,6 +112,7 @@ fun MoreScreenContentDarkPreview() {
         MoreScreenContent(
             notificationsEnabled = false,
             onNotificationsToggle = {},
+            onTestNotification = {},
             onItemClick = {},
             onBackClick = {},
             onHomeClick = {}

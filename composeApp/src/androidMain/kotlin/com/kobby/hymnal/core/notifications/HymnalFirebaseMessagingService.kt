@@ -7,6 +7,7 @@ import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.kobby.hymnal.MainActivity
+import com.kobby.hymnal.R
 import com.kobby.hymnal.core.trace.TraceEvents
 import com.kobby.hymnal.core.trace.TraceManager
 import com.kobby.hymnal.core.trace.traceParams
@@ -47,22 +48,26 @@ class HymnalFirebaseMessagingService : FirebaseMessagingService() {
             putExtra("notification_category", NotificationCategory.CAMPAIGN.name.lowercase())
         }
 
-        val pendingIntent = PendingIntent.getActivity(
-            this,
-            2001,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+        val pendingIntent = intent?.let {
+            PendingIntent.getActivity(
+                this,
+                2001,
+                it,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        }
 
-        val notification = NotificationCompat.Builder(this, NotificationChannels.CAMPAIGN)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+        val notificationBuilder = NotificationCompat.Builder(this, NotificationChannels.CAMPAIGN)
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
             .setContentText(body)
             .setAutoCancel(true)
-            .setContentIntent(pendingIntent)
-            .build()
+
+        pendingIntent?.let {
+            notificationBuilder.setContentIntent(it)
+        }
 
         val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        manager.notify(message.messageId?.hashCode() ?: 2001, notification)
+        manager.notify(message.messageId?.hashCode() ?: 2001, notificationBuilder.build())
     }
 }
