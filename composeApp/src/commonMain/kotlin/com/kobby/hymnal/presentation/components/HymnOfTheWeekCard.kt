@@ -40,6 +40,9 @@ import hymnal_cmp.composeapp.generated.resources.heart_2_line
 import hymnal_cmp.composeapp.generated.resources.heart_2_fill
 import hymnal_cmp.composeapp.generated.resources.my_hymns
 import hymnal_cmp.composeapp.generated.resources.share_line
+import hymnal_cmp.composeapp.generated.resources.cd_remove_favorite
+import hymnal_cmp.composeapp.generated.resources.cd_add_favorite
+import hymnal_cmp.composeapp.generated.resources.cd_share
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
@@ -173,7 +176,7 @@ fun HymnOfTheWeekCard(
                     ) {
                         Icon(
                             imageVector = vectorResource(if (isFavorite) Res.drawable.heart_2_fill else Res.drawable.heart_2_line),
-                            contentDescription = if (isFavorite) stringResource(Res.string.unlike) else stringResource(Res.string.like),
+                            contentDescription = if (isFavorite) stringResource(Res.string.cd_remove_favorite) else stringResource(Res.string.cd_add_favorite),
                             tint = Color.White,
                             modifier = Modifier.size(20.dp)
                         )
@@ -191,7 +194,7 @@ fun HymnOfTheWeekCard(
                     ) {
                         Icon(
                             imageVector = vectorResource(Res.drawable.share_line),
-                            contentDescription = stringResource(Res.string.share),
+                            contentDescription = stringResource(Res.string.cd_share),
                             tint = Color.White,
                             modifier = Modifier.size(20.dp)
                         )

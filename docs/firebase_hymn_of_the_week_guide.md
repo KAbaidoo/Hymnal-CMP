@@ -20,7 +20,7 @@ The string is a comma-separated list of key-value pairs.
 Each pair is formatted as `YYYY-WW:HymnID`.
 
 - **`YYYY`**: The 4-digit year.
-- **`WW`**: The 2-digit week of the year (00 to 52). Note that week numbers are zero-padded (e.g. `05` for week 5).
+- **`WW`**: The 2-digit week of the year (01 to 53). Note that week numbers are zero-padded (e.g. `05` for week 5).
 - **`HymnID`**: The exact ID of the hymn you want to feature (1 to 991).
 
 ### Examples
@@ -38,7 +38,7 @@ To override the 14th week to show #150, and the 51st week (Christmas) to show #5
 ```
 
 > [!TIP]
-> **Week Calculation**: The week number is calculated mathematically by taking the `DayOfYear` divided by `7`. For example, January 1st to 7th is week `00`, January 8th to 14th is week `01`, etc.
+> **Week Calculation**: The week number is calculated mathematically by taking `(DayOfYear - 1)` divided by `7`, plus `1`. For example, January 1st to 7th is week `01`, January 8th to 14th is week `02`, etc.
 
 ## Fallback Behavior
 

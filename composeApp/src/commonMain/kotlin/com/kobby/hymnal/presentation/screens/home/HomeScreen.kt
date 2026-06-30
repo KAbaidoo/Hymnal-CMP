@@ -88,6 +88,7 @@ import hymnal_cmp.composeapp.generated.resources.cathedral
 import hymnal_cmp.composeapp.generated.resources.find_your_hymns
 import hymnal_cmp.composeapp.generated.resources.explore_collection
 import hymnal_cmp.composeapp.generated.resources.my_hymns
+import hymnal_cmp.composeapp.generated.resources.hymn_of_the_week
 import hymnal_cmp.composeapp.generated.resources.cd_open
 import hymnal_cmp.composeapp.generated.resources.cd_settings
 import hymnal_cmp.composeapp.generated.resources.cd_search
@@ -125,7 +126,7 @@ class HomeScreen : Screen {
                 try {
                     val now = Clock.System.now().toLocalDateTime(TimeZone.UTC)
                     val year = now.year
-                    val week = now.dayOfYear / 7
+                    val week = (now.dayOfYear - 1) / 7 + 1
                     val currentWeekKey = "$year-${week.toString().padStart(2, '0')}"
                     
                     val overrideMap = remoteConfigManager.getString("hymn_of_the_week_map", "")
@@ -143,8 +144,9 @@ class HomeScreen : Screen {
                         }
                     }
                     
-                    val finalId = overrideId ?: (((year * 53L + week) % 991) + 1)
-                    featuredHymn = repository.getHymnById(finalId)
+                    val localFeaturedId = (((year * 53L + week) % 991) + 1)
+                    val finalId = overrideId ?: localFeaturedId
+                    featuredHymn = repository.getHymnById(finalId) ?: repository.getHymnById(localFeaturedId)
                 } catch (e: Exception) {
                     // Fallback to a random hymn or nothing
                 }
@@ -399,7 +401,7 @@ private fun HomeScreenContent(
                                 onCardClick = onCardClick
                             )
 
-                            Spacer(modifier = Modifier.height(24.dp))
+                            Spacer(modifier = Modifier.height(16.dp))
                             CategoryButtons(
                                 title = "Ancient & Modern",
                                 onClick = onAncientModernClick
