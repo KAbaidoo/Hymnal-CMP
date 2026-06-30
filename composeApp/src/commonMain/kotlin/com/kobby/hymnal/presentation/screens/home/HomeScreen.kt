@@ -348,13 +348,13 @@ private fun HomeScreenContent(
 
                     ScreenBackground(
                         modifier = Modifier
-                            .offset(y = (40).dp)
+                            .padding(top = 40.dp)
                             .clip(RoundedCornerShape(32.dp, 32.dp, 0.dp, 0.dp))
                     ) {
                         Column(
                             modifier = Modifier
                                 .padding(16.dp)
-                                .padding(vertical = 16.dp)
+                                .padding(vertical = 12.dp)
                                 .fillMaxWidth()
                         ) {
                             val backgroundImages = listOf(
@@ -426,7 +426,6 @@ private fun HomeScreenContent(
                                     onClick = onTestDatabaseClick
                                 )
                             }
-                            Spacer(modifier = Modifier.height(20.dp))
                         }
                     }
             }
