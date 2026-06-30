@@ -191,7 +191,7 @@ fun HymnOfTheWeekCard(
                     ) {
                         Icon(
                             imageVector = vectorResource(Res.drawable.share_line),
-                            contentDescription = "Share",
+                            contentDescription = stringResource(Res.string.share),
                             tint = Color.White,
                             modifier = Modifier.size(20.dp)
                         )
