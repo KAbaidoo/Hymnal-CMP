@@ -173,7 +173,7 @@ fun HymnOfTheWeekCard(
                     ) {
                         Icon(
                             imageVector = vectorResource(if (isFavorite) Res.drawable.heart_2_fill else Res.drawable.heart_2_line),
-                            contentDescription = if (isFavorite) "Unlike" else "Like",
+                            contentDescription = if (isFavorite) stringResource(Res.string.unlike) else stringResource(Res.string.like),
                             tint = Color.White,
                             modifier = Modifier.size(20.dp)
                         )
