@@ -389,7 +389,7 @@ private fun HomeScreenContent(
                             HymnOfTheWeekCard(
                                 backgroundImage = backgroundImage,
                                 isFavorite = isFeaturedFavorite,
-                                title = "HYMN OF THE WEEK",
+                                title = stringResource(Res.string.hymn_of_the_week),
                                 hymnCategory = categoryAbbr,
                                 hymnNumber = featuredHymn?.number?.toString() ?: "207",
                                 hymnSnippet = hymnSnippet,
