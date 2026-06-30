@@ -47,11 +47,29 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import com.kobby.hymnal.presentation.components.CategoryButtons
 import com.kobby.hymnal.presentation.components.ScreenBackground
-import com.kobby.hymnal.presentation.components.SemiTransparentCard
+import com.kobby.hymnal.presentation.components.HymnOfTheWeekCard
 import com.kobby.hymnal.presentation.screens.hymns.HymnListScreen
+import com.kobby.hymnal.presentation.screens.hymns.HymnDetailScreen
 import com.kobby.hymnal.core.database.HymnRepository
+import com.kobby.hymnal.core.config.RemoteConfigManager
+import com.kobby.hymnal.core.sharing.ShareManager
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import com.kobby.hymnal.composeApp.database.Hymn
+import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.DrawableResource
+import hymnal_cmp.composeapp.generated.resources.arafed_cross_hill_with_foggy_sky_background_generative_ai
+import hymnal_cmp.composeapp.generated.resources.easter_sunrise_service_church
+import hymnal_cmp.composeapp.generated.resources.ecological_environment_growth_seedling_tree
+import hymnal_cmp.composeapp.generated.resources.mountain_peaks_peeking_through_low_hanging_clouds
+import hymnal_cmp.composeapp.generated.resources.trees_forest_foggy_weather
 import com.kobby.hymnal.presentation.screens.more.FavoritesScreen
 import com.kobby.hymnal.presentation.screens.more.MoreScreen
 import com.kobby.hymnal.presentation.screens.search.GlobalSearchScreen
@@ -70,6 +88,7 @@ import hymnal_cmp.composeapp.generated.resources.cathedral
 import hymnal_cmp.composeapp.generated.resources.find_your_hymns
 import hymnal_cmp.composeapp.generated.resources.explore_collection
 import hymnal_cmp.composeapp.generated.resources.my_hymns
+import hymnal_cmp.composeapp.generated.resources.hymn_of_the_week
 import hymnal_cmp.composeapp.generated.resources.cd_open
 import hymnal_cmp.composeapp.generated.resources.cd_settings
 import hymnal_cmp.composeapp.generated.resources.cd_search
@@ -91,12 +110,51 @@ class HomeScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
         val updateManager: UpdateManager = koinInject()
         val traceManager: TraceManager = koinInject()
+        val repository: HymnRepository = koinInject()
+        val remoteConfigManager: RemoteConfigManager = koinInject()
+        val shareManager: ShareManager = koinInject()
         val uriHandler = LocalUriHandler.current
+        val scope = rememberCoroutineScope()
         var isDeveloperMode by remember { mutableStateOf(false) }
         var updateResult by remember { mutableStateOf<UpdateResult?>(null) }
+        var featuredHymn by remember { mutableStateOf<Hymn?>(null) }
 
         LaunchedEffect(Unit) {
             updateResult = updateManager.checkForUpdates()
+            
+            withContext(Dispatchers.Default) {
+                try {
+                    val now = Clock.System.now().toLocalDateTime(TimeZone.UTC)
+                    val year = now.year
+                    val week = (now.dayOfYear - 1) / 7 + 1
+                    val currentWeekKey = "$year-${week.toString().padStart(2, '0')}"
+                    
+                    val overrideMap = remoteConfigManager.getString("hymn_of_the_week_map", "")
+                    var overrideId: Long? = null
+                    
+                    if (overrideMap.isNotEmpty()) {
+                        try {
+                            val map = overrideMap.split(",")
+                                .map { it.split(":") }
+                                .filter { it.size == 2 }
+                                .associate { it[0].trim() to it[1].trim().toLongOrNull() }
+                            overrideId = map[currentWeekKey]
+                        } catch (e: Exception) {
+                            // Map parsing failed, fallback
+                        }
+                    }
+                    
+                    val localFeaturedId = (((year * 53L + week) % 991) + 1)
+                    val finalId = overrideId ?: localFeaturedId
+                    featuredHymn = repository.getHymnById(finalId) ?: repository.getHymnById(localFeaturedId)
+                } catch (e: Exception) {
+                    // Fallback to a random hymn or nothing
+                }
+            }
+        }
+        val favoriteHymns by repository.getFavoriteHymns().collectAsState(initial = emptyList())
+        val isFeaturedFavorite = remember(featuredHymn, favoriteHymns) {
+            featuredHymn?.let { hymn -> favoriteHymns.any { it.id == hymn.id } } ?: false
         }
 
         updateResult?.let { result ->
@@ -214,7 +272,34 @@ class HomeScreen : Screen {
                 )
             },
             onTestDatabaseClick = { navigator.push(TestHymnScreen()) },
-            isDeveloperMode = isDeveloperMode
+            isDeveloperMode = isDeveloperMode,
+            featuredHymn = featuredHymn,
+            isFeaturedFavorite = isFeaturedFavorite,
+            onFavoriteIconClick = {
+                featuredHymn?.let { hymn ->
+                    scope.launch {
+                        if (isFeaturedFavorite) {
+                            repository.removeFromFavorites(hymn.id)
+                        } else {
+                            repository.addToFavorites(hymn.id)
+                        }
+                    }
+                }
+            },
+            onShareIconClick = {
+                featuredHymn?.let { hymn ->
+                    shareManager.shareHymn(hymn)
+                }
+            },
+            onCardClick = {
+                featuredHymn?.let { hymn ->
+                    traceManager.track(
+                        TraceEvents.HOME_NAVIGATION_CLICK,
+                        traceParams("target" to "featured_hymn", "hymn_id" to hymn.id, "screen" to "home")
+                    )
+                    navigator.push(HymnDetailScreen(hymnId = hymn.id, source = "featured_hymn"))
+                }
+            }
         )
     }
 }
@@ -231,7 +316,12 @@ private fun HomeScreenContent(
     onMoreClick: () -> Unit = {},
     onMoreLongClick: () -> Unit = {},
     onTestDatabaseClick: () -> Unit = {},
-    isDeveloperMode: Boolean = false
+    isDeveloperMode: Boolean = false,
+    featuredHymn: Hymn? = null,
+    isFeaturedFavorite: Boolean = false,
+    onFavoriteIconClick: () -> Unit = {},
+    onShareIconClick: () -> Unit = {},
+    onCardClick: () -> Unit = {}
 ) {
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.primary)) {
         Image(
@@ -254,60 +344,64 @@ private fun HomeScreenContent(
         ) { paddingValues ->
             Column(modifier = Modifier.fillMaxWidth()
                 .padding( paddingValues)
-                .offset(y = (60).dp)
+                .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-
             ) {
 
                     ScreenBackground(
                         modifier = Modifier
-                            .fillMaxSize()
+                            .padding(top = 40.dp)
                             .clip(RoundedCornerShape(32.dp, 32.dp, 0.dp, 0.dp))
                     ) {
                         Column(
                             modifier = Modifier
                                 .padding(16.dp)
-                                .padding(vertical = 20.dp)
+                                .padding(vertical = 12.dp)
                                 .fillMaxWidth()
                         ) {
+                            val backgroundImages = listOf(
+                                Res.drawable.arafed_cross_hill_with_foggy_sky_background_generative_ai,
+                                Res.drawable.easter_sunrise_service_church,
+                                Res.drawable.ecological_environment_growth_seedling_tree,
+                                Res.drawable.mountain_peaks_peeking_through_low_hanging_clouds,
+                                Res.drawable.trees_forest_foggy_weather
+                            )
 
-                            SemiTransparentCard {
-                                Text(
-                                    text = stringResource(Res.string.find_your_hymns),
-                                    style = MaterialTheme.typography.headlineMedium,
-                                    color = DarkTextColor,
-                                    modifier = Modifier.padding(bottom = 8.dp)
-                                )
-                                Text(
-                                    text = stringResource(Res.string.explore_collection),
-                                    color = DarkTextColor.copy(alpha = 0.7f),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    modifier = Modifier.padding(top = 4.dp, bottom = 24.dp)
-                                )
+                            val backgroundImage = remember(featuredHymn) {
+                                featuredHymn?.let { hymn ->
+                                    backgroundImages[(hymn.id % backgroundImages.size).toInt()]
+                                } ?: Res.drawable.cathedral
+                            }
 
-                                Button(
-                                    onClick = onFavoritesClick,
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = MaterialTheme.colorScheme.secondary
-                                    ),
-                                    shape = Shapes.medium,
-                                    modifier = Modifier.height(40.dp)
-                                ) {
-                                    Text(
-                                        text = stringResource(Res.string.my_hymns),
-                                        color = MaterialTheme.colorScheme.primary,
-                                        style = MaterialTheme.typography.bodyLarge,
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Icon(
-                                        imageVector = Icons.Outlined.ArrowForward,
-                                        contentDescription = stringResource(Res.string.cd_open),
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
+                            val categoryAbbr = remember(featuredHymn) {
+                                when (featuredHymn?.category) {
+                                    HymnRepository.CATEGORY_ANCIENT_MODERN -> "A&M"
+                                    HymnRepository.CATEGORY_SUPPLEMENTARY -> "Supp"
+                                    HymnRepository.CATEGORY_PSALMS -> "Psalm"
+                                    HymnRepository.CATEGORY_CANTICLES -> "Canticle"
+                                    else -> "Hymn"
                                 }
                             }
 
-                            Spacer(modifier = Modifier.height(24.dp))
+                            val hymnSnippet = remember(featuredHymn) {
+                                featuredHymn?.let { getHymnSnippet(it) }
+                                    ?: "\"Amazing grace! how sweet the sound, That saved a wretch like me! I once was lost, but now amfound; Was blind, but now I see.\"..."
+                            }
+
+                            HymnOfTheWeekCard(
+                                backgroundImage = backgroundImage,
+                                isFavorite = isFeaturedFavorite,
+                                title = stringResource(Res.string.hymn_of_the_week),
+                                hymnCategory = categoryAbbr,
+                                hymnNumber = featuredHymn?.number?.toString() ?: "207",
+                                hymnSnippet = hymnSnippet,
+                                onFavoritesButtonClick = onFavoritesClick,
+                                onFavoriteIconClick = onFavoriteIconClick,
+                                onShareIconClick = onShareIconClick,
+                                onCardClick = onCardClick
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
                             CategoryButtons(
                                 title = "Ancient & Modern",
                                 onClick = onAncientModernClick
@@ -409,5 +503,20 @@ private fun AppBar(
 fun HomeScreenContentPreview(){
     HymnalAppTheme {
         HomeScreenContent()
+    }
+}
+
+private fun getHymnSnippet(hymn: Hymn): String {
+    val content = hymn.content
+    val lines = content.lines().filter { it.isNotBlank() }
+
+    return if (hymn.category == HymnRepository.CATEGORY_CANTICLES || hymn.category == HymnRepository.CATEGORY_PSALMS) {
+        // For psalms and canticles, take the first two lines
+        val snippet = lines.take(2).joinToString(" ")
+        if (snippet.length > 150) "${snippet.substring(0, 147)}..." else "$snippet..."
+    } else {
+        // For standard hymns, try to extract the first verse cleanly
+        val snippet = lines.take(4).joinToString(" ")
+        if (snippet.length > 150) "${snippet.substring(0, 147)}..." else "$snippet..."
     }
 }

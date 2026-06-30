@@ -17,5 +17,7 @@ interface RemoteConfigManager {
         const val KEY_INACTIVITY_DAYS = "notifications_inactivity_days"
         
         const val KEY_SEASONAL_ENABLED = "notifications_seasonal_enabled"
+        
+        const val KEY_HYMN_OF_THE_WEEK_MAP = "hymn_of_the_week_map"
     }
 }
