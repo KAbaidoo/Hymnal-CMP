@@ -73,12 +73,9 @@ import hymnal_cmp.composeapp.generated.resources.trees_forest_foggy_weather
 import com.kobby.hymnal.presentation.screens.more.FavoritesScreen
 import com.kobby.hymnal.presentation.screens.more.MoreScreen
 import com.kobby.hymnal.presentation.screens.search.GlobalSearchScreen
-import com.kobby.hymnal.core.update.UpdateManager
-import com.kobby.hymnal.core.update.UpdateResult
 import com.kobby.hymnal.core.trace.TraceEvents
 import com.kobby.hymnal.core.trace.TraceManager
 import com.kobby.hymnal.core.trace.traceParams
-import com.kobby.hymnal.presentation.components.UpdatePromptDialog
 import com.kobby.hymnal.test.TestHymnScreen
 import org.koin.compose.koinInject
 import com.kobby.hymnal.theme.Shapes
@@ -108,7 +105,6 @@ class HomeScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val updateManager: UpdateManager = koinInject()
         val traceManager: TraceManager = koinInject()
         val repository: HymnRepository = koinInject()
         val remoteConfigManager: RemoteConfigManager = koinInject()
@@ -116,12 +112,9 @@ class HomeScreen : Screen {
         val uriHandler = LocalUriHandler.current
         val scope = rememberCoroutineScope()
         var isDeveloperMode by remember { mutableStateOf(false) }
-        var updateResult by remember { mutableStateOf<UpdateResult?>(null) }
         var featuredHymn by remember { mutableStateOf<Hymn?>(null) }
 
         LaunchedEffect(Unit) {
-            updateResult = updateManager.checkForUpdates()
-            
             withContext(Dispatchers.Default) {
                 try {
                     val now = Clock.System.now().toLocalDateTime(TimeZone.UTC)
@@ -155,43 +148,6 @@ class HomeScreen : Screen {
         val favoriteHymns by repository.getFavoriteHymns().collectAsState(initial = emptyList())
         val isFeaturedFavorite = remember(featuredHymn, favoriteHymns) {
             featuredHymn?.let { hymn -> favoriteHymns.any { it.id == hymn.id } } ?: false
-        }
-
-        updateResult?.let { result ->
-            if (result is UpdateResult.UpdateAvailable) {
-                LaunchedEffect(result.isMandatory) {
-                    traceManager.track(
-                        TraceEvents.UPDATE_PROMPT_INTERACTION,
-                        traceParams(
-                            "action" to "shown",
-                            "mandatory" to result.isMandatory
-                        )
-                    )
-                }
-                UpdatePromptDialog(
-                    isMandatory = result.isMandatory,
-                    onUpdateClick = {
-                        traceManager.track(
-                            TraceEvents.UPDATE_PROMPT_INTERACTION,
-                            traceParams(
-                                "action" to "update_now",
-                                "mandatory" to result.isMandatory
-                            )
-                        )
-                        uriHandler.openUri(updateManager.getUpdateUrl())
-                    },
-                    onDismissClick = {
-                        traceManager.track(
-                            TraceEvents.UPDATE_PROMPT_INTERACTION,
-                            traceParams(
-                                "action" to "later",
-                                "mandatory" to result.isMandatory
-                            )
-                        )
-                        updateResult = null
-                    }
-                )
-            }
         }
 
         HomeScreenContent(

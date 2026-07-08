@@ -70,6 +70,10 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import androidx.compose.ui.platform.LocalUriHandler
+import com.kobby.hymnal.core.update.UpdateManager
+import com.kobby.hymnal.core.update.UpdateResult
+import com.kobby.hymnal.presentation.components.UpdatePromptDialog
 
 private const val AUTO_NAVIGATION_DELAY_MS = 6000L
 
@@ -79,23 +83,45 @@ class StartScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val repository: HymnRepository = koinInject()
         val traceManager: TraceManager = koinInject()
+        val updateManager: UpdateManager = koinInject()
+        val uriHandler = LocalUriHandler.current
+        val koin = org.koin.compose.getKoin()
+
         var randomHymn by remember { mutableStateOf<Hymn?>(null) }
         var hasNavigated by remember { mutableStateOf(false) }
+        var updateResult by remember { mutableStateOf<UpdateResult?>(null) }
 
-        // Fetch random hymn when screen loads
+        // 1. Check for updates first and conditionally load the database
         LaunchedEffect(Unit) {
+            val result = try {
+                updateManager.checkForUpdates()
+            } catch (e: Exception) {
+                UpdateResult.UpToDate
+            }
+            updateResult = result
+
+            // If mandatory update is required, halt execution to prevent database access
+            if (result is UpdateResult.UpdateAvailable && result.isMandatory) {
+                return@LaunchedEffect
+            }
+
+            // Safe to initialize database and repository now
             try {
+                val repository = koin.get<HymnRepository>()
                 randomHymn = repository.getRandomHymn()
             } catch (_: Exception) {
-                // Silently handle any database errors
                 randomHymn = null
             }
         }
 
-        // Auto-navigate to HomeScreen after delay
-        LaunchedEffect(Unit) {
+        // 2. Conditionally trigger Auto-navigation only if no mandatory update is showing
+        val isMandatoryUpdate = updateResult is UpdateResult.UpdateAvailable && 
+                (updateResult as UpdateResult.UpdateAvailable).isMandatory
+
+        LaunchedEffect(isMandatoryUpdate) {
+            if (isMandatoryUpdate) return@LaunchedEffect
+
             delay(AUTO_NAVIGATION_DELAY_MS)
             if (!hasNavigated) {
                 hasNavigated = true
@@ -107,10 +133,33 @@ class StartScreen : Screen {
             }
         }
 
+        // 3. Render update dialog if update is available
+        updateResult?.let { result ->
+            if (result is UpdateResult.UpdateAvailable) {
+                UpdatePromptDialog(
+                    isMandatory = result.isMandatory,
+                    onUpdateClick = {
+                        traceManager.track(
+                            TraceEvents.UPDATE_PROMPT_INTERACTION,
+                            traceParams("action" to "update_now", "mandatory" to result.isMandatory)
+                        )
+                        uriHandler.openUri(updateManager.getUpdateUrl())
+                    },
+                    onDismissClick = {
+                        traceManager.track(
+                            TraceEvents.UPDATE_PROMPT_INTERACTION,
+                            traceParams("action" to "later", "mandatory" to result.isMandatory)
+                        )
+                        updateResult = null
+                    }
+                )
+            }
+        }
+
         StartScreenContent(
             randomHymn = randomHymn,
             onStartButtonClicked = {
-                if (!hasNavigated) {
+                if (!hasNavigated && !isMandatoryUpdate) {
                     hasNavigated = true
                     traceManager.track(
                         TraceEvents.START_SCREEN_OUTCOME,
@@ -120,7 +169,7 @@ class StartScreen : Screen {
                 }
             },
             onRandomHymnClicked = { hymn ->
-                if (!hasNavigated) {
+                if (!hasNavigated && !isMandatoryUpdate) {
                     hasNavigated = true
                     traceManager.track(
                         TraceEvents.START_SCREEN_OUTCOME,
