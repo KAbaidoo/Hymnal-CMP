@@ -103,3 +103,7 @@
 - Update hymns DB.
 - Refactor DB helper DI and fix parser encoding.
 - Update source hymns and supplementary.
+
+0.12.1
+- Fix iOS app crash caused by memory overflow during database initialization.
+- Increment internal database version to ensure existing users receive the updated database.

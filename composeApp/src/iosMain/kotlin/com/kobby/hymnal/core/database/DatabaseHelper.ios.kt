@@ -39,13 +39,20 @@ actual class DatabaseHelper(private val settings: Settings) {
         NSFileManager.defaultManager.fileExistsAtPath(databasePath)
     }
     
-    @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class, ExperimentalResourceApi::class)
+    @OptIn(
+        kotlinx.cinterop.ExperimentalForeignApi::class,
+        kotlinx.cinterop.BetaInteropApi::class,
+        ExperimentalResourceApi::class
+    )
     private suspend fun copyDatabaseFromComposeResources(databasePath: String) = withContext(Dispatchers.Default) {
         try {
             println("Copying database from Compose resources to $databasePath")
             
             // Read database from Compose resources
             val sourceBytes = Res.readBytes("files/$DATABASE_NAME")
+            if (sourceBytes.isEmpty()) {
+                throw RuntimeException("Database resource is empty or failed to load")
+            }
             
             // Ensure the parent directory exists
             val parentDir = (databasePath as NSString).stringByDeletingLastPathComponent
@@ -76,9 +83,9 @@ actual class DatabaseHelper(private val settings: Settings) {
             }
             
             // Write the database file
-            memScoped {
+            sourceBytes.usePinned { pinned ->
                 val success = NSData.create(
-                    bytes = allocArrayOf(sourceBytes),
+                    bytes = pinned.addressOf(0),
                     length = sourceBytes.size.toULong()
                 ).writeToFile(databasePath, true)
                 
