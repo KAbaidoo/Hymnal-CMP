@@ -50,6 +50,9 @@ actual class DatabaseHelper(private val settings: Settings) {
             
             // Read database from Compose resources
             val sourceBytes = Res.readBytes("files/$DATABASE_NAME")
+            if (sourceBytes.isEmpty()) {
+                throw RuntimeException("Database resource is empty or failed to load")
+            }
             
             // Ensure the parent directory exists
             val parentDir = (databasePath as NSString).stringByDeletingLastPathComponent
