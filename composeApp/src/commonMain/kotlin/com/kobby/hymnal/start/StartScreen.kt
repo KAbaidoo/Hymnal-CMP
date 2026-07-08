@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeout
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
@@ -95,7 +96,9 @@ class StartScreen : Screen {
         // 1. Check for updates first and conditionally load the database
         LaunchedEffect(Unit) {
             val result = try {
-                updateManager.checkForUpdates()
+                withTimeout(5000L) {
+                    updateManager.checkForUpdates()
+                }
             } catch (e: Exception) {
                 UpdateResult.UpToDate
             }
@@ -115,12 +118,11 @@ class StartScreen : Screen {
             }
         }
 
-        // 2. Conditionally trigger Auto-navigation only if no mandatory update is showing
-        val isMandatoryUpdate = updateResult is UpdateResult.UpdateAvailable && 
-                (updateResult as UpdateResult.UpdateAvailable).isMandatory
+        // 2. Conditionally trigger Auto-navigation only if no update dialog is showing
+        val isUpdateDialogActive = updateResult is UpdateResult.UpdateAvailable
 
-        LaunchedEffect(isMandatoryUpdate) {
-            if (isMandatoryUpdate) return@LaunchedEffect
+        LaunchedEffect(isUpdateDialogActive) {
+            if (isUpdateDialogActive) return@LaunchedEffect
 
             delay(AUTO_NAVIGATION_DELAY_MS)
             if (!hasNavigated) {
@@ -159,7 +161,7 @@ class StartScreen : Screen {
         StartScreenContent(
             randomHymn = randomHymn,
             onStartButtonClicked = {
-                if (!hasNavigated && !isMandatoryUpdate) {
+                if (!hasNavigated && !isUpdateDialogActive) {
                     hasNavigated = true
                     traceManager.track(
                         TraceEvents.START_SCREEN_OUTCOME,
@@ -169,7 +171,7 @@ class StartScreen : Screen {
                 }
             },
             onRandomHymnClicked = { hymn ->
-                if (!hasNavigated && !isMandatoryUpdate) {
+                if (!hasNavigated && !isUpdateDialogActive) {
                     hasNavigated = true
                     traceManager.track(
                         TraceEvents.START_SCREEN_OUTCOME,
