@@ -107,3 +107,6 @@
 0.12.1
 - Fix iOS app crash caused by memory overflow during database initialization.
 - Increment internal database version to ensure existing users receive the updated database.
+
+0.12.2
+- Relocate update flow to StartScreen.
