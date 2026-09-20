@@ -1,5 +1,5 @@
- SUPP. HYMN 58 
- 
+SUPP. HYMN 58
+
  1. Sleep on, belovèd, sleep, and take thy rest;
     Lay down thy head upon the Savior’s breast;
     We love thee well, but Jesus loves thee best
@@ -34,7 +34,3 @@
     Clothed in the spotless robe He gives His own,
     Until we know even as we are known
     Good night! Good night! Good night!
-
-  
- 
-
