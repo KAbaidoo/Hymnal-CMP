@@ -110,3 +110,8 @@
 
 0.12.2
 - Relocate update flow to StartScreen.
+- Fix iOS database corruption crash by implementing automatic database integrity verification and recovery, and add flow exception safety in the UI.
+
+0.13.0
+- Normalize stanza spacing across all hymn texts to eliminate extra blank paragraphs.
+- Increment internal database version to trigger database update for existing users.
