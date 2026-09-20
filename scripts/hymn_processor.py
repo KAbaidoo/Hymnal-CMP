@@ -148,6 +148,11 @@ def parse_hymn_file(file_path, category):
             # Extract hymn content (everything after the header)
             hymn_content = '\n'.join(lines[content_start_index:]).strip()
         
+        # Normalize whitespace and collapse multiple blank lines between stanzas
+        hymn_lines = [line.rstrip() for line in hymn_content.splitlines()]
+        hymn_content = '\n'.join(hymn_lines)
+        hymn_content = re.sub(r'\n{3,}', '\n\n', hymn_content).strip()
+        
         # Extract title based on category
         if category == "canticles":
             # For canticles, use filename as title (remove .txt extension)
