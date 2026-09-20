@@ -54,8 +54,10 @@ import com.kobby.hymnal.presentation.components.ScreenBackground
 import com.kobby.hymnal.presentation.components.HymnOfTheWeekCard
 import com.kobby.hymnal.presentation.screens.hymns.HymnListScreen
 import com.kobby.hymnal.presentation.screens.hymns.HymnDetailScreen
+import com.kobby.hymnal.core.database.SafeHymnRepository
 import com.kobby.hymnal.core.database.HymnRepository
 import com.kobby.hymnal.core.config.RemoteConfigManager
+import kotlinx.coroutines.flow.catch
 import com.kobby.hymnal.core.sharing.ShareManager
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
@@ -106,7 +108,7 @@ class HomeScreen : Screen {
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val traceManager: TraceManager = koinInject()
-        val repository: HymnRepository = koinInject()
+        val repository: SafeHymnRepository = koinInject()
         val remoteConfigManager: RemoteConfigManager = koinInject()
         val shareManager: ShareManager = koinInject()
         val uriHandler = LocalUriHandler.current
@@ -145,7 +147,10 @@ class HomeScreen : Screen {
                 }
             }
         }
-        val favoriteHymns by repository.getFavoriteHymns().collectAsState(initial = emptyList())
+        val favoriteHymns by remember(repository) {
+            repository.getFavoriteHymns()
+                .catch { emit(emptyList()) }
+        }.collectAsState(initial = emptyList())
         val isFeaturedFavorite = remember(featuredHymn, favoriteHymns) {
             featuredHymn?.let { hymn -> favoriteHymns.any { it.id == hymn.id } } ?: false
         }

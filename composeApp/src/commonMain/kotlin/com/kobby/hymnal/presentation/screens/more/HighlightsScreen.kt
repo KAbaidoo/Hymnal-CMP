@@ -10,10 +10,11 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.kobby.hymnal.core.database.HymnRepository
+import com.kobby.hymnal.core.database.SafeHymnRepository
 import com.kobby.hymnal.presentation.screens.hymns.HymnDetailScreen
 import com.kobby.hymnal.presentation.screens.more.components.HighlightsContent
 import org.koin.compose.koinInject
+import kotlinx.coroutines.flow.catch
 
 class HighlightsScreen : Screen {
     override val key = uniqueScreenKey
@@ -21,11 +22,17 @@ class HighlightsScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val repository: HymnRepository = koinInject()
+        val repository: SafeHymnRepository = koinInject()
         var searchText by remember { mutableStateOf("") }
+        var error by remember { mutableStateOf<String?>(null) }
         
         // All users can access highlights now - no gates!
-        val hymnsWithHighlights by repository.getHymnsWithHighlights().collectAsState(initial = emptyList())
+        val hymnsWithHighlights by remember(repository) {
+            repository.getHymnsWithHighlights()
+                .catch { e ->
+                    error = e.message ?: "An error occurred loading highlights"
+                }
+        }.collectAsState(initial = emptyList())
 
         val filteredHymns = remember(hymnsWithHighlights, searchText) {
             if (searchText.isBlank()) {
@@ -43,7 +50,7 @@ class HighlightsScreen : Screen {
             hymns = filteredHymns,
             searchText = searchText,
             isLoading = false,
-            error = null,
+            error = error,
             onSearchTextChanged = { searchText = it },
             onItemClick = { hymn ->
                 navigator.push(HymnDetailScreen(hymnId = hymn.id, source = "highlights"))

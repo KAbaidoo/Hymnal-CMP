@@ -12,13 +12,14 @@ import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import kotlinx.coroutines.launch
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.kobby.hymnal.core.database.HymnRepository
+import com.kobby.hymnal.core.database.SafeHymnRepository
 import com.kobby.hymnal.core.trace.TraceEvents
 import com.kobby.hymnal.core.trace.TraceManager
 import com.kobby.hymnal.core.trace.traceParams
 import com.kobby.hymnal.presentation.screens.hymns.HymnDetailScreen
 import com.kobby.hymnal.presentation.screens.more.components.HistoryContent
 import org.koin.compose.koinInject
+import kotlinx.coroutines.flow.catch
 
 class HistoryScreen : Screen {
     override val key = uniqueScreenKey
@@ -26,27 +27,19 @@ class HistoryScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val repository: HymnRepository = koinInject()
+        val repository: SafeHymnRepository = koinInject()
         val traceManager: TraceManager = koinInject()
         val coroutineScope = rememberCoroutineScope()
         var searchText by remember { mutableStateOf("") }
+        var error by remember { mutableStateOf<String?>(null) }
         
         // Get recent hymns from repository
-        val recentHymnsData by repository.getRecentHymns(50).collectAsState(initial = emptyList())
-        
-        // Convert GetRecentHymns to Hymn objects
-        val recentHymns = remember(recentHymnsData) {
-            recentHymnsData.map { data ->
-                com.kobby.hymnal.composeApp.database.Hymn(
-                    id = data.id,
-                    number = data.number,
-                    title = data.title,
-                    category = data.category,
-                    content = data.content,
-                    created_at = data.created_at
-                )
-            }
-        }
+        val recentHymns by remember(repository) {
+            repository.getRecentHymns(50)
+                .catch { e ->
+                    error = e.message ?: "An error occurred loading history"
+                }
+        }.collectAsState(initial = emptyList())
         
         val filteredHymns = remember(recentHymns, searchText) {
             if (searchText.isBlank()) {
@@ -64,7 +57,7 @@ class HistoryScreen : Screen {
             hymns = filteredHymns,
             searchText = searchText,
             isLoading = false,
-            error = null,
+            error = error,
             onSearchTextChanged = { searchText = it },
             onItemClick = { hymn ->
                 traceManager.track(

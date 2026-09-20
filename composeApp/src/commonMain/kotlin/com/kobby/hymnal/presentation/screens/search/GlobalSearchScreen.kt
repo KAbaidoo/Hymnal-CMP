@@ -11,9 +11,10 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.kobby.hymnal.core.database.HymnRepository
+import com.kobby.hymnal.core.database.SafeHymnRepository
 import com.kobby.hymnal.core.iap.PurchaseManager
 import com.kobby.hymnal.core.review.ReviewManager
+import kotlinx.coroutines.flow.catch
 import com.kobby.hymnal.core.trace.TraceEvents
 import com.kobby.hymnal.core.trace.TraceManager
 import com.kobby.hymnal.core.trace.traceParams
@@ -37,7 +38,7 @@ class GlobalSearchScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val repository: HymnRepository = koinInject()
+        val repository: SafeHymnRepository = koinInject()
         val purchaseManager: PurchaseManager = koinInject()
         val reviewManager: ReviewManager = koinInject()
         val traceManager: TraceManager = koinInject()
@@ -57,6 +58,7 @@ class GlobalSearchScreen : Screen {
                 .flatMapLatest { query ->
                     repository.searchHymns(query)
                 }
+                .catch { emit(emptyList()) }
         }.collectAsState(initial = emptyList())
 
         // Track successful searches for review prompt
@@ -90,7 +92,10 @@ class GlobalSearchScreen : Screen {
         }
         
         // Show all hymns if search is empty/short
-        val allHymns by repository.getAllHymns().collectAsState(initial = emptyList())
+        val allHymns by remember(repository) {
+            repository.getAllHymns()
+                .catch { emit(emptyList()) }
+        }.collectAsState(initial = emptyList())
             
         val displayedHymns = if (searchText.isBlank() || searchText.length < 2) {
             allHymns

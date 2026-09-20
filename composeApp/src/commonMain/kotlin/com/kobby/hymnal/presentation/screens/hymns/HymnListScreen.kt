@@ -10,8 +10,9 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.kobby.hymnal.core.database.HymnRepository
+import com.kobby.hymnal.core.database.SafeHymnRepository
 import com.kobby.hymnal.presentation.screens.hymns.components.HymnListContent
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOf
 import org.koin.compose.koinInject
 
@@ -26,14 +27,18 @@ class HymnListScreen(
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val repository: HymnRepository = koinInject()
+        val repository: SafeHymnRepository = koinInject()
         var searchText by remember { mutableStateOf("") }
         var isLoading by remember { mutableStateOf(false) }
         var error by remember { mutableStateOf<String?>(null) }
         
         // Get hymns from repository
-        val hymns by (repository?.getHymnsByCategory(category) 
-            ?: flowOf(emptyList())).collectAsState(initial = emptyList())
+        val hymns by remember(category, repository) {
+            repository.getHymnsByCategory(category)
+                .catch { e ->
+                    error = e.message ?: "An error occurred loading hymns"
+                }
+        }.collectAsState(initial = emptyList())
         
         val filteredHymns = remember(hymns, searchText) {
             if (searchText.isBlank()) {

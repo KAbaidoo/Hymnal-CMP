@@ -10,10 +10,11 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.kobby.hymnal.core.database.HymnRepository
+import com.kobby.hymnal.core.database.SafeHymnRepository
 import com.kobby.hymnal.presentation.screens.hymns.HymnDetailScreen
 import com.kobby.hymnal.presentation.screens.more.components.FavoritesContent
 import org.koin.compose.koinInject
+import kotlinx.coroutines.flow.catch
 
 class FavoritesScreen : Screen {
     override val key = uniqueScreenKey
@@ -21,11 +22,17 @@ class FavoritesScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val repository: HymnRepository = koinInject()
+        val repository: SafeHymnRepository = koinInject()
         var searchText by remember { mutableStateOf("") }
+        var error by remember { mutableStateOf<String?>(null) }
         
         // All users can access favorites now - no gates!
-        val favoriteHymns by repository.getFavoriteHymns().collectAsState(initial = emptyList())
+        val favoriteHymns by remember(repository) {
+            repository.getFavoriteHymns()
+                .catch { e ->
+                    error = e.message ?: "An error occurred loading favorites"
+                }
+        }.collectAsState(initial = emptyList())
 
         val filteredHymns = remember(favoriteHymns, searchText) {
             if (searchText.isBlank()) {
@@ -43,7 +50,7 @@ class FavoritesScreen : Screen {
             hymns = filteredHymns,
             searchText = searchText,
             isLoading = false,
-            error = null,
+            error = error,
             onSearchTextChanged = { searchText = it },
             onItemClick = { hymn ->
                 navigator.push(HymnDetailScreen(hymnId = hymn.id, source = "favorites"))

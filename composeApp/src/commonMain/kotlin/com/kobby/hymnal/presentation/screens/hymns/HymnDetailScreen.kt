@@ -13,7 +13,7 @@ import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.kobby.hymnal.composeApp.database.Hymn
-import com.kobby.hymnal.core.database.HymnRepository
+import com.kobby.hymnal.core.database.SafeHymnRepository
 import com.kobby.hymnal.core.iap.PurchaseManager
 import com.kobby.hymnal.core.review.ReviewManager
 import com.kobby.hymnal.core.settings.FontSettingsManager
@@ -40,7 +40,7 @@ data class HymnDetailScreen(
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val scope = rememberCoroutineScope()
-        val repository: HymnRepository = koinInject()
+        val repository: SafeHymnRepository = koinInject()
         val shareManager: ShareManager = koinInject()
         val purchaseManager: PurchaseManager = koinInject()
         val reviewManager: ReviewManager = koinInject()
